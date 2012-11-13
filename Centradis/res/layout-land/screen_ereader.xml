@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:shelves="http://schemas.android.com/apk/res/com.wanhu.android.shelves"
+    android:id="@+id/rlBackground"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="@drawable/read_bkg_lp" >
+
+    <RelativeLayout
+        android:id="@+id/rlTop"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bar_lp" >
+
+        <Button
+            android:id="@+id/btnLibrary"
+            style="@style/HomeLabel.Large"
+            android:background="@drawable/background_button_homepage"
+            android:text="@string/library_label" />
+
+        <Button
+            android:id="@+id/btnMenu"
+            style="@style/HomeLabel.Large"
+            android:layout_alignParentRight="true"
+            android:background="@drawable/background_button_homepage"
+            android:text="@string/ereader_menu" />
+    </RelativeLayout>
+
+    <pdftron.PDF.PDFViewCtrl
+        android:id="@+id/pdfViewCtrl"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_below="@id/rlTop" />
+
+    <RelativeLayout
+        android:id="@+id/rlMenu"
+        android:layout_width="296dp"
+        android:layout_height="733dp"
+        android:layout_alignParentRight="true"
+        android:layout_below="@id/rlTop"
+        android:background="@drawable/read_menu_lp_out_btn"
+        android:paddingLeft="8dp"
+        android:visibility="visible" >
+
+        <Button
+            android:id="@+id/btnIndex"
+            style="@style/EReader.Large"
+            android:layout_marginTop="27dp"
+            android:background="@drawable/background_menu_button"
+            android:text="@string/ereader_index" />
+
+        <Button
+            android:id="@+id/btnSearch"
+            style="@style/EReader.Large"
+            android:layout_below="@id/btnIndex"
+            android:background="@drawable/background_menu_button"
+            android:text="@string/hint_search" />
+
+        <Button
+            android:id="@+id/btnGoto"
+            style="@style/EReader.Large"
+            android:layout_below="@id/btnSearch"
+            android:background="@drawable/background_menu_button"
+            android:text="@string/ereader_goto" />
+
+        <Button
+            android:id="@+id/btnBookmark"
+            style="@style/EReader.Large"
+            android:layout_below="@id/btnGoto"
+            android:background="@drawable/background_menu_button"
+            android:text="@string/ereader_bookmark" />
+
+        <Button
+            android:id="@+id/btnNotes"
+            style="@style/EReader.Large"
+            android:layout_below="@id/btnBookmark"
+            android:background="@drawable/background_menu_button"
+            android:text="@string/ereader_notes" />
+
+        <Button
+            android:id="@+id/btnPageMode"
+            style="@style/EReader.Large"
+            android:layout_below="@id/btnNotes"
+            android:background="@drawable/background_menu_button"
+            android:text="@string/ereader_pagemode" />
+
+        <Button
+            android:id="@+id/btnOpen"
+            style="@style/EReader.Large"
+            android:layout_below="@id/btnPageMode"
+            android:background="@drawable/background_menu_button"
+            android:text="@string/ereader_open" />
+
+        <Button
+            android:id="@+id/btnSave"
+            style="@style/EReader.Large"
+            android:layout_below="@id/btnOpen"
+            android:background="@drawable/background_menu_button"
+            android:text="@string/ereader_saveas" />
+
+        <Button
+            android:id="@+id/btnHomepage"
+            style="@style/EReader.Large"
+            android:layout_below="@id/btnSave"
+            android:background="@drawable/background_menu_button"
+            android:text="@string/ereader_homepage" />
+
+        <Button
+            android:id="@+id/btnStore"
+            style="@style/EReader.Large"
+            android:layout_below="@id/btnHomepage"
+            android:background="@drawable/background_menu_button"
+            android:text="@string/ereader_store" />
+    </RelativeLayout>
+
+</RelativeLayout>

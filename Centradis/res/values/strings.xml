@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+   Copyright (C) 2008 Romain Guy
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+-->
+
+<resources>
+    <!-- Moon -->
+    <string name="login_user_name">LOGIN</string>
+    <string name="login_user_pass">PASSWORD</string>
+    <string name="login">SUBMIT</string>
+    <string name="login_name_hint">Please enter user name</string>
+    <string name="login_pass_hint">Please enter user password</string>
+    <string name="error_logining_in_progress">You are already logining</string>
+    <string name="login_label">Logining...</string>
+    <string name="login_failure">Login failure,please wait for a moment,and try again!</string>
+    <string name="register">REGISTER</string>
+    <string name="register_label">Registering...</string>
+    <string name="register_name">Name</string>
+    <string name="register_nickname">Surname</string>
+    <string name="register_email">E-mail address</string>
+    <string name="register_tel">Telephone</string>
+    <string name="register_company">Company name</string>
+    <string name="register_comment">Post a message</string>
+    <string name="register_name_hint">Please enter name</string>
+    <string name="register_nickname_hint">Please enter surname</string>
+    <string name="register_email_hint">Please enter email address</string>
+    <string name="register_email_error">Please enter correct email address</string>
+    <string name="register_tel_hint">Please enter telephone</string>
+    <string name="register_company_hint">Please enter company name</string>
+    <string name="register_comment_hint">Please enter message</string>
+    <string name="register_failure">Register failure,please wait for a moment,and try again!</string>
+    <string name="register_successful">Register successfully!</string>
+    <string name="error_registering_in_progress">You are already registering</string>
+    <string name="button_text_yes">Yes</string>
+    <string name="button_text_no">No</string>
+    <string name="wait">Wait</string>
+    <string name="menu_log_out">log out</string>
+    <string name="menu_store">centradis store</string>
+    <string name="application_title">CENTREAIS</string>
+    <string name="menu_home">HOME</string>
+    <string name="stay_connected">STAY CONNECTED</string>
+    <string name="forgot_password">forgot my password?</string>
+    <string name="ereader_menu">menu</string>
+    <string name="ereader_index">Index</string>
+    <string name="ereader_goto">Go to...</string>
+    <string name="ereader_bookmark">Book Mark</string>
+    <string name="ereader_homepage">Home Page</string>
+    <string name="ereader_store">Centradis Store</string>
+    <string name="ereader_open">Open a PDF</string>
+    <string name="ereader_update">Update</string>
+    <string name="ereader_notes">Notes</string>
+    <string name="ereader_pagemode">Mode 1 page / 2 pages</string>
+    <string name="ereader_add_bookmark">Add Book Mark</string>
+    <string name="ereader_show_bookmark">Show Book Mark</string>
+    <string name="ereader_remove_bookmark">Remove Book Mark</string>
+    <string name="ok">ok</string>
+    <string name="cancel">cancel</string>
+    <string name="hint_page">Page</string>
+    <string name="hint_search">Search</string>
+
+    <string name="have_added_bookmark">You have added bookmark on this page</string>
+    <string name="add_bookmark_successful">Add bookmark to this page successfully!</string>
+    <string name="remove_bookmark_successful">Remove bookmark from this page successfully!</string>
+    <string name="enter_bookmark_name">Please enter Name</string>
+    <string name="page_number">P.%s</string>
+    <string name="ereader_show_note">Show Note</string>
+    <string name="ereader_remove_note">Remove Note</string>
+    <string name="add_note_successfully">Add note to this doc successfully!</string>
+    <string name="update_note_successfully">Update note with this doc successfully!</string>
+    <string name="remove_note_successfully">Remove note from this dote successfully!</string>
+    
+    <string name="back">Back</string>
+    
+    <string name="ereader_saveas">Save as</string>
+    <string name="dialog_update_message">Do you want to update this book to your collection?</string>
+    <string name="dialog_update_ok">Update</string>
+    <string name="dialog_update_cancel">Don\'t update</string>
+    <string name="update_label">Updating...</string>
+    <string name="library_label">library</string>
+    <string name="dialog_see_message">Do you want to see %s ?</string>
+    <string name="see_label">See</string>
+    <string name="delete_label">Deleting...</string>
+    <string name="error_update_book">Update error</string>
+    <string name="success_updated">Successfully updated book %s</string>
+    <string name="error_deleting_book">Delete error</string>
+    <string name="success_deleted">Delete book successful!</string>
+    <string name="application_name">Centradis</string>
+    <string name="activity_preferences">Settings</string>
+    <string name="activity_book_details">Book details</string>
+    <string name="activity_add_book">Add book</string>
+    <string name="bookstore_centradis">Centradis</string>
+    <string name="error_update_in_progress">You are already updating books</string>
+    <string name="error_search_in_progress">You are already searching for books</string>
+    <string name="error_adding_book">Could not find book</string>
+    <string name="error_book_exists">You already have this book</string>
+    <string name="success_imported">Successfully imported %d books</string>
+    <string name="success_added">Successfully added book %s</string>
+    <string name="success_book_not_found">You do not have this book</string>
+    <string name="success_book_deleted">Book deleted</string>
+    <string name="success_found">Found %d books</string>
+    <string name="menu_item_add_search_label">Add</string>
+    <string name="menu_item_search_label">Search</string>
+    <string name="menu_item_settings_label">Settings</string>
+    <string name="context_menu_item_view_label">View</string>
+    <string name="context_menu_item_delete_label">Delete</string>
+    <string name="add_label">Adding...</string>
+    <string name="import_label">Importing...</string>
+    <string name="cancel_label">Cancel</string>
+    <string name="search_label">Books</string>
+    <string name="search_progress">Searching...</string>
+    <string name="label_pages">%s pages</string>
+    <string name="dialog_add_message">Do you want to add this book to your collection?</string>
+    <string name="dialog_add_ok">Add</string>
+    <string name="dialog_add_cancel">Don\'t add</string>
+    <string name="preferences_category_bookstore">Books</string>
+    <string name="preferences_bookstore">Book store</string>
+    <string name="preferences_import">Import</string>
+    
+    <string name="get_pass_error">Echec</string>
+    <string name="get_pass_successful">Vous allez recevoir un email. Vous avez 24h pour activer votre nouveau mot de passe.</string>
+    <string name="network_not_available">The network is not available</string>
+    <string name="save_successful">Save successfully</string>
+    
+    <string name="dialog_saveas_message">Please enter the title</string>
+    <string name="save">Save</string>
+    <string name="override">Override</string>
+    
+    <!-- New -->
+    <string name="context_menu_item_email_label">Send by Email</string>
+    
+</resources>

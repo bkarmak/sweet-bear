@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="696dp"
+    android:layout_height="373dp"
+    android:background="@drawable/read_note_bgd"
+    android:orientation="vertical"
+    android:padding="20dp" >
+
+    <RelativeLayout
+        android:id="@+id/rlTop"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content" >
+
+        <TextView
+            android:id="@+id/tvTitle"
+            style="@style/EReader.LargeTitle"
+            android:layout_centerInParent="true"
+            android:text="@string/ereader_notes" />
+
+        <Button
+            android:id="@+id/btnCancel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_marginLeft="20dp"
+            android:background="@drawable/background_button_notes"
+            android:text="@string/cancel" />
+
+        <Button
+            android:id="@+id/btnOk"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="20dp"
+            android:background="@drawable/background_button_notes"
+            android:text="@string/ok" />
+    </RelativeLayout>
+
+    <EditText
+        android:id="@+id/etNote"
+        android:layout_width="660dp"
+        android:layout_height="345dp"
+        android:layout_below="@id/rlTop"
+        android:background="@drawable/read_note_dbx_white"
+        android:gravity="top|left"
+        android:padding="10dp" />
+
+</RelativeLayout>
