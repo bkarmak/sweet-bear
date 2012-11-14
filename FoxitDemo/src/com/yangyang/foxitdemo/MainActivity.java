@@ -81,6 +81,7 @@ public class MainActivity extends Activity implements OnTouchListener {
 			this.pdfView.setPDFBitmap(
 					this.pDoc.getPageBitmap(nDisplayWidth, nDisplayHeight),
 					nDisplayWidth, nDisplayHeight);
+			pdfView.OnDraw();
 		}
 	}
 
