@@ -26,8 +26,6 @@ import com.yangyang.foxitsdk.view.IPDFView;
  */
 
 public class WrapPDFFunc {
-	private static final String fileName = "/mnt/sdcard/FoxitText.pdf";
-	private static final String password = "";
 	private int nFileRead = 0;
 	private int nPDFDocHandler = 0;
 	private int nPDFCurPageHandler = 0;
@@ -74,10 +72,6 @@ public class WrapPDFFunc {
 					nPageIndex);
 
 			EMBJavaSupport.FPDFPageStartParse(nPageHandler, 0, 0);
-
-			// /formfiller implemention
-			// EMBJavaSupport.FPDF_FormFill_OnAfterLoadPage(nPageHandler,
-			// nPDFFormHandler);
 			EMBJavaSupport.FPDFFormFillOnAfterLoadPage(nPDFFormHandler,
 					nPageHandler);
 			// /
