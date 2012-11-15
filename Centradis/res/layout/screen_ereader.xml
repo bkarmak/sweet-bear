@@ -26,14 +26,6 @@
             android:text="@string/ereader_menu" />
     </RelativeLayout>
 
-    <pdftron.PDF.PDFViewCtrl
-        android:layout_centerInParent="true"
-        android:layout_centerVertical="true"
-        android:id="@+id/pdfViewCtrl"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/rlTop" />
-
     <RelativeLayout
         android:id="@+id/rlMenu"
         android:layout_width="296dp"

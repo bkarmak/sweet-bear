@@ -1,23 +1,23 @@
 package com.wanhu.android.shelves.business;
 
-import pdftron.PDF.PDFViewCtrl;
 import android.content.Context;
 import android.widget.Toast;
 
 import com.wanhu.android.shelves.model.ModelBookmark;
+import com.yangyang.foxitsdk.view.PDFView;
 
 public class PDFBusiness {
 
 	private Context mContext;
 	private BusinessBookmark mBusinessBookmark;
-	private PDFViewCtrl mPDFViewCtrl;
+	private PDFView mPDFViewCtrl;
 
 	/*
 	 * public static interface WordsSearchListener { void
 	 * onWordsFound(TextSearchResult pTextSearchResult); }
 	 */
 
-	public PDFBusiness(Context pContext, PDFViewCtrl pPDFViewCtrl) {
+	public PDFBusiness(Context pContext, PDFView pPDFViewCtrl) {
 		mContext = pContext;
 		mBusinessBookmark = new BusinessBookmark(pContext);
 		mPDFViewCtrl = pPDFViewCtrl;
@@ -82,40 +82,25 @@ public class PDFBusiness {
 	}
 
 	/*
-	public void onSave() {
-		PDFDoc doc = mPDFViewCtrl.getDoc();
-		if (doc != null) {
-			try {
-				doc.lock(); // note: document needs to be locked first
-							// before it can be saved.
-				if (doc.isModified()) {
-					String file_name = doc.getFileName();
-					if (file_name.length() == 0) {
-					} else {
-						File file = new File(file_name);
-						boolean exist = file.exists();
-						if (!exist || file.canWrite()) {
-							doc.save(file_name, 0, null);
-						} else {
-						}
-					}
-				}
-			} catch (Exception e) {
-				Log.v("PDFNet", e.toString());
-			} finally {
-				try {
-					doc.unlock(); // note: unlock the document is necessary.
-				} catch (Exception e) {
-				}
-			}
-		}
-	}
-	*/
+	 * public void onSave() { PDFDoc doc = mPDFViewCtrl.getDoc(); if (doc !=
+	 * null) { try { doc.lock(); // note: document needs to be locked first //
+	 * before it can be saved. if (doc.isModified()) { String file_name =
+	 * doc.getFileName(); if (file_name.length() == 0) { } else { File file =
+	 * new File(file_name); boolean exist = file.exists(); if (!exist ||
+	 * file.canWrite()) { doc.save(file_name, 0, null); } else { } } } } catch
+	 * (Exception e) { Log.v("PDFNet", e.toString()); } finally { try {
+	 * doc.unlock(); // note: unlock the document is necessary. } catch
+	 * (Exception e) { } } } }
+	 */
 
 	public void changePageMode() {
 
-		mPDFViewCtrl
-				.setPagePresentationMode(mPDFViewCtrl.getPagePresentationMode() == PDFViewCtrl.PAGE_PRESENTATION_SINGLE ? PDFViewCtrl.PAGE_PRESENTATION_FACING
-						: PDFViewCtrl.PAGE_PRESENTATION_SINGLE);
+		/*
+		 * mPDFViewCtrl
+		 * .setPagePresentationMode(mPDFViewCtrl.getPagePresentationMode() ==
+		 * PDFViewCtrl.PAGE_PRESENTATION_SINGLE ?
+		 * PDFViewCtrl.PAGE_PRESENTATION_FACING :
+		 * PDFViewCtrl.PAGE_PRESENTATION_SINGLE);
+		 */
 	}
 }

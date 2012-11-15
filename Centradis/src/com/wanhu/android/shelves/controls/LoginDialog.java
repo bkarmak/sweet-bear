@@ -105,10 +105,10 @@ public class LoginDialog extends Dialog implements
 
 			String _name = etUserName.getText().toString();
 			String _password = etPassword.getText().toString();
-			if (TextUtils.isEmpty(_name)) {
+			if (false && TextUtils.isEmpty(_name)) {
 				UIUtilities.showToast(mContext, R.string.login_name_hint);
 				etUserName.setFocusable(true);
-			} else if (TextUtils.isEmpty(_password)) {
+			} else if (false && TextUtils.isEmpty(_password)) {
 				UIUtilities.showToast(mContext, R.string.login_pass_hint);
 				etPassword.setFocusable(true);
 			} else {

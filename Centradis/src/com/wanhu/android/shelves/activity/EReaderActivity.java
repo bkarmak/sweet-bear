@@ -2,9 +2,6 @@ package com.wanhu.android.shelves.activity;
 
 import java.io.File;
 
-import pdftron.PDF.PDFDoc;
-import pdftron.PDF.PDFNet;
-import pdftron.PDF.PDFViewCtrl;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
@@ -19,13 +16,14 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
-import android.os.SystemClock;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.Display;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
+import android.view.ViewGroup.LayoutParams;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RelativeLayout;
@@ -47,6 +45,8 @@ import com.wanhu.android.shelves.model.ModelBookmark;
 import com.wanhu.android.shelves.provider.BooksStore;
 import com.wanhu.android.shelves.provider.CentradisBooksStore;
 import com.wanhu.android.shelves.util.FileUtilities;
+import com.yangyang.foxitsdk.service.YYPDFDoc;
+import com.yangyang.foxitsdk.view.PDFView;
 
 public class EReaderActivity extends Activity implements
 		OnBookMarkClickListener, OnGotoListener, OnBookMarkListener,
@@ -64,9 +64,9 @@ public class EReaderActivity extends Activity implements
 	private BusinessNote mBusinessNote;
 	private ViewerPreferences mViewerPreferences;
 	private Uri mUri;
-	private PDFDoc mDoc;
+	private YYPDFDoc mDoc;
 
-	public static PDFViewCtrl mPDFView; // derived from anroid.view.ViewGroup
+	public static PDFView mPDFView; // derived from anroid.view.ViewGroup
 	private RelativeLayout rlMenu;
 	private Button btnMenu;
 	private Button btnLibrary;
@@ -105,18 +105,18 @@ public class EReaderActivity extends Activity implements
 			String _localPath = _intent.getStringExtra("localPath");
 			if (_localPath != null) {
 				mFileName = _localPath;
-				Log.d(mFileName,"FILENAME LOCALHOST");
+				Log.d(mFileName, "FILENAME LOCALHOST");
 			} else if (mBookId != null) {
 				mFileName = FileUtilities.getBooksCacheDirectory() + "/"
 						+ mBookId;
-				Log.d(mFileName,"FILENAME BOOKID");
-				
+				Log.d(mFileName, "FILENAME BOOKID");
+
 			} else {
 				mUri = _intent.getData();
 				mFileName = mUri.getPath();
-				
-				Log.d(mFileName,"FILENAME ELSE");
-				
+
+				Log.d(mFileName, "FILENAME ELSE");
+
 				boolean _shouldAdd = _intent
 						.getBooleanExtra("shouldAdd", false);
 				if (_shouldAdd) {
@@ -125,7 +125,7 @@ public class EReaderActivity extends Activity implements
 					final ContentValues values = new ContentValues();
 
 					values.put(BooksStore.Book.EAN, mFileName);
-					
+
 					int a = mFileName.indexOf(".pdf");
 					int b = mFileName.lastIndexOf("/");
 					String _title = mFileName.substring(b + 1, a);
@@ -145,15 +145,16 @@ public class EReaderActivity extends Activity implements
 		 * initialize PDFNet
 		 */
 		try {
-			PDFNet.initialize(this); // no license key, will produce water-marks
+			// PDFNet.initialize(this); // no license key, will produce
+			// water-marks
 			/*
 			 * Log.v("PDFNet", "Version: " + PDFNet.getVersion()); //check the
 			 * version number PDFNet.initialize(this, "your license key");
 			 * //full version PDFNet.setColorManagement(PDFNet.e_lcms); //sets
 			 * color management (more accurate, but more expensive)
 			 */
-			Log.d(this.toString(),"INIT PDFNET");
-			
+			Log.d(this.toString(), "INIT PDFNET");
+
 		} catch (Exception e) {
 			return;
 		}
@@ -182,18 +183,16 @@ public class EReaderActivity extends Activity implements
 	private void setupListeners() {
 		btnMenu.setOnClickListener(mOnClickListener);
 		btnLibrary.setOnClickListener(mOnClickListener);
-		
-			btnSearch.setOnTouchListener(new OnTouchListener() {
 
-				@Override
-				public boolean onTouch(View v, MotionEvent event) {
-					onSearch(event);
+		btnSearch.setOnTouchListener(new OnTouchListener() {
 
-					return false;
-				}
-			});
-				
-		
+			@Override
+			public boolean onTouch(View v, MotionEvent event) {
+				onSearch(event);
+
+				return false;
+			}
+		});
 
 		btnIndex.setOnClickListener(mOnClickListener);
 		btnGoto.setOnClickListener(mOnClickListener);
@@ -213,71 +212,25 @@ public class EReaderActivity extends Activity implements
 		btnMenu = (Button) findViewById(R.id.btnMenu);
 		btnLibrary = (Button) findViewById(R.id.btnLibrary);
 
-		mPDFView = (PDFViewCtrl) findViewById(R.id.pdfViewCtrl);
+		mPDFView = new PDFView(this);
 
 		mPdfBusiness = new PDFBusiness(this, mPDFView);
-
-		/*
-		 * use the tool manager to add additional UI modules to PDFViewCtrl.
-		 * PDFNet SDK ships with a Tools.jar that contains various modules,
-		 * including annotation editing, text search, text selection, and etc.
-		 * if you are looking for a bare bone viewer with only basic viewing
-		 * features, such as scrolling and zooming, simply comment out the
-		 * following two lines.
-		 */
-
-		pdftron.PDF.Tools.ToolManager tm = new pdftron.PDF.Tools.ToolManager();
-		mPDFView.setToolManager(tm);
-
-		/*
-		 * misc PDFViewCtrl settings
-		 */
-		mPDFView.setPagePresentationMode(PDFViewCtrl.PAGE_PRESENTATION_SINGLE);
-
-		// mPDFView.setUseThumbView(true, false); //use the thumbs from the
-		// input PDF file (more efficient)
-		 mPDFView.setProgressiveRendering(false); // turn off progressive
-		// rendering
-		// mPDFView.setImageSmoothing(true); //turn on image smoothing (better
-		// quality, but more expensive);
-		 mPDFView.setHighlightFields(true); // turn on form fields highlighting.
-		 mPDFView.setCaching(false); //turn on caching (consume more memory,
-		// but faster);
-		// mPDFView.setOverprint(PDFViewCtrl.OVERPRINT_PDFX); //turn on
-		// overprint for PDF/X files (more accurate, but more expensive);
-
-		/*
-		 * if you want to set the background of PDFViewCtrl to a Drawable, you
-		 * can first set its background to be transparent and then set the
-		 * drawable.
-		 */
-		// mPDFView.setClientBackgroundColor(255, 255, 255, true);
-		// Drawable draw = ...
-		// mPDFView.setBackgroundDrawable(draw);
-
-		/*
-		 * set zoom limits
-		 */
-		// mPDFView.setZoomLimits(PDFViewCtrl.ZOOM_LIMIT_RELATIVE, 1.0, 4);
-
-		/*
-		 * load a PDF file.
-		 */
 		mDoc = null;
 		try {
 			if (mFileName != null && !mFileName.equals("")) {
-				mDoc = new PDFDoc(mFileName);
-				Log.d(mFileName,"PDF DOC OPEN");
-				
+				mDoc = new YYPDFDoc(mFileName, "");
+				Log.d(mFileName, "PDF DOC OPEN");
+
 			}
 		} catch (Exception e) {
 			mDoc = null;
 		}
-		
-		mPDFView.setDoc(mDoc);
-		
-		Log.d(mDoc.toString(),"PDF DOC SET");
-		
+
+		Display display = getWindowManager().getDefaultDisplay();
+		mPDFView.InitView(null, mDoc, display.getWidth(), display.getHeight());
+
+		Log.d(mDoc.toString(), "PDF DOC SET");
+
 		/*
 		 * Note: after setting the doc to PDFViewCtrl, it will be constantly
 		 * accessed by PDFViewCtrl for rendering. However, simultaneous
@@ -297,6 +250,8 @@ public class EReaderActivity extends Activity implements
 		btnPageMode = (Button) findViewById(R.id.btnPageMode);
 		btnSave = (Button) findViewById(R.id.btnSave);
 		btnSearch = (Button) findViewById(R.id.btnSearch);
+		this.setContentView(mPDFView);
+		mPDFView.showCurrentPage();
 
 	}
 
@@ -306,7 +261,7 @@ public class EReaderActivity extends Activity implements
 		if (mPDFView != null) {
 			mPDFView.pause();
 		}
-		Log.d("EREADER","ONPAUSE");
+		Log.d("EREADER", "ONPAUSE");
 	}
 
 	@Override
@@ -315,36 +270,36 @@ public class EReaderActivity extends Activity implements
 		if (mPDFView != null) {
 			mPDFView.resume();
 		}
-		Log.d("EREADER","ONRESUME");
+		Log.d("EREADER", "ONRESUME");
 	}
 
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
-		
+
 		System.gc();
 		if (mPDFView != null) {
-			mPDFView.purgeMemory();
-			mPDFView.destroy();
-			//PDFNet.terminate(); COMMENTED BECAUSE CREATE A GC_CONCURRENT CRASH ON PDF REOPENING
+			mPDFView.finalize();
+			// PDFNet.terminate(); COMMENTED BECAUSE CREATE A GC_CONCURRENT
+			// CRASH ON PDF REOPENING
 		}
-		Log.d("EREADER","ONDESTROY");
+		Log.d("EREADER", "ONDESTROY");
 	}
 
 	@Override
 	public void onLowMemory() {
 		super.onLowMemory();
 		if (mPDFView != null) {
-			mPDFView.purgeMemory();
+			// mPDFView.purgeMemory();
 		}
-		Log.d("EREADER","ONLOWMEMORY");
+		Log.d("EREADER", "ONLOWMEMORY");
 	}
 
 	static void show(Context context, String bookId, String localPath) {
 		final Intent intent = new Intent(context, EReaderActivity.class);
 		intent.putExtra(EXTRA_BOOK, bookId);
 		intent.putExtra("localPath", localPath);
-		Log.d("EREADER","SHOW");
+		Log.d("EREADER", "SHOW");
 		context.startActivity(intent);
 	}
 
@@ -354,7 +309,7 @@ public class EReaderActivity extends Activity implements
 		 * R.anim.slide_out_top));
 		 */
 		menu.setVisibility(View.VISIBLE);
-		Log.d("EREADER","SHOW MENU");
+		Log.d("EREADER", "SHOW MENU");
 	}
 
 	private void hiddenMenu(View menu) {
@@ -363,27 +318,25 @@ public class EReaderActivity extends Activity implements
 		 * R.anim.slide_in_top));
 		 */
 		menu.setVisibility(View.GONE);
-		Log.d("EREADER","HIDE MENU");
+		Log.d("EREADER", "HIDE MENU");
 	}
 
 	class ClickListener implements OnClickListener {
 
-			
-		
 		@Override
 		public void onClick(View v) {
-			
-			Log.d("EREADER","ONCLICK LISTENER "+v.getId());			
-			
+
+			Log.d("EREADER", "ONCLICK LISTENER " + v.getId());
+
 			switch (v.getId()) {
 			case R.id.btnMenu:
 				toggle();
 				break;
 			case R.id.btnLibrary:
 				// finish();
-				//if (mPDFView != null) {
-					//mPDFView.pause();
-				//} 
+				// if (mPDFView != null) {
+				// mPDFView.pause();
+				// }
 				finish();
 				// EReaderActivity.this.finish();
 				break;
@@ -432,14 +385,14 @@ public class EReaderActivity extends Activity implements
 	}
 
 	private void onOpenLocalPDF() {
-		Log.d("EREADER","OPEN LOCAL PDF");
+		Log.d("EREADER", "OPEN LOCAL PDF");
 		MainBrowserActivity.show(this, false);
 		finish();
-		Log.d("EREADER","OPENLOCALPDF FINISH");
+		Log.d("EREADER", "OPENLOCALPDF FINISH");
 	}
 
 	private void toggle() {
-		Log.d("EREADER","TOOGLE");
+		Log.d("EREADER", "TOOGLE");
 		if (mIsClosed) {
 			mIsClosed = false;
 			showMenu(rlMenu);
@@ -533,16 +486,16 @@ public class EReaderActivity extends Activity implements
 	}
 
 	private void onBookStore() {
-		Log.d("EREADER","ONBOOKSTORE");
+		Log.d("EREADER", "ONBOOKSTORE");
 		BookStoreActivity.show(this);
 		finish();
-		Log.d("EREADER","ONBOOKSTORE FINISH");
+		Log.d("EREADER", "ONBOOKSTORE FINISH");
 	}
 
 	@Override
 	public void onConfigurationChanged(Configuration newConfig) {
 		super.onConfigurationChanged(newConfig);
-		Log.d("EREADER","ONCONFIGURATION CHANGE");
+		Log.d("EREADER", "ONCONFIGURATION CHANGE");
 		if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
 			rlTop.setBackgroundResource(R.drawable.bar_lp);
 			btnLibrary
@@ -560,12 +513,13 @@ public class EReaderActivity extends Activity implements
 	}
 
 	private void onSave(String title, String fileName, boolean isOverride) {
-		PDFDoc doc = mPDFView.getDoc();
+		YYPDFDoc doc = mPDFView.getDoc();
 		if (doc != null) {
 			try {
 				doc.lock(); // note: document needs to be locked first
 							// before it can be saved.
-				doc.save(fileName, 0, null);
+				// doc.save(fileName, 0, null);
+				doc.save(fileName);
 
 				if (!isOverride) {
 					ContentResolver _resolver = getContentResolver();
@@ -574,7 +528,7 @@ public class EReaderActivity extends Activity implements
 
 					values.put(BooksStore.Book.EAN, fileName);
 					values.put(BooksStore.Book.TITLE, title);
-					
+
 					if (mBookId != null) {
 						values.put(BooksStore.Book.INTERNAL_ID, "localSB"
 								+ ShelvesActivity.book_id + "|" + title);
@@ -593,7 +547,7 @@ public class EReaderActivity extends Activity implements
 				Log.v("PDFNet", e.toString());
 			} finally {
 				try {
-					doc.unlock(); // note: unlock the document is necessary.
+					// doc.unlock(); // note: unlock the document is necessary.
 				} catch (Exception e) {
 				}
 			}

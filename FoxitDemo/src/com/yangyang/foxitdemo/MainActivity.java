@@ -57,14 +57,12 @@ public class MainActivity extends Activity implements OnTouchListener {
 			return true;
 		case R.id.previous:
 			if (pDoc != null) {
-				pDoc.previoutPage();
-				this.showCurrentPage();
+				this.pdfView.previousPage();
 			}
 			break;
 		case R.id.next:
 			if (pDoc != null) {
-				pDoc.nextPage();
-				this.showCurrentPage();
+				this.pdfView.nextPage();
 			}
 			break;
 		}
@@ -74,15 +72,6 @@ public class MainActivity extends Activity implements OnTouchListener {
 	public boolean onTouch(View v, MotionEvent event) {
 		// TODO Auto-generated method stub
 		return false;
-	}
-
-	private void showCurrentPage() {
-		if (this.pDoc != null) {
-			this.pdfView.setPDFBitmap(
-					this.pDoc.getPageBitmap(nDisplayWidth, nDisplayHeight),
-					nDisplayWidth, nDisplayHeight);
-			pdfView.OnDraw();
-		}
 	}
 
 	@Override
@@ -105,7 +94,10 @@ public class MainActivity extends Activity implements OnTouchListener {
 							String filepath = bundle.getString("path");
 							setTitle(filepath); // 把文件路径显示在标题上
 							MainActivity.this.pDoc = new YYPDFDoc(filepath, "");
-							MainActivity.this.showCurrentPage();
+							MainActivity.this.pdfView.InitView(null, pDoc,
+									MainActivity.this.nDisplayWidth,
+									MainActivity.this.nDisplayHeight);
+							MainActivity.this.pdfView.showCurrentPage();
 						}
 					}, ".pdf;");
 		}

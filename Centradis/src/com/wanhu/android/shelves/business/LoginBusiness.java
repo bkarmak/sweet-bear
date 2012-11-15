@@ -41,7 +41,7 @@ public class LoginBusiness {
 
 	private Context mContext;
 
-	//private static final String API_REST_HOST = "192.168.0.101";
+	// private static final String API_REST_HOST = "192.168.0.101";
 	private static final String API_REST_HOST = "centradis.c3o-digital.com";
 	private static final String API_REST_URL = "/api.php";
 
@@ -63,15 +63,18 @@ public class LoginBusiness {
 	}
 
 	public boolean login(String pName, String pPassword) {
+		// for local debug
+		if (true)
+			return true;
 		/*
-		VALUE_MD5 = getMD5(APP_KEY + "-"
-				+ DateTools.getFormatDateTime(new Date(), "MMyyyydd"));
-				*/
+		 * VALUE_MD5 = getMD5(APP_KEY + "-" + DateTools.getFormatDateTime(new
+		 * Date(), "MMyyyydd"));
+		 */
 		VALUE_MD5 = getMD5(APP_KEY);
 
 		final Builder uri = buildLoginQuery();
 		final HttpPost post = new HttpPost(uri.build().toString());
-		android.util.Log.e(uri.build().toString(),"URL HERE");
+		android.util.Log.e(uri.build().toString(), "URL HERE");
 		try {
 
 			List<NameValuePair> nameValuePair = new ArrayList<NameValuePair>();
@@ -130,7 +133,7 @@ public class LoginBusiness {
 				entity = response.getEntity();
 
 				String _response = EntityUtils.toString(entity, HTTP.UTF_8);
-				//android.util.Log.e(_response,"URL RESPONSE HERE");
+				// android.util.Log.e(_response,"URL RESPONSE HERE");
 				JSONObject _result = new JSONObject(_response);
 				try {
 					JSONObject _jsonObject = _result
@@ -138,9 +141,11 @@ public class LoginBusiness {
 					if (_jsonObject != null) {
 						CentradisBooksStore.VALUE_USER_ID = (String) _jsonObject
 								.get(JSON_TAG_UID);
-						SharedPreferences mPreferences = mContext.getSharedPreferences(Preferences.NAME, 0);
+						SharedPreferences mPreferences = mContext
+								.getSharedPreferences(Preferences.NAME, 0);
 						final Editor _editor = mPreferences.edit();
-						_editor.putString(Preferences.KEY_USER_ID, CentradisBooksStore.VALUE_USER_ID);
+						_editor.putString(Preferences.KEY_USER_ID,
+								CentradisBooksStore.VALUE_USER_ID);
 						_editor.commit();
 						return true;
 					}

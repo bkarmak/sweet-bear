@@ -23,7 +23,14 @@ public class YYPDFDoc {
 	private static String TAG = "FoxitDoc";
 	private static final String strFontFilePath = "/mnt/sdcard/DroidSansFallback.ttf";
 
-	protected void initFoxitSDK(int memorySize) {
+	/**
+	 * if you want to allow a specified memory block,you must call this function
+	 * yourself.Otherwides,the SDK will initialize a 5M memory block when
+	 * creating a PDF document.
+	 * 
+	 * @param memorySize
+	 */
+	public void initFoxitSDK(int memorySize) {
 		try {
 			EMBJavaSupport.FSMemInitFixedMemory(memorySize);
 		} catch (Exception e) {
@@ -86,7 +93,7 @@ public class YYPDFDoc {
 			fileAccessHandle = EMBJavaSupport.FSFileReadAlloc(filePath);
 			nPDFDocHandler = EMBJavaSupport.FPDFDocLoad(fileAccessHandle,
 					password);
-			this.pageHandlers = new int[this.GetPageCounts()];
+			this.pageHandlers = new int[this.getPageCounts()];
 		} catch (memoryException e) {
 			EMBJavaSupport.FSFileReadRelease(fileAccessHandle);
 			nPDFDocHandler = 0;
@@ -100,7 +107,7 @@ public class YYPDFDoc {
 	}
 
 	/** Count PDF page. */
-	public int GetPageCounts() {
+	public int getPageCounts() {
 		if (nPDFDocHandler == 0) {
 			return EMBJavaSupport.EMBJavaSupport_RESULT_ERROR;
 		}
@@ -113,8 +120,14 @@ public class YYPDFDoc {
 		return nPageCount;
 	}
 
+	/**
+	 * return a specified page handler.
+	 * 
+	 * @param pageNumber
+	 * @return
+	 */
 	public int getPageHandler(int pageNumber) {
-		if (pageHandlers.length < pageNumber) {
+		if (pageHandlers.length <= pageNumber) {
 			postToLog("pageNumber is bigger than max page count!");
 		} else if (pageHandlers[pageNumber] <= 0) {
 			try {
@@ -131,15 +144,25 @@ public class YYPDFDoc {
 		return pageHandlers[pageNumber];
 	}
 
+	/**
+	 * jump to the next page
+	 */
 	public void nextPage() {
 		this.nCurrentPageNumber++;
 		this.nCurrentPageNumber = this.nCurrentPageNumber % this.nPageCount;
 	}
 
+	/**
+	 * jump to the previous page
+	 */
 	public void previoutPage() {
 		this.nCurrentPageNumber--;
 		if (this.nCurrentPageNumber < 0)
 			this.nCurrentPageNumber = 0;
+	}
+
+	public int getCurrentPage() {
+		return this.nCurrentPageNumber;
 	}
 
 	public int getCurrentPageHandler() {
@@ -148,6 +171,19 @@ public class YYPDFDoc {
 			return -1;
 		}
 		return this.getPageHandler(this.nCurrentPageNumber);
+	}
+
+	/**
+	 * jump to a specified page number.
+	 * 
+	 * @param pageNumber
+	 */
+	public void gotoPage(int pageNumber) {
+		if (pageNumber >= this.getPageCounts()) {
+			postToLog("pdf document has no page:" + pageNumber);
+		} else {
+			this.nCurrentPageNumber = pageNumber;
+		}
 	}
 
 	/** Render pdf to bitmap. */
@@ -175,6 +211,14 @@ public class YYPDFDoc {
 			e.printStackTrace();
 		}
 		return bm;
+	}
+
+	public void lock() {
+
+	}
+
+	public void save(String fileName) {
+
 	}
 
 	// clean up unmanaged resources
