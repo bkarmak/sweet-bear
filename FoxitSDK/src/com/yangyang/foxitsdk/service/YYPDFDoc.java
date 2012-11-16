@@ -3,6 +3,7 @@ package com.yangyang.foxitsdk.service;
 import java.nio.ByteBuffer;
 
 import FoxitEMBSDK.EMBJavaSupport;
+import FoxitEMBSDK.EMBJavaSupport.Rectangle;
 
 import android.graphics.Bitmap;
 import android.util.Log;
@@ -213,6 +214,30 @@ public class YYPDFDoc {
 		return bm;
 	}
 
+	private void RenderPage(int pageHandler, Bitmap bm, int startX, int startY,
+			float xScale, float yScale, int rotate, int flags, Rectangle rect,
+			int pauseHandler) {
+		try {
+			int dib = EMBJavaSupport.FSBitmapCreate(bm.getWidth(),
+					bm.getHeight(), 7, null, 0);
+			EMBJavaSupport.FSBitmapFillColor(dib, 0xff);
+			float scaledWidth = bm.getWidth() * xScale;
+			float scaledHeight = bm.getHeight() * yScale;
+			EMBJavaSupport.FPDFRenderPageStart(dib, pageHandler, startX,
+					startY, (int) scaledWidth, (int) scaledHeight, rotate,
+					flags, rect, pauseHandler);
+			byte[] bmpbuf = EMBJavaSupport.FSBitmapGetBuffer(dib);
+
+			ByteBuffer bmBuffer = ByteBuffer.wrap(bmpbuf);
+			bm.copyPixelsFromBuffer(bmBuffer);
+
+		} catch (memoryException e) {
+			postToLog(e.getMessage());
+		} catch (Exception e) {
+			postToLog(e.getMessage());
+		}
+	}
+
 	public void lock() {
 
 	}
@@ -237,6 +262,32 @@ public class YYPDFDoc {
 			EMBJavaSupport.FSFileReadRelease(fileAccessHandle);
 		}
 		cleanUpFlag = false;
+	}
+
+	public float GetPageSizeX(int pageIndex) {
+		if (this.pageHandlers[pageIndex] == 0) {
+			this.getPageHandler(pageIndex);
+		}
+
+		try {
+			return EMBJavaSupport.FPDFPageGetSizeX(pageHandlers[pageIndex]);
+		} catch (parameterException e) {
+			postToLog(e.getMessage());
+			return 0;
+		}
+	}
+
+	public float GetPageSizeY(int pageIndex) {
+		if (pageHandlers[pageIndex] == 0) {
+			this.getPageHandler(pageIndex);
+		}
+
+		try {
+			return EMBJavaSupport.FPDFPageGetSizeY(pageHandlers[pageIndex]);
+		} catch (parameterException e) {
+			postToLog(e.getMessage());
+			return 0;
+		}
 	}
 
 	private void postToLog(String msg) {

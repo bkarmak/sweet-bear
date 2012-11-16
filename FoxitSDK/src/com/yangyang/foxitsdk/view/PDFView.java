@@ -19,6 +19,7 @@ import android.view.SurfaceView;
 
 import com.yangyang.foxitsdk.service.WrapPDFFunc;
 import com.yangyang.foxitsdk.service.YYPDFDoc;
+import com.yangyang.foxitsdk.util.ZoomStatus;
 
 public class PDFView extends SurfaceView implements Callback, Runnable,
 		OnGestureListener {
@@ -27,6 +28,7 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 	private Rect rect = null;
 	private Bitmap pdfbmp = null;
 	private Bitmap dirtydib = null;
+	private Bitmap CurrentBitmap = null;
 	private int nDisplayWidth = 0;
 	private int nDisplayHeight = 0;
 	private WrapPDFFunc mFunc = null;
@@ -34,6 +36,11 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 	private ArrayList<CPSIAction> mPSIActionList;
 	private YYPDFDoc pDoc;
 	GestureDetector detector;
+	private ZoomStatus zoomStatus;
+	private int nStartX = 0;
+	private int nStartY = 0;
+	private int nCurDisplayX = 0;
+	private int nCurDisplayY = 0;
 
 	public class CPSIAction {
 		public int nActionType;
@@ -63,12 +70,14 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 		return false;
 	}
 
-	public void InitView(WrapPDFFunc func, YYPDFDoc pDoc, int displayWidth,
-			int displayHeight) {
+	public void InitView(WrapPDFFunc func, YYPDFDoc pDoc, int pageWidth,
+			int pageHeight, int displayWidth, int displayHeight) {
 		mFunc = func;
 		this.pDoc = pDoc;
 		this.nDisplayWidth = displayWidth;
 		this.nDisplayHeight = displayHeight;
+		this.zoomStatus = new ZoomStatus(pageWidth, pageHeight, displayWidth,
+				displayHeight);
 	}
 
 	public int getCurrentPage() {
@@ -172,8 +181,26 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 		dirtydib = dib;
 	}
 
+	public void SetMartix(float CurrentoffsetX, float CurrentoffsetY) {
+		nStartX = nCurDisplayX - (int) CurrentoffsetX;
+		nStartY = nCurDisplayY - (int) CurrentoffsetY;
+		if (nStartX < 0)
+			nStartX = 0;
+		if (nStartX > (pdfbmp.getWidth() - nDisplayWidth))
+			nStartX = (int) (pdfbmp.getWidth() - nDisplayWidth);
+		if (nStartY < 0)
+			nStartY = 0;
+		if (nStartY > (pdfbmp.getHeight() - nDisplayHeight))
+			nStartY = (int) (pdfbmp.getHeight() - nDisplayHeight);
+		nCurDisplayX = nStartX;
+		nCurDisplayY = nStartY;
+		CurrentBitmap = Bitmap.createBitmap(pdfbmp, nStartX, nStartY,
+				pdfbmp.getWidth() - nStartX, pdfbmp.getHeight() - nStartY);
+	}
+
 	public void setPDFBitmap(Bitmap dib, int sizex, int sizey) {
 		pdfbmp = dib;
+		CurrentBitmap = dib;
 		nDisplayWidth = sizex;
 		nDisplayHeight = sizey;
 	}
@@ -193,7 +220,7 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 				Matrix mt = new Matrix();
 				mt.postRotate(0, nDisplayWidth, nDisplayHeight);
 				mt.postTranslate(0, 0);
-				canvas.drawBitmap(pdfbmp, mt, mPaint);
+				canvas.drawBitmap(this.CurrentBitmap, mt, mPaint);
 			}
 			if (dirtydib != null) {
 				Matrix m = new Matrix();
