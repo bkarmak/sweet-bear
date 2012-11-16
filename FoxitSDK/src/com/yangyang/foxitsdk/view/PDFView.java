@@ -10,6 +10,9 @@ import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.util.Log;
+import android.view.GestureDetector;
+import android.view.GestureDetector.OnGestureListener;
+import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceHolder.Callback;
 import android.view.SurfaceView;
@@ -17,7 +20,8 @@ import android.view.SurfaceView;
 import com.yangyang.foxitsdk.service.WrapPDFFunc;
 import com.yangyang.foxitsdk.service.YYPDFDoc;
 
-public class PDFView extends SurfaceView implements Callback, Runnable {
+public class PDFView extends SurfaceView implements Callback, Runnable,
+		OnGestureListener {
 
 	private SurfaceHolder Holder;
 	private Rect rect = null;
@@ -29,6 +33,7 @@ public class PDFView extends SurfaceView implements Callback, Runnable {
 	private Thread mViewThread = null;
 	private ArrayList<CPSIAction> mPSIActionList;
 	private YYPDFDoc pDoc;
+	GestureDetector detector;
 
 	public class CPSIAction {
 		public int nActionType;
@@ -45,11 +50,17 @@ public class PDFView extends SurfaceView implements Callback, Runnable {
 		Holder.addCallback(this);
 		setFocusable(true);
 		setFocusableInTouchMode(true);
-
+		detector = new GestureDetector(this);
 		mPSIActionList = new ArrayList<CPSIAction>();
-
 		mViewThread = new Thread(this);
 		mViewThread.start();
+	}
+
+	@Override
+	public boolean onTouchEvent(MotionEvent event) {
+		if (this.detector != null)
+			return this.detector.onTouchEvent(event);
+		return false;
 	}
 
 	public void InitView(WrapPDFFunc func, YYPDFDoc pDoc, int displayWidth,
@@ -228,6 +239,53 @@ public class PDFView extends SurfaceView implements Callback, Runnable {
 						action.y, action.nPressures, action.flag);
 			}
 		}
+	}
+
+	@Override
+	public boolean onDown(MotionEvent e) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	private final static int FLING_SIZE = 120;
+
+	@Override
+	public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,
+			float velocityY) {
+		// TODO Auto-generated method stub
+		if (e1.getX() - e2.getX() > FLING_SIZE) {
+			this.nextPage();
+			return true;
+		} else if (e1.getX() - e2.getX() < -FLING_SIZE) {
+			this.previousPage();
+			return true;
+		}
+		return false;
+	}
+
+	@Override
+	public void onLongPress(MotionEvent e) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX,
+			float distanceY) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public void onShowPress(MotionEvent e) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public boolean onSingleTapUp(MotionEvent e) {
+		// TODO Auto-generated method stub
+		return false;
 	}
 
 }

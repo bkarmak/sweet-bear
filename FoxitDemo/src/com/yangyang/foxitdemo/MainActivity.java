@@ -16,7 +16,7 @@ import com.yangyang.foxitdemo.OpenFileDialog.CallbackBundle;
 import com.yangyang.foxitsdk.service.YYPDFDoc;
 import com.yangyang.foxitsdk.view.PDFView;
 
-public class MainActivity extends Activity implements OnTouchListener {
+public class MainActivity extends Activity {
 
 	private YYPDFDoc pDoc;
 	private PDFView pdfView;
@@ -34,7 +34,6 @@ public class MainActivity extends Activity implements OnTouchListener {
 
 		pdfView = new com.yangyang.foxitsdk.view.PDFView(this);
 		setContentView(pdfView);
-		pdfView.setOnTouchListener(this);
 
 		// code start
 		Display display = getWindowManager().getDefaultDisplay();
@@ -69,9 +68,10 @@ public class MainActivity extends Activity implements OnTouchListener {
 		return super.onMenuItemSelected(featureId, item);
 	}
 
-	public boolean onTouch(View v, MotionEvent event) {
+	@Override
+	public boolean onTouchEvent(MotionEvent event) {
 		// TODO Auto-generated method stub
-		return false;
+		return this.pdfView.onTouchEvent(event);
 	}
 
 	@Override
