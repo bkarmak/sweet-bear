@@ -293,4 +293,9 @@ public class YYPDFDoc {
 	private void postToLog(String msg) {
 		Log.v(TAG, msg);
 	}
+
+	public int getDocumentHandler() {
+		// TODO Auto-generated method stub
+		return this.nPDFDocHandler;
+	}
 }

@@ -95,6 +95,8 @@ public class MainActivity extends Activity {
 							setTitle(filepath); // 把文件路径显示在标题上
 							MainActivity.this.pDoc = new YYPDFDoc(filepath, "");
 							MainActivity.this.pdfView.InitView(null, pDoc,
+									(int) pDoc.GetPageSizeX(0),
+									(int) pDoc.GetPageSizeY(0),
 									MainActivity.this.nDisplayWidth,
 									MainActivity.this.nDisplayHeight);
 							MainActivity.this.pdfView.showCurrentPage();
