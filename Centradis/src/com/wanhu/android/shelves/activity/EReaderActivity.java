@@ -227,7 +227,9 @@ public class EReaderActivity extends Activity implements
 		}
 
 		Display display = getWindowManager().getDefaultDisplay();
-		mPDFView.InitView(null, mDoc, display.getWidth(), display.getHeight());
+		mPDFView.InitView(null, mDoc, (int) mDoc.GetPageSizeX(0),
+				(int) mDoc.GetPageSizeY(0), display.getWidth(),
+				display.getHeight());
 
 		Log.d(mDoc.toString(), "PDF DOC SET");
 
@@ -642,6 +644,14 @@ public class EReaderActivity extends Activity implements
 	private void onSearch(MotionEvent pMotionEvent) {
 		pMotionEvent.setLocation(65, 25);
 		mPDFView.dispatchTouchEvent(pMotionEvent);
+	}
+
+	@Override
+	public boolean onTouchEvent(MotionEvent event) {
+		// TODO Auto-generated method stub
+		if (this.mPDFView != null)
+			return this.mPDFView.onTouchEvent(event);
+		return super.onTouchEvent(event);
 	}
 
 }
