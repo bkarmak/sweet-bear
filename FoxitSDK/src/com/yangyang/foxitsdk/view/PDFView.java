@@ -227,6 +227,8 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 	}
 
 	public void SetMartix(float CurrentoffsetX, float CurrentoffsetY) {
+		if (pdfbmp == null)
+			return;
 		nStartX = nCurDisplayX - (int) CurrentoffsetX;
 		nStartY = nCurDisplayY - (int) CurrentoffsetY;
 		if (nStartX > (pdfbmp.getWidth() - nDisplayWidth))
@@ -347,13 +349,15 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 		String url = EMBJavaSupport.FPDFLinkOpenOuterLink(textPage,
 				(int) point.x, (int) point.y);
 		Log.i("link", url);
-		if (url.length() > 0) {
+		if (url.length() > 0
+				&& (url.startsWith("http") || url.startsWith("HTTP")
+						|| url.startsWith("HTTPS") || url.startsWith("https"))) {
 			Intent it = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
 			new Activity().startActivity(it);
 
 		} else {
 			int pageNumber = EMBJavaSupport.FPDFLinkOpenInnerLink(
-					pDoc.getDocumentHandler(), pDoc.getCurrentPage(),
+					pDoc.getDocumentHandler(), pDoc.getCurrentPageHandler(),
 					(int) point.x, (int) point.y);
 			if (pageNumber > 0) {
 				pDoc.gotoPage(pageNumber);
@@ -366,7 +370,10 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 	@Override
 	public void onLongPress(MotionEvent e) {
 		// TODO Auto-generated method stub
-
+		if (this.zoomStatus != null) {
+			this.openLink((int) (e.getX() / zoomStatus.getScaleX()),
+					(int) (e.getY() / zoomStatus.getScaleY()));
+		}
 	}
 
 	@Override
