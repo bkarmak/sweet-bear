@@ -344,8 +344,7 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 		int textPage = EMBJavaSupport.FPDFTextLoadPage(pDoc
 				.getCurrentPageHandler());
 		EMBJavaSupport.FPDFPageDeviceToPagePointF(pDoc.getCurrentPageHandler(),
-				0, 0, zoomStatus.getDisplayWidth(),
-				zoomStatus.getDisplayHeight(), 0, point);
+				0, 0, zoomStatus.getWidth(), zoomStatus.getHeight(), 0, point);
 		String url = EMBJavaSupport.FPDFLinkOpenOuterLink(textPage,
 				(int) point.x, (int) point.y);
 		Log.i("link", url);
@@ -371,8 +370,7 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 	public void onLongPress(MotionEvent e) {
 		// TODO Auto-generated method stub
 		if (this.zoomStatus != null) {
-			this.openLink((int) (e.getX() / zoomStatus.getScaleX()),
-					(int) (e.getY() / zoomStatus.getScaleY()));
+			this.openLink(nStartX + (int) e.getX(), nStartX + (int) e.getY());
 		}
 	}
 
@@ -380,7 +378,8 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 	public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX,
 			float distanceY) {
 		// TODO Auto-generated method stub
-		this.SetMartix(e2.getX() - e1.getX(), e2.getY() - e1.getY());
+		// this.SetMartix(e2.getX() - e1.getX(), e2.getY() - e1.getY());
+		this.SetMartix(-distanceX, -distanceY);
 		this.OnDraw();
 		return true;
 	}
