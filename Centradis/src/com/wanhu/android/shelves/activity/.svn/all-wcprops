@@ -1,0 +1,65 @@
+K 25
+svn:wc:ra_dav:version-url
+V 95
+/svn/android-centradis-tablet/!svn/ver/3/trunk/Centradis/src/com/wanhu/android/shelves/activity
+END
+BookViewHolder.java
+K 25
+svn:wc:ra_dav:version-url
+V 115
+/svn/android-centradis-tablet/!svn/ver/3/trunk/Centradis/src/com/wanhu/android/shelves/activity/BookViewHolder.java
+END
+ViewerPreferences.java
+K 25
+svn:wc:ra_dav:version-url
+V 118
+/svn/android-centradis-tablet/!svn/ver/3/trunk/Centradis/src/com/wanhu/android/shelves/activity/ViewerPreferences.java
+END
+BookStoreActivity.java
+K 25
+svn:wc:ra_dav:version-url
+V 118
+/svn/android-centradis-tablet/!svn/ver/3/trunk/Centradis/src/com/wanhu/android/shelves/activity/BookStoreActivity.java
+END
+EReaderActivity.java
+K 25
+svn:wc:ra_dav:version-url
+V 116
+/svn/android-centradis-tablet/!svn/ver/5/trunk/Centradis/src/com/wanhu/android/shelves/activity/EReaderActivity.java
+END
+MainBrowserActivity.java
+K 25
+svn:wc:ra_dav:version-url
+V 120
+/svn/android-centradis-tablet/!svn/ver/3/trunk/Centradis/src/com/wanhu/android/shelves/activity/MainBrowserActivity.java
+END
+ShelvesActivity.java
+K 25
+svn:wc:ra_dav:version-url
+V 116
+/svn/android-centradis-tablet/!svn/ver/5/trunk/Centradis/src/com/wanhu/android/shelves/activity/ShelvesActivity.java
+END
+StartActivity.java
+K 25
+svn:wc:ra_dav:version-url
+V 114
+/svn/android-centradis-tablet/!svn/ver/3/trunk/Centradis/src/com/wanhu/android/shelves/activity/StartActivity.java
+END
+BaseBrowserActivity.java
+K 25
+svn:wc:ra_dav:version-url
+V 120
+/svn/android-centradis-tablet/!svn/ver/3/trunk/Centradis/src/com/wanhu/android/shelves/activity/BaseBrowserActivity.java
+END
+BookDetailsActivity.java
+K 25
+svn:wc:ra_dav:version-url
+V 120
+/svn/android-centradis-tablet/!svn/ver/3/trunk/Centradis/src/com/wanhu/android/shelves/activity/BookDetailsActivity.java
+END
+BooksAdapter.java
+K 25
+svn:wc:ra_dav:version-url
+V 113
+/svn/android-centradis-tablet/!svn/ver/3/trunk/Centradis/src/com/wanhu/android/shelves/activity/BooksAdapter.java
+END

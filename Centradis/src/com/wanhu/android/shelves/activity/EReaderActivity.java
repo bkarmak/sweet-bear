@@ -23,7 +23,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
-import android.view.ViewGroup.LayoutParams;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RelativeLayout;
@@ -212,9 +211,58 @@ public class EReaderActivity extends Activity implements
 		btnMenu = (Button) findViewById(R.id.btnMenu);
 		btnLibrary = (Button) findViewById(R.id.btnLibrary);
 
-		mPDFView = new PDFView(this);
+		mPDFView = (PDFView) findViewById(R.id.pdfViewCtrl);
 
 		mPdfBusiness = new PDFBusiness(this, mPDFView);
+
+		/*
+		 * use the tool manager to add additional UI modules to PDFViewCtrl.
+		 * PDFNet SDK ships with a Tools.jar that contains various modules,
+		 * including annotation editing, text search, text selection, and etc.
+		 * if you are looking for a bare bone viewer with only basic viewing
+		 * features, such as scrolling and zooming, simply comment out the
+		 * following two lines.
+		 */
+
+		// pdftron.PDF.Tools.ToolManager tm = new
+		// pdftron.PDF.Tools.ToolManager();
+		// mPDFView.setToolManager(tm);
+
+		/*
+		 * misc PDFViewCtrl settings
+		 */
+		// mPDFView.setPagePresentationMode(PDFViewCtrl.PAGE_PRESENTATION_SINGLE);
+
+		// mPDFView.setUseThumbView(true, false); //use the thumbs from the
+		// input PDF file (more efficient)
+		// mPDFView.setProgressiveRendering(false); // turn off progressive
+		// rendering
+		// mPDFView.setImageSmoothing(true); //turn on image smoothing (better
+		// quality, but more expensive);
+		// mPDFView.setHighlightFields(true); // turn on form fields
+		// highlighting.
+		// mPDFView.setCaching(false); // turn on caching (consume more memory,
+		// but faster);
+		// mPDFView.setOverprint(PDFViewCtrl.OVERPRINT_PDFX); //turn on
+		// overprint for PDF/X files (more accurate, but more expensive);
+
+		/*
+		 * if you want to set the background of PDFViewCtrl to a Drawable, you
+		 * can first set its background to be transparent and then set the
+		 * drawable.
+		 */
+		// mPDFView.setClientBackgroundColor(255, 255, 255, true);
+		// Drawable draw = ...
+		// mPDFView.setBackgroundDrawable(draw);
+
+		/*
+		 * set zoom limits
+		 */
+		// mPDFView.setZoomLimits(PDFViewCtrl.ZOOM_LIMIT_RELATIVE, 1.0, 4);
+
+		/*
+		 * load a PDF file.
+		 */
 		mDoc = null;
 		try {
 			if (mFileName != null && !mFileName.equals("")) {
@@ -230,6 +278,8 @@ public class EReaderActivity extends Activity implements
 		mPDFView.InitView(null, mDoc, (int) mDoc.GetPageSizeX(0),
 				(int) mDoc.GetPageSizeY(0), display.getWidth(),
 				display.getHeight());
+		mPDFView.showCurrentPage();
+		// mPDFView.setd(mDoc);
 
 		Log.d(mDoc.toString(), "PDF DOC SET");
 
@@ -252,9 +302,15 @@ public class EReaderActivity extends Activity implements
 		btnPageMode = (Button) findViewById(R.id.btnPageMode);
 		btnSave = (Button) findViewById(R.id.btnSave);
 		btnSearch = (Button) findViewById(R.id.btnSearch);
-		this.setContentView(mPDFView);
-		mPDFView.showCurrentPage();
 
+	}
+
+	@Override
+	public boolean onTouchEvent(MotionEvent event) {
+		// TODO Auto-generated method stub
+		if (this.mPDFView != null)
+			return this.mPDFView.onTouchEvent(event);
+		return super.onTouchEvent(event);
 	}
 
 	@Override
@@ -281,7 +337,8 @@ public class EReaderActivity extends Activity implements
 
 		System.gc();
 		if (mPDFView != null) {
-			mPDFView.finalize();
+			// mPDFView.purgeMemory();
+			// mPDFView.destroy();
 			// PDFNet.terminate(); COMMENTED BECAUSE CREATE A GC_CONCURRENT
 			// CRASH ON PDF REOPENING
 		}
@@ -520,7 +577,6 @@ public class EReaderActivity extends Activity implements
 			try {
 				doc.lock(); // note: document needs to be locked first
 							// before it can be saved.
-				// doc.save(fileName, 0, null);
 				doc.save(fileName);
 
 				if (!isOverride) {
@@ -644,14 +700,6 @@ public class EReaderActivity extends Activity implements
 	private void onSearch(MotionEvent pMotionEvent) {
 		pMotionEvent.setLocation(65, 25);
 		mPDFView.dispatchTouchEvent(pMotionEvent);
-	}
-
-	@Override
-	public boolean onTouchEvent(MotionEvent event) {
-		// TODO Auto-generated method stub
-		if (this.mPDFView != null)
-			return this.mPDFView.onTouchEvent(event);
-		return super.onTouchEvent(event);
 	}
 
 }

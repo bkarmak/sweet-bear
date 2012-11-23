@@ -1,0 +1,35 @@
+K 25
+svn:wc:ra_dav:version-url
+V 95
+/svn/android-centradis-tablet/!svn/ver/3/trunk/Centradis/src/com/wanhu/android/shelves/provider
+END
+BookStoreFactory.java
+K 25
+svn:wc:ra_dav:version-url
+V 117
+/svn/android-centradis-tablet/!svn/ver/3/trunk/Centradis/src/com/wanhu/android/shelves/provider/BookStoreFactory.java
+END
+CentradisBooksStore.java
+K 25
+svn:wc:ra_dav:version-url
+V 120
+/svn/android-centradis-tablet/!svn/ver/3/trunk/Centradis/src/com/wanhu/android/shelves/provider/CentradisBooksStore.java
+END
+BooksManager.java
+K 25
+svn:wc:ra_dav:version-url
+V 113
+/svn/android-centradis-tablet/!svn/ver/5/trunk/Centradis/src/com/wanhu/android/shelves/provider/BooksManager.java
+END
+BooksProvider.java
+K 25
+svn:wc:ra_dav:version-url
+V 114
+/svn/android-centradis-tablet/!svn/ver/3/trunk/Centradis/src/com/wanhu/android/shelves/provider/BooksProvider.java
+END
+BooksStore.java
+K 25
+svn:wc:ra_dav:version-url
+V 111
+/svn/android-centradis-tablet/!svn/ver/3/trunk/Centradis/src/com/wanhu/android/shelves/provider/BooksStore.java
+END

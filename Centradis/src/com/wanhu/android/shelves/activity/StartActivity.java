@@ -198,6 +198,9 @@ public class StartActivity extends ActivityFrame implements OnLoginListener {
 
 	@Override
 	public void onLoginButtonClicked(String pUserName, String pPassword) {
+		ShelvesActivity.show(StartActivity.this);
+		if (true)
+			return;
 		if (mLoginBusiness.isNetworkAvaiable()) {
 			onLogin(pUserName, pPassword);
 		} else {
@@ -206,7 +209,7 @@ public class StartActivity extends ActivityFrame implements OnLoginListener {
 			String _password = mPreferences.getString(
 					Preferences.KEY_USER_PASSWORD,
 					Preferences.DEFAULT_USER_PASSWORD);
-			if (true || pUserName.equals(_userName) && pPassword.equals(_password)) {
+			if (pUserName.equals(_userName) && pPassword.equals(_password)) {
 				ShelvesActivity.show(StartActivity.this);
 			} else {
 				UIUtilities.showToast(StartActivity.this,

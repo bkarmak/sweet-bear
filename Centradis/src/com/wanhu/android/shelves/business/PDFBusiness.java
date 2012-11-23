@@ -95,12 +95,10 @@ public class PDFBusiness {
 
 	public void changePageMode() {
 
-		/*
-		 * mPDFViewCtrl
-		 * .setPagePresentationMode(mPDFViewCtrl.getPagePresentationMode() ==
-		 * PDFViewCtrl.PAGE_PRESENTATION_SINGLE ?
-		 * PDFViewCtrl.PAGE_PRESENTATION_FACING :
-		 * PDFViewCtrl.PAGE_PRESENTATION_SINGLE);
-		 */
+		// mPDFViewCtrl
+		// .setPagePresentationMode(mPDFViewCtrl.getPagePresentationMode() ==
+		// PDFViewCtrl.PAGE_PRESENTATION_SINGLE ?
+		// PDFViewCtrl.PAGE_PRESENTATION_FACING
+		// : PDFViewCtrl.PAGE_PRESENTATION_SINGLE);
 	}
 }

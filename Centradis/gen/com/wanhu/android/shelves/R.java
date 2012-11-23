@@ -147,7 +147,7 @@ containing a value of this type.
         public static final int btnPageMode=0x7f0b001f;
         public static final int btnRegister=0x7f0b0012;
         public static final int btnSave=0x7f0b0020;
-        public static final int btnSearch=0x7f0b0047;
+        public static final int btnSearch=0x7f0b0048;
         public static final int btnStore=0x7f0b001c;
         public static final int btnSubmit=0x7f0b0007;
         public static final int button_cancel=0x7f0b002d;
@@ -189,11 +189,11 @@ containing a value of this type.
         public static final int panel_delete=0x7f0b004c;
         public static final int panel_search=0x7f0b0037;
         public static final int panel_update=0x7f0b004a;
-        public static final int pdfViewCtrl=0x7f0b0048;
+        public static final int pdfViewCtrl=0x7f0b0046;
         public static final int progress=0x7f0b002c;
         public static final int rlBackground=0x7f0b0043;
         public static final int rlLoginParent=0x7f0b000c;
-        public static final int rlMenu=0x7f0b0046;
+        public static final int rlMenu=0x7f0b0047;
         public static final int rlStart=0x7f0b0050;
         public static final int rlTop=0x7f0b0024;
         public static final int stub_add=0x7f0b0034;
