@@ -337,15 +337,16 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 	}
 
 	private final static int FLING_SIZE = 120;
+	private final static int VELOCITYLIMIT = 120;
 
 	@Override
 	public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,
 			float velocityY) {
 		// TODO Auto-generated method stub
-		if (e1.getX() - e2.getX() > FLING_SIZE) {
+		if (e1.getX() - e2.getX() > FLING_SIZE && velocityX > VELOCITYLIMIT && velocityY < VELOCITYLIMIT ) {
 			this.nextPage();
 			return true;
-		} else if (e1.getX() - e2.getX() < -FLING_SIZE) {
+		} else if (e1.getX() - e2.getX() < -FLING_SIZE && velocityX > VELOCITYLIMIT && velocityY < VELOCITYLIMIT) {
 			this.previousPage();
 			return true;
 		}
