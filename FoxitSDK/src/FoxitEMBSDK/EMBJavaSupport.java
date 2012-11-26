@@ -17,6 +17,8 @@ import com.yangyang.foxitsdk.exception.toBeContinuedException;
 import com.yangyang.foxitsdk.view.IPDFView;
 
 public class EMBJavaSupport {
+	
+	public static EMBJavaSupport instance;
 
 	public final static int EMBJavaSupport_RESULT_SUCCESS = 0;
 	public final static int EMBJavaSupport_RESULT_MEMORY = 1;

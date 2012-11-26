@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import FoxitEMBSDK.EMBJavaSupport;
 import FoxitEMBSDK.EMBJavaSupport.PointF;
+import FoxitEMBSDK.EMBJavaSupport.RectangleF;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -47,6 +48,21 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 	private int nStartY = 0;
 	private int nCurDisplayX = 0;
 	private int nCurDisplayY = 0;
+	private int leftBound, topBound;// 左边界，上边界
+
+	/**
+	 * note类型
+	 * 
+	 * @author yangyang
+	 * 
+	 */
+	public enum AnnotationType {
+		NONE, // 无操作
+		NOTE, // 注释
+		HIGHLIGHT, // 高亮显示
+		PENCIL, // 铅笔
+		STAMP, // 邮戳
+	}
 
 	public class CPSIAction {
 		public int nActionType;
@@ -55,6 +71,16 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 		public float nPressures;
 		public int flag;
 	}
+
+	public enum Mode {
+		Read, // 只读模式（默认）
+		Annotation, // 注释（可以修改文件添加注释)
+		Form, // 填表（可以填写表单）
+		PSI, // 自动绘图（可一触摸屏绘任意形状）
+	}
+
+	private Mode mode = Mode.Read;// 操作类型
+	private AnnotationType annotationType = AnnotationType.NONE;
 
 	public PDFView(Context context) {
 		super(context);
@@ -84,50 +110,70 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 		mViewThread.start();
 	}
 
+	/**
+	 * 改变控件模式
+	 * 
+	 * @param mode
+	 */
+	public void changeMode(Mode mode) {
+		this.mode = mode;
+	}
+
 	float baseValue, last_x, last_y;
 
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
-		if (event.getAction() == MotionEvent.ACTION_DOWN) {
-			baseValue = 0;
-			last_x = event.getRawX();
-			last_y = event.getRawY();
-		} else if (event.getAction() == MotionEvent.ACTION_MOVE) {
-			if (event.getPointerCount() == 2) {
-				float x = event.getX(0) - event.getX(1);
-				float y = event.getY(0) - event.getY(1);
-				float value = (float) Math.sqrt(x * x + y * y);// 计算两点的距离
-				if (baseValue == 0) {
-					baseValue = value;
-				} else {
-					if (value - baseValue >= 10 || value - baseValue <= -10) {
-						float scale = value / (baseValue * 20);// 当前两点间的距离除以手指落下时两点间的距离就是需要缩放的比例。
-						if (value - baseValue < -10)
-							scale = -scale;
-						Log.i("pdfview", "zoom image:" + scale);
-						zoomStatus.nextZoom(scale);
-						baseValue = 0;
-						showCurrentPage();
-						return true;
-					}
-				}
-				return true;
-			} else if (event.getPointerCount() == 1) {
-				float x = event.getRawX();
-				float y = event.getRawY();
-				x -= last_x;
-				y -= last_y;
-				if (x >= 10 || y >= 10 || x <= -10 || y <= -10)
-					// img_transport(x, y); // 移动图片位置
-					last_x = event.getRawX();
+		if (this.mode == Mode.Read) {
+			if (event.getAction() == MotionEvent.ACTION_DOWN) {
+				baseValue = 0;
+				last_x = event.getRawX();
 				last_y = event.getRawY();
+			} else if (event.getAction() == MotionEvent.ACTION_MOVE) {
+				if (event.getPointerCount() == 2) {
+					float x = event.getX(0) - event.getX(1);
+					float y = event.getY(0) - event.getY(1);
+					float value = (float) Math.sqrt(x * x + y * y);// 计算两点的距离
+					if (baseValue == 0) {
+						baseValue = value;
+					} else {
+						if (value - baseValue >= 10 || value - baseValue <= -10) {
+							float scale = value / (baseValue * 20);// 当前两点间的距离除以手指落下时两点间的距离就是需要缩放的比例。
+							if (value - baseValue < -10)
+								scale = -scale;
+							Log.i("pdfview", "zoom image:" + scale);
+							zoomStatus.nextZoom(scale);
+							baseValue = 0;
+							showCurrentPage();
+							return true;
+						}
+					}
+					return true;
+				}
 			}
-		} else if (event.getAction() == MotionEvent.ACTION_UP) {
+			if (this.detector != null)
+				return this.detector.onTouchEvent(event);
+		} else if (this.mode == Mode.Annotation) {
+			RectangleF rect = EMBJavaSupport.instance.new RectangleF();
+			rect.left = event.getX() - 10;
+			rect.right = event.getX() + 10;
+			rect.top = event.getY() - 10;
+			rect.bottom = event.getY() + 10;
+			rect.left = rect.left >= 0 ? rect.left : 0;
+			rect.right = rect.right >= 0 ? rect.right : 0;
+			rect.top = rect.top >= 0 ? rect.top : 0;
+			rect.bottom = rect.bottom >= 0 ? rect.bottom : 0;
+			this.addNote(this.annotationType, rect);
+
+		} else if (this.mode == Mode.Form) {
+
+		} else if (this.mode == Mode.PSI) {
 
 		}
-		if (this.detector != null)
-			return this.detector.onTouchEvent(event);
 		return false;
+	}
+
+	private void addNote(AnnotationType annotationType, RectangleF rect) {
+
 	}
 
 	public void InitView(WrapPDFFunc func, YYPDFDoc pDoc, int pageWidth,
@@ -138,6 +184,10 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 		this.nDisplayHeight = displayHeight;
 		this.zoomStatus = new ZoomStatus(pageWidth, pageHeight, displayWidth,
 				displayHeight);
+		this.leftBound = this.getLeft();
+		this.topBound = this.getTop();
+		this.nDisplayWidth = this.getWidth();
+		this.nDisplayHeight = this.getHeight();
 	}
 
 	public int getCurrentPage() {
@@ -246,10 +296,22 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 			return;
 		nStartX = nCurDisplayX - (int) CurrentoffsetX;
 		nStartY = nCurDisplayY - (int) CurrentoffsetY;
-		if (nStartX > (pdfbmp.getWidth() - nDisplayWidth))
+		if (nStartX > (pdfbmp.getWidth() - nDisplayWidth)) {
+			if (nStartX > (pdfbmp.getWidth() - nDisplayWidth) + 50) {
+				nStartX = nStartY = nCurDisplayX = nCurDisplayY = 0;
+				this.nextPage();
+				return;
+			}
 			nStartX = (int) (pdfbmp.getWidth() - nDisplayWidth);
-		if (nStartX < 0)
+		}
+		if (nStartX < 0) {
+			if (nStartX < -50) {
+				nStartX = nStartY = nCurDisplayX = nCurDisplayY = 0;
+				this.previousPage();
+				return;
+			}
 			nStartX = 0;
+		}
 		if (nStartY > (pdfbmp.getHeight() - nDisplayHeight))
 			nStartY = (int) (pdfbmp.getHeight() - nDisplayHeight);
 		if (nStartY < 0)
@@ -260,6 +322,7 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 				+ (pdfbmp.getWidth() - nStartX));
 		CurrentBitmap = Bitmap.createBitmap(pdfbmp, nStartX, nStartY,
 				pdfbmp.getWidth() - nStartX, pdfbmp.getHeight() - nStartY);
+		this.OnDraw();
 	}
 
 	public void setPDFBitmap(Bitmap dib) {
@@ -343,10 +406,14 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 	public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,
 			float velocityY) {
 		// TODO Auto-generated method stub
-		if (e1.getX() - e2.getX() > FLING_SIZE && velocityX > VELOCITYLIMIT && velocityY < VELOCITYLIMIT ) {
+		if (true)
+			return false;
+		if (e1.getX() - e2.getX() > FLING_SIZE && velocityX > VELOCITYLIMIT
+				&& velocityY < VELOCITYLIMIT) {
 			this.nextPage();
 			return true;
-		} else if (e1.getX() - e2.getX() < -FLING_SIZE && velocityX > VELOCITYLIMIT && velocityY < VELOCITYLIMIT) {
+		} else if (e1.getX() - e2.getX() < -FLING_SIZE
+				&& velocityX > VELOCITYLIMIT && velocityY < VELOCITYLIMIT) {
 			this.previousPage();
 			return true;
 		}
@@ -355,8 +422,10 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 
 	private void openLink(int x, int y) {
 		PointF point = new EMBJavaSupport().new PointF();
-		point.x = x;
-		point.y = y;
+		point.x = x + nStartX - leftBound;
+		point.y = y + nStartY - topBound;
+		if (point.x < 0 || point.y < 0)
+			return;
 		int textPage = EMBJavaSupport.FPDFTextLoadPage(pDoc
 				.getCurrentPageHandler());
 		EMBJavaSupport.FPDFPageDeviceToPagePointF(pDoc.getCurrentPageHandler(),
@@ -398,7 +467,6 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 		// TODO Auto-generated method stub
 		// this.SetMartix(e2.getX() - e1.getX(), e2.getY() - e1.getY());
 		this.SetMartix(-distanceX, -distanceY);
-		this.OnDraw();
 		return true;
 	}
 

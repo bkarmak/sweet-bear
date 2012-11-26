@@ -242,8 +242,25 @@ public class YYPDFDoc {
 
 	}
 
-	public void save(String fileName) {
-
+	/**
+	 * 文件保存或者另存为
+	 * 
+	 * @param fileName 新的文件名
+	 * @return 0：成功  
+	 */
+	public int save(String fileName) {
+		try {
+			int filewrite = EMBJavaSupport.FSFileWriteAlloc(fileName);
+			EMBJavaSupport.FPDFDocSaveAs(nPDFDocHandler,
+				EMBJavaSupport.EMBJavaSupport_SAVEFLAG_INCREMENTAL, 0,
+				filewrite);
+		EMBJavaSupport.FSFileWriteRelease(filewrite);
+		return EMBJavaSupport.EMBJavaSupport_RESULT_SUCCESS;
+		} catch (memoryException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return -1;
 	}
 
 	// clean up unmanaged resources

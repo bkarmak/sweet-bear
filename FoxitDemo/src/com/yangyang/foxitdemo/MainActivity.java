@@ -7,8 +7,6 @@ import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
-import android.view.View;
-import android.view.View.OnTouchListener;
 import android.view.Window;
 import android.view.WindowManager;
 
@@ -99,6 +97,7 @@ public class MainActivity extends Activity {
 									(int) pDoc.GetPageSizeY(0),
 									MainActivity.this.nDisplayWidth,
 									MainActivity.this.nDisplayHeight);
+							
 							MainActivity.this.pdfView.showCurrentPage();
 						}
 					}, ".pdf;");
