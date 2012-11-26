@@ -49,6 +49,7 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 	private int nCurDisplayX = 0;
 	private int nCurDisplayY = 0;
 	private int leftBound, topBound;// 左边界，上边界
+	private boolean scrolling = false;
 
 	/**
 	 * note类型
@@ -216,11 +217,13 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 	}
 
 	public void previousPage() {
+		this.scrolling = false;
 		pDoc.previoutPage();
 		this.showCurrentPage();
 	}
 
 	public void nextPage() {
+		this.scrolling = false;
 		pDoc.nextPage();
 		this.showCurrentPage();
 	}
@@ -396,11 +399,12 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 	@Override
 	public boolean onDown(MotionEvent e) {
 		// TODO Auto-generated method stub
+		this.scrolling = true;
 		return false;
 	}
 
 	private final static int FLING_SIZE = 120;
-	private final static int VELOCITYLIMIT = 120;
+	private final static int VELOCITYLIMIT = 100;
 
 	@Override
 	public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,
@@ -466,7 +470,8 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 			float distanceY) {
 		// TODO Auto-generated method stub
 		// this.SetMartix(e2.getX() - e1.getX(), e2.getY() - e1.getY());
-		this.SetMartix(-distanceX, -distanceY);
+		if (this.scrolling)
+			this.SetMartix(-distanceX, -distanceY);
 		return true;
 	}
 
@@ -479,6 +484,7 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 	@Override
 	public boolean onSingleTapUp(MotionEvent e) {
 		// TODO Auto-generated method stub
+		this.scrolling = false;
 		return false;
 	}
 
