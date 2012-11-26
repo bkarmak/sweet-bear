@@ -26,6 +26,7 @@ import android.view.SurfaceView;
 
 import com.yangyang.foxitsdk.service.WrapPDFFunc;
 import com.yangyang.foxitsdk.service.YYPDFDoc;
+import com.yangyang.foxitsdk.service.YYPDFDoc.Mode;
 import com.yangyang.foxitsdk.util.ZoomStatus;
 
 public class PDFView extends SurfaceView implements Callback, Runnable,
@@ -71,13 +72,6 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 		public float y;
 		public float nPressures;
 		public int flag;
-	}
-
-	public enum Mode {
-		Read, // 只读模式（默认）
-		Annotation, // 注释（可以修改文件添加注释)
-		Form, // 填表（可以填写表单）
-		PSI, // 自动绘图（可一触摸屏绘任意形状）
 	}
 
 	private Mode mode = Mode.Read;// 操作类型
