@@ -146,21 +146,6 @@ public class WrapPDFFunc {
 		this.nDisplayY = y;
 	}
 
-	public FoxitDoc createFoxitDoc(String fileName, String password) {
-		FoxitDoc doc = new FoxitDoc(fileName, password);
-		this.nPDFDocHandler = doc.getDocumentHandle();
-		nPDFFormHandler = EMBJavaSupport.FPDFDocInitFormFillEnviroument(
-				nPDFDocHandler, nPDFFormFillerInfo);
-		{
-			if (nPDFFormHandler == -1) {
-				Log.e("error", "get pdf form handler error");
-			}
-		}
-
-		return doc;
-
-	}
-
 	public void SetFontFileMap(String strFontFilePath)
 			throws parameterException {
 		EMBJavaSupport.FSSetFileFontmap(strFontFilePath);
