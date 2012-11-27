@@ -43,6 +43,7 @@ public class YYPDFDoc {
 		Form, // 填表（可以填写表单）
 		PSI, // 自动绘图（可一触摸屏绘任意形状）
 	}
+
 	/**
 	 * note类型
 	 * 
@@ -403,53 +404,71 @@ public class YYPDFDoc {
 		// TODO Auto-generated method stub
 		return this.nPDFDocHandler;
 	}
-	
-public int addAnnot(AnnotationType annotationType,RectangleF rect) throws memoryException{
-		
-		switch(annotationType){
-		
-			case NONE:{
-				return EMBJavaSupport.EMBJavaSupport_RESULT_ERROR;
-			}
-			
-			case NOTE:{
-				int nCount = EMBJavaSupport.FPDFAnnotGetCount(this.getCurrentPageHandler());
-				int nNoteInfoItem = EMBJavaSupport.FPDFNoteInfoAlloc("James", 0x0000ff, 80, rect, "I like note",this.getCurrentPageHandler());
-				nCount = EMBJavaSupport.FPDFAnnotGetCount(this.getCurrentPageHandler());
-				int nIndex = EMBJavaSupport.FPDFAnnotAdd(this.getCurrentPageHandler(), EMBJavaSupport.EMBJavaSupport_ANNOTTYPE_NOTE, nNoteInfoItem);
-				EMBJavaSupport.FPDFNoteInfoRelease(nNoteInfoItem);
-				break;
-			}
-			
-			case PENCIL:{
-				int line_count = 2;
-				int nPencilInfoItem = EMBJavaSupport.FPDFPencilInfoAlloc("James", 0xff0000, 80, true, true, 5, line_count);
-				int nLineInfo = EMBJavaSupport.FPDFLineInfoAlloc(line_count);
-				float[] points1 = {300f, 100f, 400f, 200f};
-				float[] points2 = {400f, 200f, 500f, 200f, 400f, 100f};
-				EMBJavaSupport.FPDFLineInfoSetPointInfo(nLineInfo, 0, 2, points1);
-				EMBJavaSupport.FPDFLineInfoSetPointInfo(nLineInfo, 1, 3, points2);
-				EMBJavaSupport.FPDFPencilInfoSetLineInfo(nPencilInfoItem, nLineInfo);
-				int nIndex = EMBJavaSupport.FPDFAnnotAdd(this.getCurrentPageHandler(), EMBJavaSupport.EMBJavaSupport_ANNOTTYPE_PENCIL, nPencilInfoItem);
-				EMBJavaSupport.FPDFLineInfoRelease(nLineInfo);
-				EMBJavaSupport.FPDFPencilInfoRelease(nPencilInfoItem);
-				
-				break;
-			}
-			
-			case STAMP:{
-				String path = "/mnt/sdcard/FoxitLog.jpg";
-				int nStampInfo = EMBJavaSupport.FPDFStampInfoAlloc("James", 0xffff00, 80, rect, "Stamp_Test", path);
-				int nIndex = EMBJavaSupport.FPDFAnnotAdd(this.getCurrentPageHandler(), EMBJavaSupport.EMBJavaSupport_ANNOTTYPE_STAMP, nStampInfo);
-				EMBJavaSupport.FPDFStampInfoRelease(nStampInfo);
-				break;
-			}
-			default:
-				break;
+
+	public int addAnnot(AnnotationType annotationType, RectangleF rect)
+			throws memoryException {
+
+		switch (annotationType) {
+
+		case NONE: {
+			return EMBJavaSupport.EMBJavaSupport_RESULT_ERROR;
 		}
-//		int filewrite = EMBJavaSupport.FSFileWriteAlloc("/data/data/com.foxitsample.annotations/FoxitSaveAnnotation.pdf");
-//		EMBJavaSupport.FPDFDocSaveAs(nPDFDocHandler, EMBJavaSupport.EMBJavaSupport_SAVEFLAG_INCREMENTAL,0, filewrite);
-//		EMBJavaSupport.FSFileWriteRelease(filewrite);
+
+		case NOTE: {
+			int nCount = EMBJavaSupport.FPDFAnnotGetCount(this
+					.getCurrentPageHandler());
+			int nNoteInfoItem = EMBJavaSupport.FPDFNoteInfoAlloc("James",
+					0x0000ff, 80, rect, "I like note",
+					this.getCurrentPageHandler());
+			nCount = EMBJavaSupport.FPDFAnnotGetCount(this
+					.getCurrentPageHandler());
+			int nIndex = EMBJavaSupport
+					.FPDFAnnotAdd(this.getCurrentPageHandler(),
+							EMBJavaSupport.EMBJavaSupport_ANNOTTYPE_NOTE,
+							nNoteInfoItem);
+			EMBJavaSupport.FPDFNoteInfoRelease(nNoteInfoItem);
+			break;
+		}
+
+		case PENCIL: {
+			int line_count = 2;
+			int nPencilInfoItem = EMBJavaSupport.FPDFPencilInfoAlloc("James",
+					0xff0000, 80, true, true, 5, line_count);
+			int nLineInfo = EMBJavaSupport.FPDFLineInfoAlloc(line_count);
+			float[] points1 = { 300f, 100f, 400f, 200f };
+			float[] points2 = { 400f, 200f, 500f, 200f, 400f, 100f };
+			EMBJavaSupport.FPDFLineInfoSetPointInfo(nLineInfo, 0, 2, points1);
+			EMBJavaSupport.FPDFLineInfoSetPointInfo(nLineInfo, 1, 3, points2);
+			EMBJavaSupport
+					.FPDFPencilInfoSetLineInfo(nPencilInfoItem, nLineInfo);
+			int nIndex = EMBJavaSupport.FPDFAnnotAdd(
+					this.getCurrentPageHandler(),
+					EMBJavaSupport.EMBJavaSupport_ANNOTTYPE_PENCIL,
+					nPencilInfoItem);
+			EMBJavaSupport.FPDFLineInfoRelease(nLineInfo);
+			EMBJavaSupport.FPDFPencilInfoRelease(nPencilInfoItem);
+
+			break;
+		}
+
+		case STAMP: {
+			String path = "/mnt/sdcard/FoxitLog.jpg";
+			int nStampInfo = EMBJavaSupport.FPDFStampInfoAlloc("James",
+					0xffff00, 80, rect, "Stamp_Test", path);
+			int nIndex = EMBJavaSupport.FPDFAnnotAdd(
+					this.getCurrentPageHandler(),
+					EMBJavaSupport.EMBJavaSupport_ANNOTTYPE_STAMP, nStampInfo);
+			EMBJavaSupport.FPDFStampInfoRelease(nStampInfo);
+			break;
+		}
+		default:
+			break;
+		}
+		// int filewrite =
+		// EMBJavaSupport.FSFileWriteAlloc("/data/data/com.foxitsample.annotations/FoxitSaveAnnotation.pdf");
+		// EMBJavaSupport.FPDFDocSaveAs(nPDFDocHandler,
+		// EMBJavaSupport.EMBJavaSupport_SAVEFLAG_INCREMENTAL,0, filewrite);
+		// EMBJavaSupport.FSFileWriteRelease(filewrite);
 		return EMBJavaSupport.EMBJavaSupport_RESULT_SUCCESS;
 	}
 }
