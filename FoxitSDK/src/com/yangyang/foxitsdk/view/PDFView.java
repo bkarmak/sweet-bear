@@ -24,8 +24,11 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceHolder.Callback;
 import android.view.SurfaceView;
 
+import com.yangyang.foxitsdk.exception.memoryException;
 import com.yangyang.foxitsdk.service.WrapPDFFunc;
 import com.yangyang.foxitsdk.service.YYPDFDoc;
+import com.yangyang.foxitsdk.service.YYPDFDoc.AnnotationType;
+import com.yangyang.foxitsdk.service.YYPDFDoc.Mode;
 import com.yangyang.foxitsdk.util.ZoomStatus;
 
 public class PDFView extends SurfaceView implements Callback, Runnable,
@@ -51,33 +54,12 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 	private int leftBound, topBound;// 左边界，上边界
 	private boolean scrolling = false;
 
-	/**
-	 * note类型
-	 * 
-	 * @author yangyang
-	 * 
-	 */
-	public enum AnnotationType {
-		NONE, // 无操作
-		NOTE, // 注释
-		HIGHLIGHT, // 高亮显示
-		PENCIL, // 铅笔
-		STAMP, // 邮戳
-	}
-
 	public class CPSIAction {
 		public int nActionType;
 		public float x;
 		public float y;
 		public float nPressures;
 		public int flag;
-	}
-
-	public enum Mode {
-		Read, // 只读模式（默认）
-		Annotation, // 注释（可以修改文件添加注释)
-		Form, // 填表（可以填写表单）
-		PSI, // 自动绘图（可一触摸屏绘任意形状）
 	}
 
 	private Mode mode = Mode.Read;// 操作类型
@@ -163,7 +145,8 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 			rect.right = rect.right >= 0 ? rect.right : 0;
 			rect.top = rect.top >= 0 ? rect.top : 0;
 			rect.bottom = rect.bottom >= 0 ? rect.bottom : 0;
-			this.addNote(this.annotationType, rect);
+			this.addNote(AnnotationType.NOTE, rect);
+			return true;
 
 		} else if (this.mode == Mode.Form) {
 
@@ -174,7 +157,18 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 	}
 
 	private void addNote(AnnotationType annotationType, RectangleF rect) {
-
+		switch (annotationType) {
+		case NOTE:
+			try {
+				pDoc.addAnnot(annotationType, rect);
+			} catch (memoryException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			break;
+		default:
+			break;
+		}
 	}
 
 	public void InitView(WrapPDFFunc func, YYPDFDoc pDoc, int pageWidth,
@@ -348,6 +342,7 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 				Matrix mt = new Matrix();
 				mt.postRotate(0, nDisplayWidth, nDisplayHeight);
 				mt.postTranslate(0, 0);
+				canvas.drawColor(0xffffff);
 				canvas.drawBitmap(this.CurrentBitmap, mt, mPaint);
 			}
 			if (dirtydib != null) {

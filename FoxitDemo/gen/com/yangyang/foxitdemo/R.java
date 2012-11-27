@@ -20,6 +20,8 @@ public final class R {
         public static final int ic_launcher=0x7f020006;
     }
     public static final class id {
+        public static final int Mode=0x7f070008;
+        public static final int Mode_Read=0x7f070009;
         public static final int filedialogitem_img=0x7f070001;
         public static final int filedialogitem_name=0x7f070002;
         public static final int filedialogitem_path=0x7f070003;

@@ -3,13 +3,17 @@ package com.yangyang.foxitsdk.service;
 import java.nio.ByteBuffer;
 
 import FoxitEMBSDK.EMBJavaSupport;
+import FoxitEMBSDK.EMBJavaSupport.CPDFFormFillerInfo;
+import FoxitEMBSDK.EMBJavaSupport.CPDFJsPlatform;
 import FoxitEMBSDK.EMBJavaSupport.Rectangle;
+import FoxitEMBSDK.EMBJavaSupport.RectangleF;
 
 import android.graphics.Bitmap;
 import android.util.Log;
 
 import com.yangyang.foxitsdk.exception.memoryException;
 import com.yangyang.foxitsdk.exception.parameterException;
+import com.yangyang.foxitsdk.view.IPDFView;
 
 public class YYPDFDoc {
 
@@ -23,6 +27,35 @@ public class YYPDFDoc {
 	private int nCurrentPageNumber = 0;
 	private static String TAG = "FoxitDoc";
 	private static final String strFontFilePath = "/mnt/sdcard/DroidSansFallback.ttf";
+	private Mode mode = Mode.Read;
+
+	/** form */
+	private IPDFView mainView = null;
+	private CPDFFormFillerInfo formFillerInfo = null;
+	private int nPDFFormFillerInfo = 0;
+	private CPDFJsPlatform jsPlatform = null;
+	private int nPDFJsPlatform = 0;
+	private int nPDFFormHandler = 0;
+
+	public enum Mode {
+		Read, // 只读模式（默认）
+		Annotation, // 注释（可以修改文件添加注释)
+		Form, // 填表（可以填写表单）
+		PSI, // 自动绘图（可一触摸屏绘任意形状）
+	}
+	/**
+	 * note类型
+	 * 
+	 * @author yangyang
+	 * 
+	 */
+	public enum AnnotationType {
+		NONE, // 无操作
+		NOTE, // 注释
+		HIGHLIGHT, // 高亮显示
+		PENCIL, // 铅笔
+		STAMP, // 邮戳
+	}
 
 	/**
 	 * if you want to allow a specified memory block,you must call this function
@@ -104,6 +137,35 @@ public class YYPDFDoc {
 		} catch (Exception e) {
 			postToLog(e.getMessage());
 			return;
+		}
+	}
+
+	public void updateMode(Mode mode) {
+		this.mode = mode;
+		switch (this.mode) {
+		case Form:
+			if (mainView == null)
+				return;
+			formFillerInfo = new EMBJavaSupport().new CPDFFormFillerInfo(
+					mainView);
+			if (formFillerInfo == null)
+				return;
+			nPDFFormFillerInfo = EMBJavaSupport
+					.FPDFFormFillerInfoAlloc(formFillerInfo);
+			if (nPDFFormFillerInfo == 0)
+				return;
+
+			jsPlatform = new EMBJavaSupport().new CPDFJsPlatform();
+			if (jsPlatform == null)
+				return;
+			nPDFJsPlatform = EMBJavaSupport.FPDFJsPlatformAlloc(jsPlatform);
+			if (nPDFJsPlatform == 0)
+				return;
+			nPDFFormHandler = EMBJavaSupport.FPDFDocInitFormFillEnviroument(
+					nPDFDocHandler, nPDFFormFillerInfo);
+			if (nPDFFormHandler == 0)
+				return;
+			break;
 		}
 	}
 
@@ -206,6 +268,19 @@ public class YYPDFDoc {
 			byte[] bmpbuf = EMBJavaSupport.FSBitmapGetBuffer(dib);
 			ByteBuffer bmBuffer = ByteBuffer.wrap(bmpbuf);
 			bm.copyPixelsFromBuffer(bmBuffer);
+
+			// /formfiller implemention
+			if (this.mode == Mode.Form) {
+				if (nPDFFormHandler != 0)
+					EMBJavaSupport.FPDFFormFillDraw(nPDFFormHandler, dib,
+							nPDFCurPageHandler, 0, 0, displayWidth,
+							displayHeight, 0, 0);
+				bmpbuf = EMBJavaSupport.FSBitmapGetBuffer(dib);
+				bmBuffer = ByteBuffer.wrap(bmpbuf);
+				bm.copyPixelsFromBuffer(bmBuffer);
+			}
+			// /
+
 			EMBJavaSupport.FSBitmapDestroy(dib);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
@@ -245,17 +320,18 @@ public class YYPDFDoc {
 	/**
 	 * 文件保存或者另存为
 	 * 
-	 * @param fileName 新的文件名
-	 * @return 0：成功  
+	 * @param fileName
+	 *            新的文件名
+	 * @return 0：成功
 	 */
 	public int save(String fileName) {
 		try {
 			int filewrite = EMBJavaSupport.FSFileWriteAlloc(fileName);
 			EMBJavaSupport.FPDFDocSaveAs(nPDFDocHandler,
-				EMBJavaSupport.EMBJavaSupport_SAVEFLAG_INCREMENTAL, 0,
-				filewrite);
-		EMBJavaSupport.FSFileWriteRelease(filewrite);
-		return EMBJavaSupport.EMBJavaSupport_RESULT_SUCCESS;
+					EMBJavaSupport.EMBJavaSupport_SAVEFLAG_INCREMENTAL, 0,
+					filewrite);
+			EMBJavaSupport.FSFileWriteRelease(filewrite);
+			return EMBJavaSupport.EMBJavaSupport_RESULT_SUCCESS;
 		} catch (memoryException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -265,6 +341,18 @@ public class YYPDFDoc {
 
 	// clean up unmanaged resources
 	public void close() {
+		// /formfiller implemention
+		if (this.nPDFFormHandler > 0) {
+			EMBJavaSupport.FPDFDocExitFormFillEnviroument(nPDFFormHandler);
+			nPDFFormHandler = 0;
+			EMBJavaSupport.FPDFFormFillerInfoRelease(nPDFFormFillerInfo);
+			nPDFFormFillerInfo = 0;
+			EMBJavaSupport.FPDFJsPlatformRelease(nPDFJsPlatform);
+			nPDFJsPlatform = 0;
+
+		}
+		// ///
+
 		for (int i = 0; i < pageHandlers.length; i++) {
 			if (pageHandlers[i] > 0) {// if page handle exist for that page
 				try {
@@ -314,5 +402,54 @@ public class YYPDFDoc {
 	public int getDocumentHandler() {
 		// TODO Auto-generated method stub
 		return this.nPDFDocHandler;
+	}
+	
+public int addAnnot(AnnotationType annotationType,RectangleF rect) throws memoryException{
+		
+		switch(annotationType){
+		
+			case NONE:{
+				return EMBJavaSupport.EMBJavaSupport_RESULT_ERROR;
+			}
+			
+			case NOTE:{
+				int nCount = EMBJavaSupport.FPDFAnnotGetCount(this.getCurrentPageHandler());
+				int nNoteInfoItem = EMBJavaSupport.FPDFNoteInfoAlloc("James", 0x0000ff, 80, rect, "I like note",this.getCurrentPageHandler());
+				nCount = EMBJavaSupport.FPDFAnnotGetCount(this.getCurrentPageHandler());
+				int nIndex = EMBJavaSupport.FPDFAnnotAdd(this.getCurrentPageHandler(), EMBJavaSupport.EMBJavaSupport_ANNOTTYPE_NOTE, nNoteInfoItem);
+				EMBJavaSupport.FPDFNoteInfoRelease(nNoteInfoItem);
+				break;
+			}
+			
+			case PENCIL:{
+				int line_count = 2;
+				int nPencilInfoItem = EMBJavaSupport.FPDFPencilInfoAlloc("James", 0xff0000, 80, true, true, 5, line_count);
+				int nLineInfo = EMBJavaSupport.FPDFLineInfoAlloc(line_count);
+				float[] points1 = {300f, 100f, 400f, 200f};
+				float[] points2 = {400f, 200f, 500f, 200f, 400f, 100f};
+				EMBJavaSupport.FPDFLineInfoSetPointInfo(nLineInfo, 0, 2, points1);
+				EMBJavaSupport.FPDFLineInfoSetPointInfo(nLineInfo, 1, 3, points2);
+				EMBJavaSupport.FPDFPencilInfoSetLineInfo(nPencilInfoItem, nLineInfo);
+				int nIndex = EMBJavaSupport.FPDFAnnotAdd(this.getCurrentPageHandler(), EMBJavaSupport.EMBJavaSupport_ANNOTTYPE_PENCIL, nPencilInfoItem);
+				EMBJavaSupport.FPDFLineInfoRelease(nLineInfo);
+				EMBJavaSupport.FPDFPencilInfoRelease(nPencilInfoItem);
+				
+				break;
+			}
+			
+			case STAMP:{
+				String path = "/mnt/sdcard/FoxitLog.jpg";
+				int nStampInfo = EMBJavaSupport.FPDFStampInfoAlloc("James", 0xffff00, 80, rect, "Stamp_Test", path);
+				int nIndex = EMBJavaSupport.FPDFAnnotAdd(this.getCurrentPageHandler(), EMBJavaSupport.EMBJavaSupport_ANNOTTYPE_STAMP, nStampInfo);
+				EMBJavaSupport.FPDFStampInfoRelease(nStampInfo);
+				break;
+			}
+			default:
+				break;
+		}
+//		int filewrite = EMBJavaSupport.FSFileWriteAlloc("/data/data/com.foxitsample.annotations/FoxitSaveAnnotation.pdf");
+//		EMBJavaSupport.FPDFDocSaveAs(nPDFDocHandler, EMBJavaSupport.EMBJavaSupport_SAVEFLAG_INCREMENTAL,0, filewrite);
+//		EMBJavaSupport.FSFileWriteRelease(filewrite);
+		return EMBJavaSupport.EMBJavaSupport_RESULT_SUCCESS;
 	}
 }

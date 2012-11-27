@@ -5,4 +5,9 @@
     <item android:id="@+id/open" android:title="open file"></item>
     <item android:id="@+id/previous" android:title="previous"></item>
     <item android:id="@+id/next" android:title="next"></item>
+    <group android:id="@+id/Mode">
+        <item android:id="@+id/Mode_Read" android:title="Read">
+            <menu></menu>
+        </item>
+    </group>
 </menu>

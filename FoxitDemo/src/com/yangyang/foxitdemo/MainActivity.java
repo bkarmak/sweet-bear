@@ -12,6 +12,7 @@ import android.view.WindowManager;
 
 import com.yangyang.foxitdemo.OpenFileDialog.CallbackBundle;
 import com.yangyang.foxitsdk.service.YYPDFDoc;
+import com.yangyang.foxitsdk.service.YYPDFDoc.Mode;
 import com.yangyang.foxitsdk.view.PDFView;
 
 public class MainActivity extends Activity {
@@ -62,6 +63,11 @@ public class MainActivity extends Activity {
 				this.pdfView.nextPage();
 			}
 			break;
+		case R.id.Mode_Read:
+			if (pDoc != null) {
+				this.pdfView.changeMode(Mode.Read);
+			}
+			break;
 		}
 		return super.onMenuItemSelected(featureId, item);
 	}
@@ -97,7 +103,7 @@ public class MainActivity extends Activity {
 									(int) pDoc.GetPageSizeY(0),
 									MainActivity.this.nDisplayWidth,
 									MainActivity.this.nDisplayHeight);
-							
+
 							MainActivity.this.pdfView.showCurrentPage();
 						}
 					}, ".pdf;");

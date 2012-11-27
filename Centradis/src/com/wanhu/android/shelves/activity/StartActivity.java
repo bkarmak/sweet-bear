@@ -198,9 +198,13 @@ public class StartActivity extends ActivityFrame implements OnLoginListener {
 
 	@Override
 	public void onLoginButtonClicked(String pUserName, String pPassword) {
-		ShelvesActivity.show(StartActivity.this);
-		if (true)
+		mLoginDialog.dismiss();
+		this.finish();
+		if (true) {
+			ShelvesActivity.show(StartActivity.this);
 			return;
+		}
+
 		if (mLoginBusiness.isNetworkAvaiable()) {
 			onLogin(pUserName, pPassword);
 		} else {
