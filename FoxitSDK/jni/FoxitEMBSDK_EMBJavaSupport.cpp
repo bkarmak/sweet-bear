@@ -65,40 +65,40 @@ void throwExceptionHelper(JNIEnv *env, jclass obj, const char* exceptionName, co
 void throwException(JNIEnv *env, jclass obj, int errorcode, const char* msg) {
 	switch(errorcode) {
 		case FS_ERR_MEMORY:
-			throwExceptionHelper(env,obj,"com/foxitsample/exception/memoryException", msg);
+			throwExceptionHelper(env,obj,"com/yangyang/foxitsdk/exception/memoryException", msg);
 			break;
 		case FS_ERR_ERROR:
-			throwExceptionHelper(env,obj,"com/foxitsample/exception/errorException", msg);
+			throwExceptionHelper(env,obj,"com/yangyang/foxitsdk/exception/errorException", msg);
 			break;
 		case FS_ERR_PASSWORD:
-			throwExceptionHelper(env,obj,"com/foxitsample/exception/passwordException", msg);
+			throwExceptionHelper(env,obj,"com/yangyang/foxitsdk/exception/passwordException", msg);
 			break;
 		case FS_ERR_FORMAT:
-			throwExceptionHelper(env,obj,"com/foxitsample/exception/formatException", msg);
+			throwExceptionHelper(env,obj,"com/yangyang/foxitsdk/exception/formatException", msg);
 			break;
 		case FS_ERR_FILE:
-			throwExceptionHelper(env,obj,"com/foxitsample/exception/fileAccessException", msg);
+			throwExceptionHelper(env,obj,"com/yangyang/foxitsdk/exception/fileAccessException", msg);
 			break;
 		case FS_ERR_PARAM:
-			throwExceptionHelper(env,obj,"com/foxitsample/exception/parameterException", msg);
+			throwExceptionHelper(env,obj,"com/yangyang/foxitsdk/exception/parameterException", msg);
 			break;
 		case FS_ERR_STATUS:
-			throwExceptionHelper(env,obj,"com/foxitsample/exception/passwordException", msg);
+			throwExceptionHelper(env,obj,"com/yangyang/foxitsdk/exception/passwordException", msg);
 			break;
 		case FS_ERR_TOBECONTINUED:
-			throwExceptionHelper(env,obj,"com/foxitsample/exception/toBeContinuedException", msg);
+			throwExceptionHelper(env,obj,"com/yangyang/foxitsdk/exception/toBeContinuedException", msg);
 			break;
 		case FS_ERR_NOTFOUND:
-			throwExceptionHelper(env,obj,"com/foxitsample/exception/searchNotFoundException", msg);
+			throwExceptionHelper(env,obj,"com/yangyang/foxitsdk/exception/searchNotFoundException", msg);
 			break;
 		case FS_ERR_UNPARSEDPAGE:
-			throwExceptionHelper(env,obj,"com/foxitsample/exception/unparsedPageException", msg);
+			throwExceptionHelper(env,obj,"com/yangyang/foxitsdk/exception/unparsedPageException", msg);
 			break;
 		case FS_ERR_NOTEXTONPAGE:
-			throwExceptionHelper(env,obj,"com/foxitsample/exception/noTextOnPageException",msg);
+			throwExceptionHelper(env,obj,"com/yangyang/foxitsdk/exception/noTextOnPageException",msg);
 			break;
 		case FS_ERR_INVALID_LICENSE:
-			throwExceptionHelper(env,obj,"com/foxitsample/exception/invalidLicenseException",msg);
+			throwExceptionHelper(env,obj,"com/yangyang/foxitsdk/exception/invalidLicenseException",msg);
 		default:
 			break;
 	}

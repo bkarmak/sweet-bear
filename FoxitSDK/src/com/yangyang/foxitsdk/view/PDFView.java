@@ -179,10 +179,12 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 		this.nDisplayHeight = displayHeight;
 		this.zoomStatus = new ZoomStatus(pageWidth, pageHeight, displayWidth,
 				displayHeight);
-		this.leftBound = this.getLeft();
-		this.topBound = this.getTop();
-		this.nDisplayWidth = this.getWidth();
-		this.nDisplayHeight = this.getHeight();
+		// this.leftBound = this.getLeft();
+		// this.topBound = this.getTop();
+		// this.nDisplayWidth = this.getWidth();
+		// this.nDisplayHeight = this.getHeight();
+		// Log.i("pdfview", "left bound:" + leftBound +",top bound:" + topBound
+		// +",width:" + nDisplayWidth + ",height:" + nDisplayHeight);
 	}
 
 	public int getCurrentPage() {
@@ -323,6 +325,10 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 	}
 
 	public void setPDFBitmap(Bitmap dib) {
+		if (pdfbmp != null) {
+			pdfbmp.recycle();
+			pdfbmp = null;
+		}
 		pdfbmp = dib;
 		CurrentBitmap = dib;
 	}
@@ -344,6 +350,10 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 				mt.postTranslate(0, 0);
 				canvas.drawColor(0xffffff);
 				canvas.drawBitmap(this.CurrentBitmap, mt, mPaint);
+				if (this.CurrentBitmap != this.pdfbmp) {
+					this.CurrentBitmap.recycle();
+					this.CurrentBitmap = null;
+				}
 			}
 			if (dirtydib != null) {
 				Matrix m = new Matrix();

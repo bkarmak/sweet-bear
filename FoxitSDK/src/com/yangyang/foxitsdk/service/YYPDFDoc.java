@@ -74,8 +74,7 @@ public class YYPDFDoc {
 			return;
 		}
 		EMBJavaSupport.FSInitLibrary(0);
-		EMBJavaSupport.FSUnlock("SDKEDTEMP",
-				"3C86F25880658927118E766271BEB68454E49DFD");
+		EMBJavaSupport.FSUnlock("XXXXXXXX", "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
 		LoadJbig2Decoder();
 		LoadJpeg2000Decoder();
 		LoadCNSFontCMap();

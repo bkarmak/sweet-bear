@@ -327,7 +327,7 @@ public class ShelvesActivity extends Activity {
 		Log.d(bookId,"SHELVE EREADER ACTIVITY BOOKID");
 		
 		Log.d(localPath,"SHELVE EREADER ACTIVITY LOCALPATH");
-		
+		this.finish();
 		EReaderActivity.show(this, bookId, localPath);
 	}
 

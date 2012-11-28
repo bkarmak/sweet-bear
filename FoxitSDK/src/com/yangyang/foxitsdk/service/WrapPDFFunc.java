@@ -86,9 +86,8 @@ public class WrapPDFFunc {
 			throws parameterException, invalidLicenseException {
 		EMBJavaSupport.FSMemInitFixedMemory(initMemSize);
 		EMBJavaSupport.FSInitLibrary(0);
-		EMBJavaSupport.FSUnlock("SDKEDTEMP",
-				"3C86F25880658927118E766271BEB68454E49DFD");
-
+		EMBJavaSupport.FSUnlock("SDKEDFZ1101",
+				"67F4682D93E2DEC7D70457CBB6866EE1762DFD45");
 		// ///////formfiller implemention
 		if (mainView == null)
 			return false;
