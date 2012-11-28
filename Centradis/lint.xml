@@ -1,3 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <lint>
+    <issue id="UnusedNamespace">
+        <ignore path="res/layout/screen_ereader.xml" />
+    </issue>
 </lint>

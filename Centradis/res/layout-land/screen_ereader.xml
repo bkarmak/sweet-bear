@@ -26,7 +26,7 @@
             android:text="@string/ereader_menu" />
     </RelativeLayout>
 
-    <pdftron.PDF.PDFViewCtrl
+    <com.yangyang.foxitsdk.view.PDFView
         android:id="@+id/pdfViewCtrl"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
