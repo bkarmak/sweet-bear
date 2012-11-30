@@ -9,6 +9,7 @@ import FoxitEMBSDK.EMBJavaSupport.Rectangle;
 import FoxitEMBSDK.EMBJavaSupport.RectangleF;
 
 import android.graphics.Bitmap;
+import android.graphics.Rect;
 import android.util.Log;
 
 import com.yangyang.foxitsdk.exception.memoryException;
@@ -18,7 +19,6 @@ import com.yangyang.foxitsdk.view.IPDFView;
 public class YYPDFDoc {
 
 	/* state variables */
-	private boolean cleanUpFlag = true;
 	private boolean initFlag = false;
 	private int fileAccessHandle = 0;
 	private int nPDFDocHandler = 0;
@@ -30,7 +30,6 @@ public class YYPDFDoc {
 	private Mode mode = Mode.Read;
 
 	/** form */
-	private IPDFView mainView = null;
 	private CPDFFormFillerInfo formFillerInfo = null;
 	private int nPDFFormFillerInfo = 0;
 	private CPDFJsPlatform jsPlatform = null;
@@ -74,7 +73,7 @@ public class YYPDFDoc {
 			return;
 		}
 		EMBJavaSupport.FSInitLibrary(0);
-		EMBJavaSupport.FSUnlock("XXXXXXXX", "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
+		EMBJavaSupport.FSUnlock("XXXXXXXXX", "XXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
 		LoadJbig2Decoder();
 		LoadJpeg2000Decoder();
 		LoadCNSFontCMap();
@@ -140,14 +139,11 @@ public class YYPDFDoc {
 		}
 	}
 
-	public void updateMode(Mode mode) {
+	public void updateMode(Mode mode, IPDFView view) {
 		this.mode = mode;
 		switch (this.mode) {
 		case Form:
-			if (mainView == null)
-				return;
-			formFillerInfo = new EMBJavaSupport().new CPDFFormFillerInfo(
-					mainView);
+			formFillerInfo = new EMBJavaSupport().new CPDFFormFillerInfo(view);
 			if (formFillerInfo == null)
 				return;
 			nPDFFormFillerInfo = EMBJavaSupport
@@ -198,6 +194,14 @@ public class YYPDFDoc {
 						nPDFDocHandler, pageNumber);
 				EMBJavaSupport.FPDFPageStartParse(pageHandlers[pageNumber], 0,
 						0);
+				if (this.mode == mode.Form) {
+					// /formfiller implemention
+					// EMBJavaSupport.FPDF_FormFill_OnAfterLoadPage(nPageHandler,
+					// nPDFFormHandler);
+					EMBJavaSupport.FPDFFormFillOnAfterLoadPage(nPDFFormHandler,
+							pageHandlers[pageNumber]);
+				}
+
 			} catch (memoryException e) {
 				postToLog(e.getMessage());
 			} catch (Exception e) {
@@ -289,6 +293,46 @@ public class YYPDFDoc {
 		return bm;
 	}
 
+	public Bitmap getDirtyBitmap(Rect rect, int nSizex, int nSizey) {
+		Bitmap bm = null;
+		int nPDFCurPageHandler = this.getCurrentPageHandler();
+		if (nPDFCurPageHandler == 0) {
+			return null;
+		}
+
+		bm = Bitmap.createBitmap(rect.width(), rect.height(),
+				Bitmap.Config.ARGB_8888);
+		int dib;
+		try {
+			dib = EMBJavaSupport.FSBitmapCreate(rect.width(), rect.height(), 7,
+					null, 0);
+
+			EMBJavaSupport.FSBitmapFillColor(dib, 0xff);
+			EMBJavaSupport.FPDFRenderPageStart(dib, nPDFCurPageHandler,
+					-rect.left, -rect.top, nSizex, nSizey, 0, 0, null, 0);
+
+			// /formfiller implemention
+			if (nPDFFormHandler == 0)
+				return null;
+			EMBJavaSupport.FPDFFormFillDraw(nPDFFormHandler, dib,
+					nPDFCurPageHandler, -rect.left, -rect.top, nSizex, nSizey,
+					0, 0);
+			// /
+
+			byte[] bmpbuf = EMBJavaSupport.FSBitmapGetBuffer(dib);
+
+			ByteBuffer bmBuffer = ByteBuffer.wrap(bmpbuf);
+			bm.copyPixelsFromBuffer(bmBuffer);
+
+			EMBJavaSupport.FSBitmapDestroy(dib);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		return bm;
+	}
+
 	private void RenderPage(int pageHandler, Bitmap bm, int startX, int startY,
 			float xScale, float yScale, int rotate, int flags, Rectangle rect,
 			int pauseHandler) {
@@ -366,7 +410,6 @@ public class YYPDFDoc {
 		if (fileAccessHandle != 0) {
 			EMBJavaSupport.FSFileReadRelease(fileAccessHandle);
 		}
-		cleanUpFlag = false;
 	}
 
 	public float GetPageSizeX(int pageIndex) {
@@ -469,5 +512,9 @@ public class YYPDFDoc {
 		// EMBJavaSupport.EMBJavaSupport_SAVEFLAG_INCREMENTAL,0, filewrite);
 		// EMBJavaSupport.FSFileWriteRelease(filewrite);
 		return EMBJavaSupport.EMBJavaSupport_RESULT_SUCCESS;
+	}
+
+	public int getPDFFormHandler() {
+		return nPDFFormHandler;
 	}
 }

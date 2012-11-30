@@ -68,6 +68,11 @@ public class MainActivity extends Activity {
 				this.pdfView.changeMode(Mode.Read);
 			}
 			break;
+		case R.id.Form:
+			if (pDoc != null) {
+				this.pdfView.changeMode(Mode.Form);
+			}
+			break;
 		}
 		return super.onMenuItemSelected(featureId, item);
 	}

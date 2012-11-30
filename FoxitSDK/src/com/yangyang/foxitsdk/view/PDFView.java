@@ -32,7 +32,7 @@ import com.yangyang.foxitsdk.service.YYPDFDoc.Mode;
 import com.yangyang.foxitsdk.util.ZoomStatus;
 
 public class PDFView extends SurfaceView implements Callback, Runnable,
-		OnGestureListener, OnDoubleTapListener {
+		OnGestureListener, OnDoubleTapListener, IPDFView {
 
 	private SurfaceHolder Holder;
 	private Rect rect = null;
@@ -100,6 +100,7 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 	 */
 	public void changeMode(Mode mode) {
 		this.mode = mode;
+		this.pDoc.updateMode(mode, this);
 	}
 
 	float baseValue, last_x, last_y;
@@ -149,6 +150,41 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 			return true;
 
 		} else if (this.mode == Mode.Form) {
+
+			int actionType = event.getAction() & MotionEvent.ACTION_MASK;
+			int actionId = event.getAction()
+					& MotionEvent.ACTION_POINTER_ID_MASK;
+			actionId = actionId >> 8;
+
+			PointF point = new EMBJavaSupport().new PointF();
+			point.x = event.getX();
+			point.y = event.getY();
+			EMBJavaSupport.FPDFPageDeviceToPagePointF(
+					pDoc.getCurrentPageHandler(), 0, 0,
+					zoomStatus.getDisplayWidth(),
+					zoomStatus.getDisplayHeight(), 0, point);
+
+			switch (actionType) {
+			case MotionEvent.ACTION_MOVE://
+				EMBJavaSupport.FPDFFormFillOnMouseMove(
+						pDoc.getPDFFormHandler(), pDoc.getCurrentPageHandler(),
+						0, point.x, point.y);
+				break;
+			case MotionEvent.ACTION_DOWN: //
+				EMBJavaSupport.FPDFFormFillOnMouseMove(
+						pDoc.getPDFFormHandler(), pDoc.getCurrentPageHandler(),
+						0, point.x, point.y);
+				EMBJavaSupport.FPDFFormFillOnLButtonDown(
+						pDoc.getPDFFormHandler(), pDoc.getCurrentPageHandler(),
+						0, point.x, point.y);
+				break;
+			case MotionEvent.ACTION_UP: //
+				EMBJavaSupport.FPDFFormFillOnLButtonUp(
+						pDoc.getPDFFormHandler(), pDoc.getCurrentPageHandler(),
+						0, point.x, point.y);
+				break;
+			}
+			return true;
 
 		} else if (this.mode == Mode.PSI) {
 
@@ -225,8 +261,13 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 	}
 
 	public void showCurrentPage() {
-		this.setPDFBitmap(this.getPageBitmap(zoomStatus.getWidth(),
-				zoomStatus.getHeight()));
+		if (this.mode == Mode.Read)
+			this.setPDFBitmap(this.getPageBitmap(zoomStatus.getWidth(),
+					zoomStatus.getHeight()));
+		else if (this.mode == mode.Form) {
+			this.setPDFBitmap(this.getPageBitmap(zoomStatus.getDisplayWidth(),
+					zoomStatus.getDisplayHeight()));
+		}
 		this.OnDraw();
 	}
 
@@ -415,17 +456,17 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 	public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,
 			float velocityY) {
 		// TODO Auto-generated method stub
-		if (true)
-			return false;
-		if (e1.getX() - e2.getX() > FLING_SIZE && velocityX > VELOCITYLIMIT
-				&& velocityY < VELOCITYLIMIT) {
-			this.nextPage();
-			return true;
-		} else if (e1.getX() - e2.getX() < -FLING_SIZE
-				&& velocityX > VELOCITYLIMIT && velocityY < VELOCITYLIMIT) {
-			this.previousPage();
-			return true;
-		}
+		// if (true)
+		// return false;
+		// if (e1.getX() - e2.getX() > FLING_SIZE && velocityX > VELOCITYLIMIT
+		// && velocityY < VELOCITYLIMIT) {
+		// this.nextPage();
+		// return true;
+		// } else if (e1.getX() - e2.getX() < -FLING_SIZE
+		// && velocityX > VELOCITYLIMIT && velocityY < VELOCITYLIMIT) {
+		// this.previousPage();
+		// return true;
+		// }
 		return false;
 	}
 
@@ -514,6 +555,34 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 	public boolean onDoubleTapEvent(MotionEvent e) {
 		// TODO Auto-generated method stub
 		return false;
+	}
+
+	@Override
+	public void createAndroidTextField(String focusText) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void invalidate(float left, float top, float right, float bottom) {
+		// TODO Auto-generated method stub
+		int l, t, r, b;
+		RectangleF rect = new EMBJavaSupport().new RectangleF();
+		rect.left = left;
+		rect.top = top;
+		rect.right = right;
+		rect.bottom = bottom;
+		EMBJavaSupport.FPDFPagePageToDeviceRectF(pDoc.getCurrentPageHandler(),
+				0, 0, nDisplayWidth, nDisplayHeight, 0, rect);
+		l = (int) rect.left;
+		t = (int) rect.top;
+		r = (int) rect.right;
+		b = (int) rect.bottom;
+		Rect rc = new Rect(l, t, r, b);
+		this.setDirtyRect(l, t, r, b);
+		this.setDirtyBitmap(pDoc.getDirtyBitmap(rc, nDisplayWidth,
+				nDisplayHeight));
+		this.OnDraw();
 	}
 
 }
