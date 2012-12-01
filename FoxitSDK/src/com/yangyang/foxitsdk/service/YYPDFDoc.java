@@ -73,7 +73,7 @@ public class YYPDFDoc {
 			return;
 		}
 		EMBJavaSupport.FSInitLibrary(0);
-		EMBJavaSupport.FSUnlock("XXXXXXXXX", "XXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
+		EMBJavaSupport.FSUnlock("XXXXXXXXX", "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
 		LoadJbig2Decoder();
 		LoadJpeg2000Decoder();
 		LoadCNSFontCMap();
@@ -119,7 +119,7 @@ public class YYPDFDoc {
 		}
 	}
 
-	public YYPDFDoc(String filePath, String password) {
+	public YYPDFDoc(String filePath, String password, IPDFView view) {
 		try {
 			if (!initFlag)
 				this.initFoxitSDK(5 * 1024 * 1024);
@@ -137,30 +137,34 @@ public class YYPDFDoc {
 			postToLog(e.getMessage());
 			return;
 		}
+
+		// /form info///
+		formFillerInfo = new EMBJavaSupport().new CPDFFormFillerInfo(view);
+		if (formFillerInfo == null)
+			return;
+		nPDFFormFillerInfo = EMBJavaSupport
+				.FPDFFormFillerInfoAlloc(formFillerInfo);
+		if (nPDFFormFillerInfo == 0)
+			return;
+
+		jsPlatform = new EMBJavaSupport().new CPDFJsPlatform();
+		if (jsPlatform == null)
+			return;
+		nPDFJsPlatform = EMBJavaSupport.FPDFJsPlatformAlloc(jsPlatform);
+		if (nPDFJsPlatform == 0)
+			return;
+		nPDFFormHandler = EMBJavaSupport.FPDFDocInitFormFillEnviroument(
+				nPDFDocHandler, nPDFFormFillerInfo);
+		if (nPDFFormHandler == 0)
+			return;
+		// /form info///
 	}
 
 	public void updateMode(Mode mode, IPDFView view) {
 		this.mode = mode;
 		switch (this.mode) {
 		case Form:
-			formFillerInfo = new EMBJavaSupport().new CPDFFormFillerInfo(view);
-			if (formFillerInfo == null)
-				return;
-			nPDFFormFillerInfo = EMBJavaSupport
-					.FPDFFormFillerInfoAlloc(formFillerInfo);
-			if (nPDFFormFillerInfo == 0)
-				return;
 
-			jsPlatform = new EMBJavaSupport().new CPDFJsPlatform();
-			if (jsPlatform == null)
-				return;
-			nPDFJsPlatform = EMBJavaSupport.FPDFJsPlatformAlloc(jsPlatform);
-			if (nPDFJsPlatform == 0)
-				return;
-			nPDFFormHandler = EMBJavaSupport.FPDFDocInitFormFillEnviroument(
-					nPDFDocHandler, nPDFFormFillerInfo);
-			if (nPDFFormHandler == 0)
-				return;
 			break;
 		}
 	}
@@ -274,11 +278,10 @@ public class YYPDFDoc {
 			bm.copyPixelsFromBuffer(bmBuffer);
 
 			// /formfiller implemention
-			if (this.mode == Mode.Form) {
-				if (nPDFFormHandler != 0)
-					EMBJavaSupport.FPDFFormFillDraw(nPDFFormHandler, dib,
-							nPDFCurPageHandler, 0, 0, displayWidth,
-							displayHeight, 0, 0);
+			if (nPDFFormHandler != 0) {
+				EMBJavaSupport.FPDFFormFillDraw(nPDFFormHandler, dib,
+						nPDFCurPageHandler, 0, 0, displayWidth, displayHeight,
+						0, 0);
 				bmpbuf = EMBJavaSupport.FSBitmapGetBuffer(dib);
 				bmBuffer = ByteBuffer.wrap(bmpbuf);
 				bm.copyPixelsFromBuffer(bmBuffer);
