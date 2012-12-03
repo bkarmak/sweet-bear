@@ -5,6 +5,7 @@ import java.nio.ByteBuffer;
 import FoxitEMBSDK.EMBJavaSupport;
 import FoxitEMBSDK.EMBJavaSupport.CPDFFormFillerInfo;
 import FoxitEMBSDK.EMBJavaSupport.CPDFJsPlatform;
+import FoxitEMBSDK.EMBJavaSupport.CPDFPSI;
 import FoxitEMBSDK.EMBJavaSupport.Rectangle;
 import FoxitEMBSDK.EMBJavaSupport.RectangleF;
 
@@ -35,6 +36,11 @@ public class YYPDFDoc {
 	private CPDFJsPlatform jsPlatform = null;
 	private int nPDFJsPlatform = 0;
 	private int nPDFFormHandler = 0;
+
+	/** psi */
+	private CPDFPSI fxPsi = null;
+	private int nPSICallback = 0;
+	private int nPSIHandle = 0;
 
 	public enum Mode {
 		Read, // 只读模式（默认）
@@ -73,7 +79,8 @@ public class YYPDFDoc {
 			return;
 		}
 		EMBJavaSupport.FSInitLibrary(0);
-		EMBJavaSupport.FSUnlock("XXXXXXXXX", "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
+		EMBJavaSupport.FSUnlock("SDKEDFZ1101",
+				"67F4682D93E2DEC7D70457CBB6866EE1762DFD45");
 		LoadJbig2Decoder();
 		LoadJpeg2000Decoder();
 		LoadCNSFontCMap();
@@ -153,10 +160,6 @@ public class YYPDFDoc {
 		nPDFJsPlatform = EMBJavaSupport.FPDFJsPlatformAlloc(jsPlatform);
 		if (nPDFJsPlatform == 0)
 			return;
-		nPDFFormHandler = EMBJavaSupport.FPDFDocInitFormFillEnviroument(
-				nPDFDocHandler, nPDFFormFillerInfo);
-		if (nPDFFormHandler == 0)
-			return;
 		// /form info///
 	}
 
@@ -164,7 +167,16 @@ public class YYPDFDoc {
 		this.mode = mode;
 		switch (this.mode) {
 		case Form:
-
+			nPDFFormHandler = EMBJavaSupport.FPDFDocInitFormFillEnviroument(
+					nPDFDocHandler, nPDFFormFillerInfo);
+			break;
+		case Read:
+			if (nPDFFormHandler > 0) {
+				EMBJavaSupport.FPDFFormFillOnBeforeClosePage(nPDFFormHandler,
+						this.getCurrentPageHandler());
+				EMBJavaSupport.FPDFDocExitFormFillEnviroument(nPDFFormHandler);
+				nPDFFormHandler = 0;
+			}
 			break;
 		}
 	}
@@ -278,7 +290,7 @@ public class YYPDFDoc {
 			bm.copyPixelsFromBuffer(bmBuffer);
 
 			// /formfiller implemention
-			if (nPDFFormHandler != 0) {
+			if (nPDFFormHandler != 0 && mode == Mode.Form) {
 				EMBJavaSupport.FPDFFormFillDraw(nPDFFormHandler, dib,
 						nPDFCurPageHandler, 0, 0, displayWidth, displayHeight,
 						0, 0);
@@ -392,6 +404,8 @@ public class YYPDFDoc {
 		if (this.nPDFFormHandler > 0) {
 			EMBJavaSupport.FPDFDocExitFormFillEnviroument(nPDFFormHandler);
 			nPDFFormHandler = 0;
+		}
+		if (nPDFFormFillerInfo > 0) {
 			EMBJavaSupport.FPDFFormFillerInfoRelease(nPDFFormFillerInfo);
 			nPDFFormFillerInfo = 0;
 			EMBJavaSupport.FPDFJsPlatformRelease(nPDFJsPlatform);
@@ -519,5 +533,9 @@ public class YYPDFDoc {
 
 	public int getPDFFormHandler() {
 		return nPDFFormHandler;
+	}
+
+	public int getCurPSIHandle() {
+		return nPSIHandle;
 	}
 }

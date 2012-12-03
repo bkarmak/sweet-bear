@@ -2,6 +2,7 @@ package com.yangyang.foxitdemo;
 
 import android.app.Activity;
 import android.app.Dialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.Display;
 import android.view.Menu;
@@ -13,9 +14,10 @@ import android.view.WindowManager;
 import com.yangyang.foxitdemo.OpenFileDialog.CallbackBundle;
 import com.yangyang.foxitsdk.service.YYPDFDoc;
 import com.yangyang.foxitsdk.service.YYPDFDoc.Mode;
+import com.yangyang.foxitsdk.view.IPDFView;
 import com.yangyang.foxitsdk.view.PDFView;
 
-public class MainActivity extends Activity {
+public class MainActivity extends Activity implements IPDFView {
 
 	private YYPDFDoc pDoc;
 	private PDFView pdfView;
@@ -93,7 +95,7 @@ public class MainActivity extends Activity {
 
 	@Override
 	@Deprecated
-	protected Dialog onCreateDialog(int id) {
+	public Dialog onCreateDialog(int id) {
 		// TODO Auto-generated method stub
 		if (id == openFileDialogId) {
 			return OpenFileDialog.createDialog(openFileDialogId, this,
@@ -104,7 +106,8 @@ public class MainActivity extends Activity {
 							setTitle(filepath); // 把文件路径显示在标题上
 							MainActivity.this.pDoc = new YYPDFDoc(filepath, "",
 									pdfView);
-							MainActivity.this.pdfView.InitView(null, pDoc,
+							MainActivity.this.pdfView.InitView(
+									MainActivity.this, pDoc,
 									(int) pDoc.GetPageSizeX(0),
 									(int) pDoc.GetPageSizeY(0),
 									MainActivity.this.nDisplayWidth,
@@ -115,6 +118,42 @@ public class MainActivity extends Activity {
 					}, ".pdf;");
 		}
 		return super.onCreateDialog(id);
+	}
+
+	@Override
+	public void createAndroidTextField(String arg0) {
+		// TODO Auto-generated method stub
+		Intent intent = new Intent();
+		Bundle bundle = new Bundle();
+		bundle.putString("textValue", arg0);
+		intent.setClass(this, textfieldActivity.class);
+		intent.putExtra("key", bundle);
+		this.startActivityForResult(intent, 0);
+	}
+
+	@Override
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+		if (this.pdfView != null)
+			this.pdfView.onActivityResult(requestCode, resultCode, data);
+		super.onActivityResult(requestCode, resultCode, data);
+	}
+
+	@Override
+	public int getCurrentPageHandler() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public int getPageHandler(int arg0) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public void invalidate(float arg0, float arg1, float arg2, float arg3) {
+		// TODO Auto-generated method stub
+
 	}
 
 }

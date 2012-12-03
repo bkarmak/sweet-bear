@@ -14,6 +14,7 @@ import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.net.Uri;
+import android.os.Bundle;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.GestureDetector;
@@ -25,7 +26,6 @@ import android.view.SurfaceHolder.Callback;
 import android.view.SurfaceView;
 
 import com.yangyang.foxitsdk.exception.memoryException;
-import com.yangyang.foxitsdk.service.WrapPDFFunc;
 import com.yangyang.foxitsdk.service.YYPDFDoc;
 import com.yangyang.foxitsdk.service.YYPDFDoc.AnnotationType;
 import com.yangyang.foxitsdk.service.YYPDFDoc.Mode;
@@ -41,7 +41,7 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 	private Bitmap CurrentBitmap = null;
 	private int nDisplayWidth = 0;
 	private int nDisplayHeight = 0;
-	private WrapPDFFunc mFunc = null;
+	private IPDFView mFunc = null;
 	private Thread mViewThread = null;
 	private ArrayList<CPSIAction> mPSIActionList;
 	private YYPDFDoc pDoc;
@@ -207,7 +207,7 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 		}
 	}
 
-	public void InitView(WrapPDFFunc func, YYPDFDoc pDoc, int pageWidth,
+	public void InitView(IPDFView func, YYPDFDoc pDoc, int pageWidth,
 			int pageHeight, int displayWidth, int displayHeight) {
 		mFunc = func;
 		this.pDoc = pDoc;
@@ -370,6 +370,10 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 			pdfbmp.recycle();
 			pdfbmp = null;
 		}
+		if (dirtydib != null) {
+			dirtydib.recycle();
+			dirtydib = null;
+		}
 		pdfbmp = dib;
 		CurrentBitmap = dib;
 	}
@@ -434,9 +438,9 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 		while (!Thread.currentThread().isInterrupted()) {
 			CPSIAction action = getHeadAction();
 			if (action != null) {
-				Log.e("xxxxxxxxxx run run run", "" + mFunc.getCurPSIHandle()
+				Log.e("xxxxxxxxxx run run run", "" + pDoc.getCurPSIHandle()
 						+ action.x + action.y + action.nPressures + action.flag);
-				EMBJavaSupport.FPSIAddPoint(mFunc.getCurPSIHandle(), action.x,
+				EMBJavaSupport.FPSIAddPoint(pDoc.getCurPSIHandle(), action.x,
 						action.y, action.nPressures, action.flag);
 			}
 		}
@@ -559,8 +563,9 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 
 	@Override
 	public void createAndroidTextField(String focusText) {
-		// TODO Auto-generated method stub
-
+		// TODO Auto-g!enerated method stub
+		if (this.mFunc != null)
+			this.mFunc.createAndroidTextField(focusText);
 	}
 
 	@Override
@@ -583,6 +588,24 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 		this.setDirtyBitmap(pDoc.getDirtyBitmap(rc, nDisplayWidth,
 				nDisplayHeight));
 		this.OnDraw();
+	}
+
+	@Override
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+		// TODO Auto-generated method stub
+		if (resultCode == Activity.RESULT_OK && requestCode == 0) {
+			Bundle bundle = data.getBundleExtra("Result");
+			String text = bundle.getString("ResultValue");
+			Log.i("info", "info:" + text);
+			String result = ""
+					+ EMBJavaSupport.FPDFFormFillOnSetText(
+							pDoc.getPDFFormHandler(),
+							pDoc.getCurrentPageHandler(), text, 0);
+			Log.i("handler",
+					"result:" + pDoc.getPDFFormHandler() + ","
+							+ pDoc.getCurrentPageHandler());
+			Log.i("result", "result:" + result);
+		}
 	}
 
 }

@@ -17,7 +17,7 @@ import com.yangyang.foxitsdk.exception.toBeContinuedException;
 import com.yangyang.foxitsdk.view.IPDFView;
 
 public class EMBJavaSupport {
-	
+
 	public static EMBJavaSupport instance;
 
 	public final static int EMBJavaSupport_RESULT_SUCCESS = 0;
@@ -348,7 +348,8 @@ public class EMBJavaSupport {
 
 		public void FFI_OnSetFieldInputFocus(int field, String focustext,
 				int nTextLen) {
-			mainView.createAndroidTextField(focustext);
+			if (mainView != null)
+				mainView.createAndroidTextField(focustext);
 		}
 	}
 
