@@ -160,6 +160,10 @@ public class YYPDFDoc {
 		nPDFJsPlatform = EMBJavaSupport.FPDFJsPlatformAlloc(jsPlatform);
 		if (nPDFJsPlatform == 0)
 			return;
+		EMBJavaSupport.FPDFFormFillerInfoSetJsPlatform(nPDFFormFillerInfo,
+				nPDFJsPlatform);
+		EMBJavaSupport.FPDFJsPlatformSetFormFillerInfo(nPDFJsPlatform,
+				nPDFFormFillerInfo);
 		// /form info///
 	}
 
@@ -210,7 +214,7 @@ public class YYPDFDoc {
 						nPDFDocHandler, pageNumber);
 				EMBJavaSupport.FPDFPageStartParse(pageHandlers[pageNumber], 0,
 						0);
-				if (this.mode == mode.Form) {
+				if (true || this.mode == mode.Form) {
 					// /formfiller implemention
 					// EMBJavaSupport.FPDF_FormFill_OnAfterLoadPage(nPageHandler,
 					// nPDFFormHandler);
