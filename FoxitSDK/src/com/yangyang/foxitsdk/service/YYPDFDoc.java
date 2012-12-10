@@ -306,6 +306,7 @@ public class YYPDFDoc {
 		if (nPDFCurPageHandler == 0) {
 			return null;
 		}
+		Log.i("getpagebitmap", "current page:" + this.getCurrentPage());
 		Bitmap bm;
 		bm = Bitmap.createBitmap(displayWidth, displayHeight,
 				Bitmap.Config.ARGB_8888);
@@ -329,7 +330,7 @@ public class YYPDFDoc {
 				bmBuffer = ByteBuffer.wrap(bmpbuf);
 				bm.copyPixelsFromBuffer(bmBuffer);
 			}
-			// /
+			// ////////////////////////////
 
 			EMBJavaSupport.FSBitmapDestroy(dib);
 		} catch (Exception e) {

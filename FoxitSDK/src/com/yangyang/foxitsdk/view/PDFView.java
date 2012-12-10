@@ -41,7 +41,6 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 	private Bitmap CurrentBitmap = null;
 	private int nDisplayWidth = 0;
 	private int nDisplayHeight = 0;
-	private IPDFView mFunc = null;
 	private Thread mViewThread = null;
 	private ArrayList<CPSIAction> mPSIActionList;
 	private YYPDFDoc pDoc;
@@ -100,6 +99,7 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 	 */
 	public void changeMode(Mode mode) {
 		this.mode = mode;
+		EMBJavaSupport.FPDFFormFillUpdatForm(pDoc.getPDFFormHandler());
 		// this.pDoc.updateMode(mode);
 		this.showCurrentPage();
 	}
@@ -208,9 +208,8 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 		}
 	}
 
-	public void InitView(IPDFView func, YYPDFDoc pDoc, int pageWidth,
-			int pageHeight, int displayWidth, int displayHeight) {
-		mFunc = func;
+	public void InitView(YYPDFDoc pDoc, int pageWidth, int pageHeight,
+			int displayWidth, int displayHeight) {
 		this.pDoc = pDoc;
 		this.nDisplayWidth = displayWidth;
 		this.nDisplayHeight = displayHeight;
@@ -224,10 +223,6 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 
 	public int getCurrentPageHandler() {
 		return pDoc.getCurrentPageHandler();
-	}
-
-	public Bitmap getPageBitmap(int displayWidth, int displayHeight) {
-		return pDoc.getPageBitmap(displayWidth, displayHeight);
 	}
 
 	public int getPageCount() {
@@ -257,10 +252,10 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 
 	public void showCurrentPage() {
 		if (this.mode == Mode.Read)
-			this.setPDFBitmap(this.getPageBitmap(zoomStatus.getWidth(),
+			this.setPDFBitmap(pDoc.getPageBitmap(zoomStatus.getWidth(),
 					zoomStatus.getHeight()));
 		else if (this.mode == Mode.Form) {
-			this.setPDFBitmap(this.getPageBitmap(zoomStatus.getDisplayWidth(),
+			this.setPDFBitmap(pDoc.getPageBitmap(zoomStatus.getDisplayWidth(),
 					zoomStatus.getDisplayHeight()));
 		}
 		this.OnDraw();
@@ -448,8 +443,8 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 		return false;
 	}
 
-	private final static int FLING_SIZE = 120;
-	private final static int VELOCITYLIMIT = 100;
+	// private final static int FLING_SIZE = 120;
+	// private final static int VELOCITYLIMIT = 100;
 
 	@Override
 	public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,
@@ -558,22 +553,25 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 
 	public void invalidate(float left, float top, float right, float bottom) {
 		// TODO Auto-generated method stub
-		int l, t, r, b;
-		RectangleF rect = new EMBJavaSupport().new RectangleF();
-		rect.left = left;
-		rect.top = top;
-		rect.right = right;
-		rect.bottom = bottom;
-		EMBJavaSupport.FPDFPagePageToDeviceRectF(pDoc.getCurrentPageHandler(),
-				0, 0, nDisplayWidth, nDisplayHeight, 0, rect);
-		l = (int) rect.left;
-		t = (int) rect.top;
-		r = (int) rect.right;
-		b = (int) rect.bottom;
-		Rect rc = new Rect(l, t, r, b);
-		this.setDirtyRect(l, t, r, b);
-		this.setDirtyBitmap(pDoc.getDirtyBitmap(rc, nDisplayWidth,
-				nDisplayHeight));
-		this.OnDraw();
+		if (this.mode == Mode.Form) {
+			int l, t, r, b;
+			RectangleF rect = new EMBJavaSupport().new RectangleF();
+			rect.left = left;
+			rect.top = top;
+			rect.right = right;
+			rect.bottom = bottom;
+			EMBJavaSupport.FPDFPagePageToDeviceRectF(
+					pDoc.getCurrentPageHandler(), 0, 0, nDisplayWidth,
+					nDisplayHeight, 0, rect);
+			l = (int) rect.left;
+			t = (int) rect.top;
+			r = (int) rect.right;
+			b = (int) rect.bottom;
+			Rect rc = new Rect(l, t, r, b);
+			this.setDirtyRect(l, t, r, b);
+			this.setDirtyBitmap(pDoc.getDirtyBitmap(rc, nDisplayWidth,
+					nDisplayHeight));
+			this.OnDraw();
+		}
 	}
 }

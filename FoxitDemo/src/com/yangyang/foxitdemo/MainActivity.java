@@ -107,8 +107,7 @@ public class MainActivity extends Activity implements IPDFView {
 							setTitle(filepath); // 把文件路径显示在标题上
 							MainActivity.this.pDoc = new YYPDFDoc(filepath, "",
 									MainActivity.this);
-							MainActivity.this.pdfView.InitView(
-									MainActivity.this, pDoc,
+							MainActivity.this.pdfView.InitView(pDoc,
 									(int) pDoc.GetPageSizeX(0),
 									(int) pDoc.GetPageSizeY(0),
 									MainActivity.this.nDisplayWidth,
