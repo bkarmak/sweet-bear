@@ -32,7 +32,7 @@ import com.yangyang.foxitsdk.service.YYPDFDoc.Mode;
 import com.yangyang.foxitsdk.util.ZoomStatus;
 
 public class PDFView extends SurfaceView implements Callback, Runnable,
-		OnGestureListener, OnDoubleTapListener, IPDFView {
+		OnGestureListener, OnDoubleTapListener {
 
 	private SurfaceHolder Holder;
 	private Rect rect = null;
@@ -82,7 +82,7 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 	}
 
 	private void init() {
-		Holder = this.getHolder();// ��ȡholder
+		Holder = this.getHolder();
 		Holder.addCallback(this);
 		setFocusable(true);
 		setFocusableInTouchMode(true);
@@ -100,7 +100,8 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 	 */
 	public void changeMode(Mode mode) {
 		this.mode = mode;
-		this.pDoc.updateMode(mode, this);
+		// this.pDoc.updateMode(mode);
+		this.showCurrentPage();
 	}
 
 	float baseValue, last_x, last_y;
@@ -215,12 +216,6 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 		this.nDisplayHeight = displayHeight;
 		this.zoomStatus = new ZoomStatus(pageWidth, pageHeight, displayWidth,
 				displayHeight);
-		// this.leftBound = this.getLeft();
-		// this.topBound = this.getTop();
-		// this.nDisplayWidth = this.getWidth();
-		// this.nDisplayHeight = this.getHeight();
-		// Log.i("pdfview", "left bound:" + leftBound +",top bound:" + topBound
-		// +",width:" + nDisplayWidth + ",height:" + nDisplayHeight);
 	}
 
 	public int getCurrentPage() {
@@ -264,7 +259,7 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 		if (this.mode == Mode.Read)
 			this.setPDFBitmap(this.getPageBitmap(zoomStatus.getWidth(),
 					zoomStatus.getHeight()));
-		else if (this.mode == mode.Form) {
+		else if (this.mode == Mode.Form) {
 			this.setPDFBitmap(this.getPageBitmap(zoomStatus.getDisplayWidth(),
 					zoomStatus.getDisplayHeight()));
 		}
@@ -561,14 +556,6 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 		return false;
 	}
 
-	@Override
-	public void createAndroidTextField(String focusText) {
-		// TODO Auto-g!enerated method stub
-		if (this.mFunc != null)
-			this.mFunc.createAndroidTextField(focusText);
-	}
-
-	@Override
 	public void invalidate(float left, float top, float right, float bottom) {
 		// TODO Auto-generated method stub
 		int l, t, r, b;
@@ -589,23 +576,4 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 				nDisplayHeight));
 		this.OnDraw();
 	}
-
-	@Override
-	public void onActivityResult(int requestCode, int resultCode, Intent data) {
-		// TODO Auto-generated method stub
-		if (resultCode == Activity.RESULT_OK && requestCode == 0) {
-			Bundle bundle = data.getBundleExtra("Result");
-			String text = bundle.getString("ResultValue");
-			Log.i("info", "info:" + text);
-			String result = ""
-					+ EMBJavaSupport.FPDFFormFillOnSetText(
-							pDoc.getPDFFormHandler(),
-							pDoc.getCurrentPageHandler(), text, 0);
-			Log.i("handler",
-					"result:" + pDoc.getPDFFormHandler() + ","
-							+ pDoc.getCurrentPageHandler());
-			Log.i("result", "result:" + result);
-		}
-	}
-
 }

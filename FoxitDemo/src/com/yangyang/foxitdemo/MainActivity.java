@@ -1,5 +1,6 @@
 package com.yangyang.foxitdemo;
 
+import FoxitEMBSDK.EMBJavaSupport;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Intent;
@@ -105,7 +106,7 @@ public class MainActivity extends Activity implements IPDFView {
 							String filepath = bundle.getString("path");
 							setTitle(filepath); // 把文件路径显示在标题上
 							MainActivity.this.pDoc = new YYPDFDoc(filepath, "",
-									pdfView);
+									MainActivity.this);
 							MainActivity.this.pdfView.InitView(
 									MainActivity.this, pDoc,
 									(int) pDoc.GetPageSizeX(0),
@@ -133,27 +134,31 @@ public class MainActivity extends Activity implements IPDFView {
 
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
-		if (this.pdfView != null)
-			this.pdfView.onActivityResult(requestCode, resultCode, data);
+		if (resultCode == RESULT_OK && requestCode == 0) {
+			Bundle bundle = data.getBundleExtra("Result");
+			String text = bundle.getString("ResultValue");
+			EMBJavaSupport.FPDFFormFillOnSetText(pDoc.getPDFFormHandler(),
+					pDoc.getCurrentPageHandler(), text, 0);
+		}
 		super.onActivityResult(requestCode, resultCode, data);
 	}
 
 	@Override
 	public int getCurrentPageHandler() {
 		// TODO Auto-generated method stub
-		return 0;
+		return pDoc.getCurrentPageHandler();
 	}
 
 	@Override
 	public int getPageHandler(int arg0) {
 		// TODO Auto-generated method stub
-		return 0;
+		return pDoc.getPageHandler(arg0);
 	}
 
 	@Override
 	public void invalidate(float arg0, float arg1, float arg2, float arg3) {
 		// TODO Auto-generated method stub
-
+		this.pdfView.invalidate(arg0, arg1, arg2, arg3);
 	}
 
 }

@@ -28,7 +28,7 @@ public class YYPDFDoc {
 	private int nCurrentPageNumber = 0;
 	private static String TAG = "FoxitDoc";
 	private static final String strFontFilePath = "/mnt/sdcard/DroidSansFallback.ttf";
-	private Mode mode = Mode.Read;
+	private Mode mode = Mode.Form;
 
 	/** form */
 	private CPDFFormFillerInfo formFillerInfo = null;
@@ -36,6 +36,7 @@ public class YYPDFDoc {
 	private CPDFJsPlatform jsPlatform = null;
 	private int nPDFJsPlatform = 0;
 	private int nPDFFormHandler = 0;
+	private IPDFView view;
 
 	/** psi */
 	private CPDFPSI fxPsi = null;
@@ -81,6 +82,31 @@ public class YYPDFDoc {
 		EMBJavaSupport.FSInitLibrary(0);
 		EMBJavaSupport.FSUnlock("SDKEDFZ1101",
 				"67F4682D93E2DEC7D70457CBB6866EE1762DFD45");
+
+		// ///////formfiller implemention///////
+		if (view == null)
+			return;
+		formFillerInfo = new EMBJavaSupport().new CPDFFormFillerInfo(view);
+		if (formFillerInfo == null)
+			return;
+		nPDFFormFillerInfo = EMBJavaSupport
+				.FPDFFormFillerInfoAlloc(formFillerInfo);
+		if (nPDFFormFillerInfo == 0)
+			return;
+
+		jsPlatform = new EMBJavaSupport().new CPDFJsPlatform();
+		if (jsPlatform == null)
+			return;
+		nPDFJsPlatform = EMBJavaSupport.FPDFJsPlatformAlloc(jsPlatform);
+		if (nPDFJsPlatform == 0)
+			return;
+
+		EMBJavaSupport.FPDFFormFillerInfoSetJsPlatform(nPDFFormFillerInfo,
+				nPDFJsPlatform);
+		EMBJavaSupport.FPDFJsPlatformSetFormFillerInfo(nPDFJsPlatform,
+				nPDFFormFillerInfo);
+		// ////////////////////////////
+
 		LoadJbig2Decoder();
 		LoadJpeg2000Decoder();
 		LoadCNSFontCMap();
@@ -128,11 +154,14 @@ public class YYPDFDoc {
 
 	public YYPDFDoc(String filePath, String password, IPDFView view) {
 		try {
+			this.view = view;
 			if (!initFlag)
 				this.initFoxitSDK(5 * 1024 * 1024);
 			fileAccessHandle = EMBJavaSupport.FSFileReadAlloc(filePath);
 			nPDFDocHandler = EMBJavaSupport.FPDFDocLoad(fileAccessHandle,
 					password);
+			nPDFFormHandler = EMBJavaSupport.FPDFDocInitFormFillEnviroument(
+					nPDFDocHandler, nPDFFormFillerInfo);
 			this.pageHandlers = new int[this.getPageCounts()];
 		} catch (memoryException e) {
 			EMBJavaSupport.FSFileReadRelease(fileAccessHandle);
@@ -146,43 +175,42 @@ public class YYPDFDoc {
 		}
 
 		// /form info///
-		formFillerInfo = new EMBJavaSupport().new CPDFFormFillerInfo(view);
-		if (formFillerInfo == null)
-			return;
-		nPDFFormFillerInfo = EMBJavaSupport
-				.FPDFFormFillerInfoAlloc(formFillerInfo);
-		if (nPDFFormFillerInfo == 0)
-			return;
-
-		jsPlatform = new EMBJavaSupport().new CPDFJsPlatform();
-		if (jsPlatform == null)
-			return;
-		nPDFJsPlatform = EMBJavaSupport.FPDFJsPlatformAlloc(jsPlatform);
-		if (nPDFJsPlatform == 0)
-			return;
-		EMBJavaSupport.FPDFFormFillerInfoSetJsPlatform(nPDFFormFillerInfo,
-				nPDFJsPlatform);
-		EMBJavaSupport.FPDFJsPlatformSetFormFillerInfo(nPDFJsPlatform,
-				nPDFFormFillerInfo);
-		// /form info///
+		/**
+		 * formFillerInfo = new EMBJavaSupport().new CPDFFormFillerInfo(view);
+		 * if (formFillerInfo == null) return; nPDFFormFillerInfo =
+		 * EMBJavaSupport .FPDFFormFillerInfoAlloc(formFillerInfo); if
+		 * (nPDFFormFillerInfo == 0) return;
+		 * 
+		 * jsPlatform = new EMBJavaSupport().new CPDFJsPlatform(); if
+		 * (jsPlatform == null) return; nPDFJsPlatform =
+		 * EMBJavaSupport.FPDFJsPlatformAlloc(jsPlatform); if (nPDFJsPlatform ==
+		 * 0) return;
+		 * EMBJavaSupport.FPDFFormFillerInfoSetJsPlatform(nPDFFormFillerInfo,
+		 * nPDFJsPlatform);
+		 * EMBJavaSupport.FPDFJsPlatformSetFormFillerInfo(nPDFJsPlatform,
+		 * nPDFFormFillerInfo);
+		 */
+		// /form info//
 	}
 
-	public void updateMode(Mode mode, IPDFView view) {
+	public void updateMode(Mode mode) {
 		this.mode = mode;
-		switch (this.mode) {
-		case Form:
-			nPDFFormHandler = EMBJavaSupport.FPDFDocInitFormFillEnviroument(
-					nPDFDocHandler, nPDFFormFillerInfo);
-			break;
-		case Read:
-			if (nPDFFormHandler > 0) {
-				EMBJavaSupport.FPDFFormFillOnBeforeClosePage(nPDFFormHandler,
-						this.getCurrentPageHandler());
-				EMBJavaSupport.FPDFDocExitFormFillEnviroument(nPDFFormHandler);
-				nPDFFormHandler = 0;
-			}
-			break;
-		}
+		// switch (this.mode) {
+		// case Form:
+		// nPDFFormHandler = EMBJavaSupport.FPDFDocInitFormFillEnviroument(
+		// nPDFDocHandler, nPDFFormFillerInfo);
+		// break;
+		// case Read:
+		// if (nPDFFormHandler > 0) {
+		// EMBJavaSupport.FPDFFormFillOnBeforeClosePage(nPDFFormHandler,
+		// this.getCurrentPageHandler());
+		// EMBJavaSupport.FPDFDocExitFormFillEnviroument(nPDFFormHandler);
+		// nPDFFormHandler = 0;
+		// }
+		// break;
+		// default:
+		// break;
+		// }
 	}
 
 	/** Count PDF page. */
@@ -214,12 +242,11 @@ public class YYPDFDoc {
 						nPDFDocHandler, pageNumber);
 				EMBJavaSupport.FPDFPageStartParse(pageHandlers[pageNumber], 0,
 						0);
-				if (true || this.mode == mode.Form) {
+				if (true) {
 					// /formfiller implemention
-					// EMBJavaSupport.FPDF_FormFill_OnAfterLoadPage(nPageHandler,
-					// nPDFFormHandler);
 					EMBJavaSupport.FPDFFormFillOnAfterLoadPage(nPDFFormHandler,
 							pageHandlers[pageNumber]);
+					// //////////////////////////
 				}
 
 			} catch (memoryException e) {
@@ -350,30 +377,6 @@ public class YYPDFDoc {
 		}
 
 		return bm;
-	}
-
-	private void RenderPage(int pageHandler, Bitmap bm, int startX, int startY,
-			float xScale, float yScale, int rotate, int flags, Rectangle rect,
-			int pauseHandler) {
-		try {
-			int dib = EMBJavaSupport.FSBitmapCreate(bm.getWidth(),
-					bm.getHeight(), 7, null, 0);
-			EMBJavaSupport.FSBitmapFillColor(dib, 0xff);
-			float scaledWidth = bm.getWidth() * xScale;
-			float scaledHeight = bm.getHeight() * yScale;
-			EMBJavaSupport.FPDFRenderPageStart(dib, pageHandler, startX,
-					startY, (int) scaledWidth, (int) scaledHeight, rotate,
-					flags, rect, pauseHandler);
-			byte[] bmpbuf = EMBJavaSupport.FSBitmapGetBuffer(dib);
-
-			ByteBuffer bmBuffer = ByteBuffer.wrap(bmpbuf);
-			bm.copyPixelsFromBuffer(bmBuffer);
-
-		} catch (memoryException e) {
-			postToLog(e.getMessage());
-		} catch (Exception e) {
-			postToLog(e.getMessage());
-		}
 	}
 
 	public void lock() {
