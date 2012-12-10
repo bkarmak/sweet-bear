@@ -139,5 +139,6 @@
     
     <!-- New -->
     <string name="context_menu_item_email_label">Send by Email</string>
+    <string name="hint">please input text!</string>
     
 </resources>

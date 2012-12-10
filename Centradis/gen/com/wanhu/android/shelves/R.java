@@ -152,8 +152,9 @@ containing a value of this type.
         public static final int btnSubmit=0x7f0b0007;
         public static final int button_cancel=0x7f0b002d;
         public static final int cbStayConnected=0x7f0b0010;
-        public static final int context_menu_item_delete=0x7f0b0051;
+        public static final int context_menu_item_delete=0x7f0b0052;
         public static final int cover=0x7f0b0001;
+        public static final int editText=0x7f0b0051;
         public static final int etCompany=0x7f0b0031;
         public static final int etEmail=0x7f0b0005;
         public static final int etGoto=0x7f0b0021;
@@ -181,9 +182,9 @@ containing a value of this type.
         public static final int llLogin=0x7f0b000d;
         public static final int lvBookMarks=0x7f0b002a;
         public static final int lvSearchResults=0x7f0b0029;
-        public static final int menu_item_add_search=0x7f0b0052;
-        public static final int menu_item_search=0x7f0b0053;
-        public static final int menu_item_settings=0x7f0b0054;
+        public static final int menu_item_add_search=0x7f0b0053;
+        public static final int menu_item_search=0x7f0b0054;
+        public static final int menu_item_settings=0x7f0b0055;
         public static final int message=0x7f0b0000;
         public static final int panel_add=0x7f0b0035;
         public static final int panel_delete=0x7f0b004c;
@@ -242,6 +243,7 @@ containing a value of this type.
         public static final int search_result_book=0x7f030019;
         public static final int shelf_book=0x7f03001a;
         public static final int start=0x7f03001b;
+        public static final int textfield=0x7f03001c;
     }
     public static final class menu {
         public static final int book=0x7f0a0000;
@@ -306,6 +308,7 @@ containing a value of this type.
         public static final int get_pass_error=0x7f08006b;
         public static final int get_pass_successful=0x7f08006c;
         public static final int have_added_bookmark=0x7f080034;
+        public static final int hint=0x7f080073;
         public static final int hint_page=0x7f080032;
         public static final int hint_search=0x7f080033;
         public static final int import_label=0x7f080060;

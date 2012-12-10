@@ -198,6 +198,8 @@ public class ShelvesActivity extends Activity {
 							.show();
 				}
 				break;
+			case R.id.btnPageMode:
+				
 			case R.id.btnLogOut:
 				logOut();
 				break;

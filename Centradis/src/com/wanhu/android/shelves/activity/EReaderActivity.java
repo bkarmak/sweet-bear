@@ -2,6 +2,7 @@ package com.wanhu.android.shelves.activity;
 
 import java.io.File;
 
+import FoxitEMBSDK.EMBJavaSupport;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
@@ -45,11 +46,13 @@ import com.wanhu.android.shelves.provider.BooksStore;
 import com.wanhu.android.shelves.provider.CentradisBooksStore;
 import com.wanhu.android.shelves.util.FileUtilities;
 import com.yangyang.foxitsdk.service.YYPDFDoc;
+import com.yangyang.foxitsdk.service.YYPDFDoc.Mode;
+import com.yangyang.foxitsdk.view.IPDFView;
 import com.yangyang.foxitsdk.view.PDFView;
 
 public class EReaderActivity extends Activity implements
 		OnBookMarkClickListener, OnGotoListener, OnBookMarkListener,
-		OnNoteListener {
+		OnNoteListener, IPDFView {
 
 	private Handler mHandler = new Handler();
 	private String mFileName = null;
@@ -266,7 +269,7 @@ public class EReaderActivity extends Activity implements
 		mDoc = null;
 		try {
 			if (mFileName != null && !mFileName.equals("")) {
-				mDoc = new YYPDFDoc(mFileName, "");
+				mDoc = new YYPDFDoc(mFileName, "", this);
 				Log.d(mFileName, "PDF DOC OPEN");
 
 			}
@@ -275,7 +278,7 @@ public class EReaderActivity extends Activity implements
 		}
 
 		Display display = getWindowManager().getDefaultDisplay();
-		mPDFView.InitView(null, mDoc, (int) mDoc.GetPageSizeX(0),
+		mPDFView.InitView(mDoc, (int) mDoc.GetPageSizeX(0),
 				(int) mDoc.GetPageSizeY(0), display.getWidth(),
 				display.getHeight());
 		mPDFView.showCurrentPage();
@@ -431,7 +434,7 @@ public class EReaderActivity extends Activity implements
 
 				break;
 			case R.id.btnPageMode:
-				mPdfBusiness.changePageMode();
+				mPDFView.changeMode(Mode.Form);
 				break;
 			case R.id.btnSave:
 				showDialog(DIALOG_SAVE_AS);
@@ -700,6 +703,46 @@ public class EReaderActivity extends Activity implements
 	private void onSearch(MotionEvent pMotionEvent) {
 		pMotionEvent.setLocation(65, 25);
 		mPDFView.dispatchTouchEvent(pMotionEvent);
+	}
+
+	@Override
+	public void createAndroidTextField(String arg0) {
+		// TODO Auto-generated method stub
+		Intent intent = new Intent();
+		Bundle bundle = new Bundle();
+		bundle.putString("textValue", arg0);
+		intent.setClass(this, textfieldActivity.class);
+		intent.putExtra("key", bundle);
+		this.startActivityForResult(intent, 0);
+	}
+
+	@Override
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+		if (resultCode == RESULT_OK && requestCode == 0) {
+			Bundle bundle = data.getBundleExtra("Result");
+			String text = bundle.getString("ResultValue");
+			EMBJavaSupport.FPDFFormFillOnSetText(mDoc.getPDFFormHandler(),
+					mDoc.getCurrentPageHandler(), text, 0);
+		}
+		super.onActivityResult(requestCode, resultCode, data);
+	}
+
+	@Override
+	public int getCurrentPageHandler() {
+		// TODO Auto-generated method stub
+		return mDoc.getCurrentPageHandler();
+	}
+
+	@Override
+	public int getPageHandler(int arg0) {
+		// TODO Auto-generated method stub
+		return mDoc.getPageHandler(arg0);
+	}
+
+	@Override
+	public void invalidate(float arg0, float arg1, float arg2, float arg3) {
+		// TODO Auto-generated method stub
+		this.mPDFView.invalidate(arg0, arg1, arg2, arg3);
 	}
 
 }
