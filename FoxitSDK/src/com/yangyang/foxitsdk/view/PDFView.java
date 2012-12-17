@@ -121,9 +121,9 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 					if (baseValue == 0) {
 						baseValue = value;
 					} else {
-						if (value - baseValue >= 10 || value - baseValue <= -10) {
-							float scale = value / (baseValue * 20);// 当前两点间的距离除以手指落下时两点间的距离就是需要缩放的比例。
-							if (value - baseValue < -10)
+						if (value - baseValue >= 5 || value - baseValue <= -5) {
+							float scale = value / (baseValue * 10);// 当前两点间的距离除以手指落下时两点间的距离就是需要缩放的比例。
+							if (value - baseValue < -5)
 								scale = -scale;
 							Log.i("pdfview", "zoom image:" + scale);
 							zoomStatus.nextZoom(scale);
@@ -241,12 +241,14 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 	public void previousPage() {
 		this.scrolling = false;
 		pDoc.previoutPage();
+		this.rect = null;
 		this.showCurrentPage();
 	}
 
 	public void nextPage() {
 		this.scrolling = false;
 		pDoc.nextPage();
+		this.rect = null;
 		this.showCurrentPage();
 	}
 
@@ -350,6 +352,13 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 		nCurDisplayY = nStartY;
 		Log.i("pdfview", "startx:" + nStartX + ",starty:" + nStartY + "width:"
 				+ (pdfbmp.getWidth() - nStartX));
+		if (CurrentBitmap != null && !CurrentBitmap.isRecycled()) {
+			CurrentBitmap = null;
+		}
+		// if (CurrentBitmap != null) {
+		// CurrentBitmap.recycle();
+		// CurrentBitmap = null;
+		// }
 		CurrentBitmap = Bitmap.createBitmap(pdfbmp, nStartX, nStartY,
 				pdfbmp.getWidth() - nStartX, pdfbmp.getHeight() - nStartY);
 		this.OnDraw();
@@ -537,11 +546,11 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 	@Override
 	public boolean onDoubleTap(MotionEvent e) {
 		// TODO Auto-generated method stub
-		if (this.zoomStatus != null) {
-			this.zoomStatus.nextZoom(0);
-			this.showCurrentPage();
-			return true;
-		}
+		// if (this.zoomStatus != null) {
+		// this.zoomStatus.nextZoom(0);
+		// this.showCurrentPage();
+		// return true;
+		// }
 		return false;
 	}
 
