@@ -109,10 +109,13 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
 		if (this.mode == Mode.Read) {
+			// TODO Auto-generated method stub
+			// return
+			// ArtFilterActivity.this.mGestureDetector.onTouchEvent(event);
 			if (event.getAction() == MotionEvent.ACTION_DOWN) {
 				baseValue = 0;
-				last_x = event.getRawX();
-				last_y = event.getRawY();
+				float x = last_x = event.getRawX();
+				float y = last_y = event.getRawY();
 			} else if (event.getAction() == MotionEvent.ACTION_MOVE) {
 				if (event.getPointerCount() == 2) {
 					float x = event.getX(0) - event.getX(1);
@@ -121,22 +124,30 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 					if (baseValue == 0) {
 						baseValue = value;
 					} else {
-						if (value - baseValue >= 5 || value - baseValue <= -5) {
+						if (value - baseValue >= 10 || value - baseValue <= -10) {
 							float scale = value / (baseValue * 10);// 当前两点间的距离除以手指落下时两点间的距离就是需要缩放的比例。
-							if (value - baseValue < -5)
-								scale = -scale;
-							Log.i("pdfview", "zoom image:" + scale);
-							zoomStatus.nextZoom(scale);
-							baseValue = 0;
-							showCurrentPage();
+							this.zoomStatus.nextZoom(scale);
+							this.rect = null;
+							this.showCurrentPage();
 							return true;
 						}
 					}
-					return true;
+				} else if (event.getPointerCount() == 1) {
+					float x = event.getRawX();
+					float y = event.getRawY();
+					x -= last_x;
+					y -= last_y;
+					if (x >= 10 || y >= 10 || x <= -10 || y <= -10) {
+						this.SetMartix(x, y); // 移动图片位置
+						return true;
+					}
+					last_x = event.getRawX();
+					last_y = event.getRawY();
+
 				}
+			} else if (event.getAction() == MotionEvent.ACTION_UP) {
+
 			}
-			if (this.detector != null)
-				return this.detector.onTouchEvent(event);
 		} else if (this.mode == Mode.Annotation) {
 			RectangleF rect = EMBJavaSupport.instance.new RectangleF();
 			rect.left = event.getX() - 10;
@@ -393,6 +404,7 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 				mt.postRotate(0, nDisplayWidth, nDisplayHeight);
 				mt.postTranslate(0, 0);
 				canvas.drawColor(0xffffff);
+				canvas.drawRect(0, 0, nDisplayWidth, nDisplayHeight, mPaint);
 				canvas.drawBitmap(this.CurrentBitmap, mt, mPaint);
 				if (this.CurrentBitmap != this.pdfbmp) {
 					this.CurrentBitmap.recycle();
@@ -519,9 +531,9 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 			float distanceY) {
 		// TODO Auto-generated method stub
 		// this.SetMartix(e2.getX() - e1.getX(), e2.getY() - e1.getY());
-		if (this.scrolling)
-			this.SetMartix(-distanceX, -distanceY);
-		return true;
+		// if (this.scrolling)
+		// this.SetMartix(-distanceX, -distanceY);
+		return false;
 	}
 
 	@Override
