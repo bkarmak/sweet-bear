@@ -9,8 +9,8 @@ package com.yangyang.foxitsdk.util;
 public class ZoomStatus {
 
 	// //////////////////////////////////////////////////////////////
-	private final static float MINSCALE = 0.25f;// 最小缩放比
-	private final static float MAXSCALE = 4f;// 最大缩放比
+	private final static float MINSCALE = 0.5f;// 最小缩放比
+	private final static float MAXSCALE = 2f;// 最大缩放比
 	private final static byte ST_NORMAL = 0;// 原始模式
 	private final static byte ST_FITWIDTH = 1;// 宽度满屏
 	private final static byte ST_FITHEIGHT = 2;// 高度满屏
@@ -60,7 +60,7 @@ public class ZoomStatus {
 			if (this.scaleX < MINSCALE)
 				this.scaleX = MINSCALE;
 			if (this.scaleY < MINSCALE)
-				this.scaleX = MINSCALE;
+				this.scaleY = MINSCALE;
 		}
 	}
 

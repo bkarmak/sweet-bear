@@ -51,7 +51,8 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 	private int nCurDisplayX = 0;
 	private int nCurDisplayY = 0;
 	private int leftBound, topBound;// 左边界，上边界
-	private boolean scrolling = false;
+	private final static int FLING_SIZE = 200;
+	private final static int VELOCITYLIMIT = 640;
 
 	public class CPSIAction {
 		public int nActionType;
@@ -110,12 +111,13 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 	public boolean onTouchEvent(MotionEvent event) {
 		if (this.mode == Mode.Read) {
 			// TODO Auto-generated method stub
-			// return
-			// ArtFilterActivity.this.mGestureDetector.onTouchEvent(event);
+			if (this.detector.onTouchEvent(event)) {
+				return true;
+			}
 			if (event.getAction() == MotionEvent.ACTION_DOWN) {
 				baseValue = 0;
-				float x = last_x = event.getRawX();
-				float y = last_y = event.getRawY();
+				last_x = event.getRawX();
+				last_y = event.getRawY();
 			} else if (event.getAction() == MotionEvent.ACTION_MOVE) {
 				if (event.getPointerCount() == 2) {
 					float x = event.getX(0) - event.getX(1);
@@ -125,7 +127,8 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 						baseValue = value;
 					} else {
 						if (value - baseValue >= 10 || value - baseValue <= -10) {
-							float scale = value / (baseValue * 10);// 当前两点间的距离除以手指落下时两点间的距离就是需要缩放的比例。
+							float scale = (value - baseValue)
+									/ (baseValue * 20);// 当前两点间的距离除以手指落下时两点间的距离就是需要缩放的比例。
 							this.zoomStatus.nextZoom(scale);
 							this.rect = null;
 							this.showCurrentPage();
@@ -137,9 +140,8 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 					float y = event.getRawY();
 					x -= last_x;
 					y -= last_y;
-					if (x >= 10 || y >= 10 || x <= -10 || y <= -10) {
-						this.SetMartix(x, y); // 移动图片位置
-						return true;
+					if (x >= 10 || y < 10 || x <= -10 || y <= -10) {
+						return this.SetMartix(x, y); // 移动图片位置
 					}
 					last_x = event.getRawX();
 					last_y = event.getRawY();
@@ -250,14 +252,12 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 	}
 
 	public void previousPage() {
-		this.scrolling = false;
 		pDoc.previoutPage();
 		this.rect = null;
 		this.showCurrentPage();
 	}
 
 	public void nextPage() {
-		this.scrolling = false;
 		pDoc.nextPage();
 		this.rect = null;
 		this.showCurrentPage();
@@ -334,31 +334,29 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 		dirtydib = dib;
 	}
 
-	public void SetMartix(float CurrentoffsetX, float CurrentoffsetY) {
-		if (pdfbmp == null)
-			return;
+	public boolean SetMartix(float CurrentoffsetX, float CurrentoffsetY) {
+		boolean result = true;
+		if (pdfbmp == null
+				|| (pdfbmp.getWidth() <= nDisplayWidth && pdfbmp.getHeight() <= nDisplayHeight))
+			return false;
 		nStartX = nCurDisplayX - (int) CurrentoffsetX;
 		nStartY = nCurDisplayY - (int) CurrentoffsetY;
 		if (nStartX > (pdfbmp.getWidth() - nDisplayWidth)) {
-			if (nStartX > (pdfbmp.getWidth() - nDisplayWidth) + 50) {
-				nStartX = nStartY = nCurDisplayX = nCurDisplayY = 0;
-				this.nextPage();
-				return;
-			}
 			nStartX = (int) (pdfbmp.getWidth() - nDisplayWidth);
+			result = false;
 		}
 		if (nStartX < 0) {
-			if (nStartX < -50) {
-				nStartX = nStartY = nCurDisplayX = nCurDisplayY = 0;
-				this.previousPage();
-				return;
-			}
+			result = false;
 			nStartX = 0;
 		}
-		if (nStartY > (pdfbmp.getHeight() - nDisplayHeight))
+		if (nStartY > (pdfbmp.getHeight() - nDisplayHeight)) {
+			result = false;
 			nStartY = (int) (pdfbmp.getHeight() - nDisplayHeight);
-		if (nStartY < 0)
+		}
+		if (nStartY < 0) {
+			result = false;
 			nStartY = 0;
+		}
 		nCurDisplayX = nStartX;
 		nCurDisplayY = nStartY;
 		Log.i("pdfview", "startx:" + nStartX + ",starty:" + nStartY + "width:"
@@ -366,13 +364,10 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 		if (CurrentBitmap != null && !CurrentBitmap.isRecycled()) {
 			CurrentBitmap = null;
 		}
-		// if (CurrentBitmap != null) {
-		// CurrentBitmap.recycle();
-		// CurrentBitmap = null;
-		// }
 		CurrentBitmap = Bitmap.createBitmap(pdfbmp, nStartX, nStartY,
 				pdfbmp.getWidth() - nStartX, pdfbmp.getHeight() - nStartY);
 		this.OnDraw();
+		return result;
 	}
 
 	public void setPDFBitmap(Bitmap dib) {
@@ -460,12 +455,8 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 	@Override
 	public boolean onDown(MotionEvent e) {
 		// TODO Auto-generated method stub
-		this.scrolling = true;
 		return false;
 	}
-
-	// private final static int FLING_SIZE = 120;
-	// private final static int VELOCITYLIMIT = 100;
 
 	@Override
 	public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,
@@ -473,15 +464,16 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 		// TODO Auto-generated method stub
 		// if (true)
 		// return false;
-		// if (e1.getX() - e2.getX() > FLING_SIZE && velocityX > VELOCITYLIMIT
-		// && velocityY < VELOCITYLIMIT) {
-		// this.nextPage();
-		// return true;
-		// } else if (e1.getX() - e2.getX() < -FLING_SIZE
-		// && velocityX > VELOCITYLIMIT && velocityY < VELOCITYLIMIT) {
-		// this.previousPage();
-		// return true;
-		// }
+		if (e1.getX() - e2.getX() > FLING_SIZE && velocityX < -VELOCITYLIMIT
+				&& Math.abs(velocityY) < VELOCITYLIMIT) {
+			this.nextPage();
+			return true;
+		} else if (e1.getX() - e2.getX() < -FLING_SIZE
+				&& velocityX > VELOCITYLIMIT
+				&& Math.abs(velocityY) < VELOCITYLIMIT) {
+			this.previousPage();
+			return true;
+		}
 		return false;
 	}
 
@@ -530,9 +522,6 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 	public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX,
 			float distanceY) {
 		// TODO Auto-generated method stub
-		// this.SetMartix(e2.getX() - e1.getX(), e2.getY() - e1.getY());
-		// if (this.scrolling)
-		// this.SetMartix(-distanceX, -distanceY);
 		return false;
 	}
 
@@ -545,7 +534,6 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 	@Override
 	public boolean onSingleTapUp(MotionEvent e) {
 		// TODO Auto-generated method stub
-		this.scrolling = false;
 		return false;
 	}
 

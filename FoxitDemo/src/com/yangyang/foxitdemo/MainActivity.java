@@ -160,4 +160,5 @@ public class MainActivity extends Activity implements IPDFView {
 		this.pdfView.invalidate(arg0, arg1, arg2, arg3);
 	}
 
+	
 }
