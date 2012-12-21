@@ -24,6 +24,8 @@ import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceHolder.Callback;
 import android.view.SurfaceView;
+import android.view.ViewTreeObserver.OnGlobalLayoutListener;
+import android.view.ViewTreeObserver.OnPreDrawListener;
 
 import com.yangyang.foxitsdk.exception.memoryException;
 import com.yangyang.foxitsdk.service.YYPDFDoc;
@@ -32,7 +34,7 @@ import com.yangyang.foxitsdk.service.YYPDFDoc.Mode;
 import com.yangyang.foxitsdk.util.ZoomStatus;
 
 public class PDFView extends SurfaceView implements Callback, Runnable,
-		OnGestureListener, OnDoubleTapListener {
+		OnGestureListener, OnDoubleTapListener, OnGlobalLayoutListener {
 
 	private SurfaceHolder Holder;
 	private Rect rect = null;
@@ -51,7 +53,7 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 	private int nCurDisplayX = 0;
 	private int nCurDisplayY = 0;
 	private int leftBound, topBound;// 左边界，上边界
-	private final static int FLING_SIZE = 200;
+	private final static int FLING_SIZE = 100;
 	private final static int VELOCITYLIMIT = 640;
 
 	public class CPSIAction {
@@ -89,6 +91,7 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 		detector = new GestureDetector(this);
 		detector.setOnDoubleTapListener(this);
 		mPSIActionList = new ArrayList<CPSIAction>();
+		this.getViewTreeObserver().addOnGlobalLayoutListener(this);
 		mViewThread = new Thread(this);
 		mViewThread.start();
 	}
@@ -224,10 +227,13 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 	public void InitView(YYPDFDoc pDoc, int pageWidth, int pageHeight,
 			int displayWidth, int displayHeight) {
 		this.pDoc = pDoc;
-		this.nDisplayWidth = displayWidth;
-		this.nDisplayHeight = displayHeight;
+		// this.nDisplayWidth = displayWidth;
+		// this.nDisplayHeight = displayHeight;
 		this.zoomStatus = new ZoomStatus(pageWidth, pageHeight, displayWidth,
 				displayHeight);
+		this.leftBound = this.getLeft();
+		this.topBound = this.getTop();
+		Log.i("pdfview", "left:" + this.leftBound + ",top:" + this.topBound);
 	}
 
 	public int getCurrentPage() {
@@ -582,5 +588,18 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 					nDisplayHeight));
 			this.OnDraw();
 		}
+	}
+
+	@Override
+	public void onGlobalLayout() {
+		// TODO Auto-generated method stub
+		this.getViewTreeObserver().removeGlobalOnLayoutListener(this);
+		this.nDisplayWidth = this.getWidth();
+		this.nDisplayHeight = this.getHeight();
+		this.leftBound = this.getLeft();
+		this.topBound = this.getTop();
+		Log.i("pdfview data", "left:" + this.leftBound + ",top :"
+				+ this.topBound + ",width:" + this.nDisplayWidth + ",height:"
+				+ this.nDisplayHeight);
 	}
 }

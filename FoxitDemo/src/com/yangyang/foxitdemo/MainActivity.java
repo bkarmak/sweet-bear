@@ -5,12 +5,14 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.RatingBar;
 
 import com.yangyang.foxitdemo.OpenFileDialog.CallbackBundle;
 import com.yangyang.foxitsdk.service.YYPDFDoc;
@@ -28,14 +30,18 @@ public class MainActivity extends Activity implements IPDFView {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
 				WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		this.requestWindowFeature(Window.FEATURE_NO_TITLE);
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON,
 				WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-
-		pdfView = new com.yangyang.foxitsdk.view.PDFView(this);
-		setContentView(pdfView);
+		setContentView(R.layout.activity_main);
+		RatingBar bar = (RatingBar) this.findViewById(R.id.ratingBar1);
+		Log.i("ratingbar", "left:" + bar.getLeft() + ",top:" + bar.getTop() + ",width:"+bar.getWidth() + ",height:" + bar.getHeight());
+		pdfView = (PDFView) this.findViewById(R.id.pdfViewCtrl);
+		Log.i("pdfview",
+				"left:" + pdfView.getLeft() + ",top:" + pdfView.getTop() + ",pdfView:"+pdfView.getWidth() + ",pdfView:" + pdfView.getHeight());
 
 		// code start
 		Display display = getWindowManager().getDefaultDisplay();
@@ -160,5 +166,4 @@ public class MainActivity extends Activity implements IPDFView {
 		this.pdfView.invalidate(arg0, arg1, arg2, arg3);
 	}
 
-	
 }
