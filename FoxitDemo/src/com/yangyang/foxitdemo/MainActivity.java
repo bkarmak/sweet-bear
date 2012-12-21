@@ -24,29 +24,22 @@ public class MainActivity extends Activity implements IPDFView {
 
 	private YYPDFDoc pDoc;
 	private PDFView pdfView;
-	private int nDisplayWidth, nDisplayHeight;
+	private int screenWidth, screenHeight;
 	private final static int openFileDialogId = 10212739;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
 				WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		this.requestWindowFeature(Window.FEATURE_NO_TITLE);
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON,
 				WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 		setContentView(R.layout.activity_main);
-		RatingBar bar = (RatingBar) this.findViewById(R.id.ratingBar1);
-		Log.i("ratingbar", "left:" + bar.getLeft() + ",top:" + bar.getTop() + ",width:"+bar.getWidth() + ",height:" + bar.getHeight());
 		pdfView = (PDFView) this.findViewById(R.id.pdfViewCtrl);
-		Log.i("pdfview",
-				"left:" + pdfView.getLeft() + ",top:" + pdfView.getTop() + ",pdfView:"+pdfView.getWidth() + ",pdfView:" + pdfView.getHeight());
-
-		// code start
 		Display display = getWindowManager().getDefaultDisplay();
-		nDisplayWidth = display.getWidth();
-		nDisplayHeight = display.getHeight();
+		screenWidth = display.getWidth();
+		screenHeight = display.getHeight();
 	}
 
 	@Override
@@ -82,6 +75,11 @@ public class MainActivity extends Activity implements IPDFView {
 				this.pdfView.changeMode(Mode.Form);
 			}
 			break;
+		case R.id.go_to: {
+			if (pDoc != null) {
+				this.pdfView.gotoPage(1);
+			}
+		}
 		}
 		return super.onMenuItemSelected(featureId, item);
 	}
@@ -116,8 +114,8 @@ public class MainActivity extends Activity implements IPDFView {
 							MainActivity.this.pdfView.InitView(pDoc,
 									(int) pDoc.GetPageSizeX(0),
 									(int) pDoc.GetPageSizeY(0),
-									MainActivity.this.nDisplayWidth,
-									MainActivity.this.nDisplayHeight);
+									MainActivity.this.screenWidth,
+									MainActivity.this.screenHeight);
 
 							MainActivity.this.pdfView.showCurrentPage();
 						}

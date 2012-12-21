@@ -1,6 +1,6 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:id="@+id/menu_settings"
-        android:title="@string/menu_settings"
+    <item android:id="@+id/go_to"
+        android:title="@string/go_to"
         android:orderInCategory="100" />
     <item android:id="@+id/open" android:title="open file"></item>
     <item android:id="@+id/previous" android:title="previous"></item>

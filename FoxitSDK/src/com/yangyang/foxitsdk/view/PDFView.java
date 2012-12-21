@@ -489,6 +489,7 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 		point.y = y + nStartY - topBound;
 		if (point.x < 0 || point.y < 0)
 			return;
+		Log.i("pdfview", "screenx:" + (point.x) + ",screeny:" + (point.y));
 		int textPage = EMBJavaSupport.FPDFTextLoadPage(pDoc
 				.getCurrentPageHandler());
 		EMBJavaSupport.FPDFPageDeviceToPagePointF(pDoc.getCurrentPageHandler(),
@@ -518,9 +519,7 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 	public void onLongPress(MotionEvent e) {
 		// TODO Auto-generated method stub
 		if (this.zoomStatus != null) {
-			this.openLink(nStartX + (int) e.getX(), nStartY + (int) e.getY());
-			Log.i("pdfview", "screenx:" + (nStartX + (int) e.getX())
-					+ ",screeny:" + (nStartY + (int) e.getY()));
+			this.openLink((int) e.getX(), (int) e.getY());
 		}
 	}
 
