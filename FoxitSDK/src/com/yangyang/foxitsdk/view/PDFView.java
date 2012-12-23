@@ -64,7 +64,7 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 		public int flag;
 	}
 
-	private Mode mode = Mode.Read;// 操作类型
+	private int mode;
 	private AnnotationType annotationType = AnnotationType.NONE;
 
 	public PDFView(Context context) {
@@ -96,77 +96,61 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 		mViewThread.start();
 	}
 
-	/**
+	/*	*//**
 	 * 改变控件模式
 	 * 
 	 * @param mode
 	 */
-	public void changeMode(Mode mode) {
-		this.mode = mode;
-		EMBJavaSupport.FPDFFormFillUpdatForm(pDoc.getPDFFormHandler());
-		// this.pDoc.updateMode(mode);
-		this.showCurrentPage();
-	}
+	/*
+	 * public void changeMode(int mode) { this.mode = mode;
+	 * EMBJavaSupport.FPDFFormFillUpdatForm(pDoc.getPDFFormHandler()); //
+	 * this.pDoc.updateMode(mode); this.showCurrentPage(); }
+	 */
 
 	float baseValue, last_x, last_y;
 
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
-		if (this.mode == Mode.Read) {
-			// TODO Auto-generated method stub
-			if (this.detector.onTouchEvent(event)) {
-				return true;
-			}
-			if (event.getAction() == MotionEvent.ACTION_DOWN) {
-				baseValue = 0;
+		// TODO Auto-generated method stub
+		if (this.detector.onTouchEvent(event)) {
+			return true;
+		}
+		if (event.getAction() == MotionEvent.ACTION_DOWN) {
+			baseValue = 0;
+			last_x = event.getRawX();
+			last_y = event.getRawY();
+		} else if (event.getAction() == MotionEvent.ACTION_MOVE) {
+			if (event.getPointerCount() == 2) {
+				float x = event.getX(0) - event.getX(1);
+				float y = event.getY(0) - event.getY(1);
+				float value = (float) Math.sqrt(x * x + y * y);// 计算两点的距离
+				if (baseValue == 0) {
+					baseValue = value;
+				} else {
+					if (value - baseValue >= 10 || value - baseValue <= -10) {
+						float scale = (value - baseValue) / (baseValue * 20);// 当前两点间的距离除以手指落下时两点间的距离就是需要缩放的比例。
+						this.zoomStatus.nextZoom(scale);
+						this.rect = null;
+						this.showCurrentPage();
+						return true;
+					}
+				}
+			} else if (event.getPointerCount() == 1) {
+				float x = event.getRawX();
+				float y = event.getRawY();
+				x -= last_x;
+				y -= last_y;
+				if (x >= 10 || y < 10 || x <= -10 || y <= -10) {
+					return this.SetMartix(x, y); // 移动图片位置
+				}
 				last_x = event.getRawX();
 				last_y = event.getRawY();
-			} else if (event.getAction() == MotionEvent.ACTION_MOVE) {
-				if (event.getPointerCount() == 2) {
-					float x = event.getX(0) - event.getX(1);
-					float y = event.getY(0) - event.getY(1);
-					float value = (float) Math.sqrt(x * x + y * y);// 计算两点的距离
-					if (baseValue == 0) {
-						baseValue = value;
-					} else {
-						if (value - baseValue >= 10 || value - baseValue <= -10) {
-							float scale = (value - baseValue)
-									/ (baseValue * 20);// 当前两点间的距离除以手指落下时两点间的距离就是需要缩放的比例。
-							this.zoomStatus.nextZoom(scale);
-							this.rect = null;
-							this.showCurrentPage();
-							return true;
-						}
-					}
-				} else if (event.getPointerCount() == 1) {
-					float x = event.getRawX();
-					float y = event.getRawY();
-					x -= last_x;
-					y -= last_y;
-					if (x >= 10 || y < 10 || x <= -10 || y <= -10) {
-						return this.SetMartix(x, y); // 移动图片位置
-					}
-					last_x = event.getRawX();
-					last_y = event.getRawY();
-
-				}
-			} else if (event.getAction() == MotionEvent.ACTION_UP) {
 
 			}
-		} else if (this.mode == Mode.Annotation) {
-			RectangleF rect = EMBJavaSupport.instance.new RectangleF();
-			rect.left = event.getX() - 10;
-			rect.right = event.getX() + 10;
-			rect.top = event.getY() - 10;
-			rect.bottom = event.getY() + 10;
-			rect.left = rect.left >= 0 ? rect.left : 0;
-			rect.right = rect.right >= 0 ? rect.right : 0;
-			rect.top = rect.top >= 0 ? rect.top : 0;
-			rect.bottom = rect.bottom >= 0 ? rect.bottom : 0;
-			this.addNote(AnnotationType.NOTE, rect);
-			return true;
+		} else if (event.getAction() == MotionEvent.ACTION_UP) {
 
-		} else if (this.mode == Mode.Form) {
+		}
+		if ((this.mode & Mode.Form.getType()) > 0) {
 
 			int actionType = event.getAction() & MotionEvent.ACTION_MASK;
 			int actionId = event.getAction()
@@ -203,7 +187,20 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 			}
 			return true;
 
-		} else if (this.mode == Mode.PSI) {
+		} else if ((this.mode & Mode.Annotation.getType()) > 0) {
+			RectangleF rect = EMBJavaSupport.instance.new RectangleF();
+			rect.left = event.getX() - 10;
+			rect.right = event.getX() + 10;
+			rect.top = event.getY() - 10;
+			rect.bottom = event.getY() + 10;
+			rect.left = rect.left >= 0 ? rect.left : 0;
+			rect.right = rect.right >= 0 ? rect.right : 0;
+			rect.top = rect.top >= 0 ? rect.top : 0;
+			rect.bottom = rect.bottom >= 0 ? rect.bottom : 0;
+			this.addNote(AnnotationType.NOTE, rect);
+			return true;
+
+		} else if ((this.mode & Mode.PSI.getType()) > 0) {
 
 		}
 		return false;
@@ -227,6 +224,7 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 	public void InitView(YYPDFDoc pDoc, int pageWidth, int pageHeight,
 			int displayWidth, int displayHeight) {
 		this.pDoc = pDoc;
+		this.mode = pDoc.getMode();
 		// this.nDisplayWidth = displayWidth;
 		// this.nDisplayHeight = displayHeight;
 		this.zoomStatus = new ZoomStatus(pageWidth, pageHeight, displayWidth,
@@ -270,13 +268,8 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 	}
 
 	public void showCurrentPage() {
-		if (this.mode == Mode.Read)
-			this.setPDFBitmap(pDoc.getPageBitmap(zoomStatus.getWidth(),
-					zoomStatus.getHeight()));
-		else if (this.mode == Mode.Form) {
-			this.setPDFBitmap(pDoc.getPageBitmap(zoomStatus.getDisplayWidth(),
-					zoomStatus.getDisplayHeight()));
-		}
+		this.setPDFBitmap(pDoc.getPageBitmap(zoomStatus.getWidth(),
+				zoomStatus.getHeight()));
 		this.OnDraw();
 	}
 
@@ -567,7 +560,7 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 
 	public void invalidate(float left, float top, float right, float bottom) {
 		// TODO Auto-generated method stub
-		if (this.mode == Mode.Form) {
+		if ((this.mode & Mode.Form.getType()) > 0) {
 			int l, t, r, b;
 			RectangleF rect = new EMBJavaSupport().new RectangleF();
 			rect.left = left;

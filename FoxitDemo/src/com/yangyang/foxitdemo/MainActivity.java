@@ -67,12 +67,12 @@ public class MainActivity extends Activity implements IPDFView {
 			break;
 		case R.id.Mode_Read:
 			if (pDoc != null) {
-				this.pdfView.changeMode(Mode.Read);
+				// this.pdfView.changeMode(Mode.Read);
 			}
 			break;
 		case R.id.Form:
 			if (pDoc != null) {
-				this.pdfView.changeMode(Mode.Form);
+				// this.pdfView.changeMode(Mode.Form);
 			}
 			break;
 		case R.id.go_to: {
@@ -110,7 +110,7 @@ public class MainActivity extends Activity implements IPDFView {
 							String filepath = bundle.getString("path");
 							setTitle(filepath); // 把文件路径显示在标题上
 							MainActivity.this.pDoc = new YYPDFDoc(filepath, "",
-									MainActivity.this);
+									MainActivity.this, 7);
 							MainActivity.this.pdfView.InitView(pDoc,
 									(int) pDoc.GetPageSizeX(0),
 									(int) pDoc.GetPageSizeY(0),
