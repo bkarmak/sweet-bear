@@ -157,35 +157,38 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 					& MotionEvent.ACTION_POINTER_ID_MASK;
 			actionId = actionId >> 8;
 
-			PointF point = new EMBJavaSupport().new PointF();
+			PointF point = EMBJavaSupport.instance.new PointF();
 			point.x = event.getX();
 			point.y = event.getY();
 			EMBJavaSupport.FPDFPageDeviceToPagePointF(
-					pDoc.getCurrentPageHandler(), 0, 0,
-					zoomStatus.getDisplayWidth(),
-					zoomStatus.getDisplayHeight(), 0, point);
-
-			switch (actionType) {
-			case MotionEvent.ACTION_MOVE://
-				EMBJavaSupport.FPDFFormFillOnMouseMove(
-						pDoc.getPDFFormHandler(), pDoc.getCurrentPageHandler(),
-						0, point.x, point.y);
-				break;
-			case MotionEvent.ACTION_DOWN: //
-				EMBJavaSupport.FPDFFormFillOnMouseMove(
-						pDoc.getPDFFormHandler(), pDoc.getCurrentPageHandler(),
-						0, point.x, point.y);
-				EMBJavaSupport.FPDFFormFillOnLButtonDown(
-						pDoc.getPDFFormHandler(), pDoc.getCurrentPageHandler(),
-						0, point.x, point.y);
-				break;
-			case MotionEvent.ACTION_UP: //
-				EMBJavaSupport.FPDFFormFillOnLButtonUp(
-						pDoc.getPDFFormHandler(), pDoc.getCurrentPageHandler(),
-						0, point.x, point.y);
-				break;
+					pDoc.getCurrentPageHandler(), 0, 0, zoomStatus.getWidth(),
+					zoomStatus.getHeight(), 0, point);
+			Log.i("pdfview", "x:" + point.x + ",y:" + point.y);
+			if (point.x >= 0 || point.y >= 0) {
+				switch (actionType) {
+				case MotionEvent.ACTION_MOVE://
+					if (EMBJavaSupport.FPDFFormFillOnMouseMove(
+							pDoc.getPDFFormHandler(),
+							pDoc.getCurrentPageHandler(), 0, point.x, point.y))
+						return true;
+					break;
+				case MotionEvent.ACTION_DOWN: //
+					if (EMBJavaSupport.FPDFFormFillOnMouseMove(
+							pDoc.getPDFFormHandler(),
+							pDoc.getCurrentPageHandler(), 0, point.x, point.y))
+						return true;
+					EMBJavaSupport.FPDFFormFillOnLButtonDown(
+							pDoc.getPDFFormHandler(),
+							pDoc.getCurrentPageHandler(), 0, point.x, point.y);
+					break;
+				case MotionEvent.ACTION_UP: //
+					if (EMBJavaSupport.FPDFFormFillOnLButtonUp(
+							pDoc.getPDFFormHandler(),
+							pDoc.getCurrentPageHandler(), 0, point.x, point.y))
+						return true;
+					break;
+				}
 			}
-			return true;
 
 		} else if ((this.mode & Mode.Annotation.getType()) > 0) {
 			RectangleF rect = EMBJavaSupport.instance.new RectangleF();
@@ -568,16 +571,18 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 			rect.right = right;
 			rect.bottom = bottom;
 			EMBJavaSupport.FPDFPagePageToDeviceRectF(
-					pDoc.getCurrentPageHandler(), 0, 0, nDisplayWidth,
-					nDisplayHeight, 0, rect);
+					pDoc.getCurrentPageHandler(), 0, 0, zoomStatus.getWidth(),
+					zoomStatus.getHeight(), 0, rect);
 			l = (int) rect.left;
 			t = (int) rect.top;
 			r = (int) rect.right;
 			b = (int) rect.bottom;
+			if (l < 0 || t < 0 || r < 0 || b < 0)
+				return;
 			Rect rc = new Rect(l, t, r, b);
 			this.setDirtyRect(l, t, r, b);
-			this.setDirtyBitmap(pDoc.getDirtyBitmap(rc, nDisplayWidth,
-					nDisplayHeight));
+			this.setDirtyBitmap(pDoc.getDirtyBitmap(rc, zoomStatus.getWidth(),
+					zoomStatus.getHeight()));
 			this.OnDraw();
 		}
 	}
