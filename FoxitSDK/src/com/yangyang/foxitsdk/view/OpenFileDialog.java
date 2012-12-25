@@ -2,7 +2,11 @@
 package com.yangyang.foxitsdk.view;
 
 import java.io.File;
+import java.security.cert.LDAPCertStoreParameters;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -131,6 +135,14 @@ public class OpenFileDialog {
 				list = new ArrayList<Map<String, Object>>(files.length);
 			}
 
+			Arrays.sort(files, new Comparator<File>() {
+
+				@Override
+				public int compare(File lhs, File rhs) {
+					// TODO Auto-generated method stub
+					return lhs.getName().compareTo(rhs.getName());
+				}
+			});
 			// 用来先保存文件夹和文件夹的两个列表
 			ArrayList<Map<String, Object>> lfolders = new ArrayList<Map<String, Object>>();
 			ArrayList<Map<String, Object>> lfiles = new ArrayList<Map<String, Object>>();
