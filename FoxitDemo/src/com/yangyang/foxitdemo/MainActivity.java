@@ -4,6 +4,7 @@ import FoxitEMBSDK.EMBJavaSupport;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.view.Display;
 import android.view.Menu;
@@ -141,6 +142,17 @@ public class MainActivity extends Activity implements IPDFView {
 					pDoc.getCurrentPageHandler(), text, 0);
 		}
 		super.onActivityResult(requestCode, resultCode, data);
+	}
+
+	@Override
+	public void onConfigurationChanged(Configuration newConfig) {
+		// TODO Auto-generated method stub
+		if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+			this.pdfView.updateViewMode(newConfig.orientation);
+		} else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) {
+			this.pdfView.updateViewMode(newConfig.orientation);
+		}
+		super.onConfigurationChanged(newConfig);
 	}
 
 	@Override

@@ -378,14 +378,17 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 		}
 		nCurDisplayX = nStartX;
 		nCurDisplayY = nStartY;
-		Log.i("pdfview", "startx:" + nStartX + ",starty:" + nStartY + "width:"
-				+ (pdfbmp.getWidth() - nStartX));
 		if (CurrentBitmap != null && !CurrentBitmap.isRecycled()) {
 			CurrentBitmap = null;
 		}
 		CurrentBitmap = Bitmap.createBitmap(pdfbmp, nStartX, nStartY,
 				pdfbmp.getWidth() - nStartX, pdfbmp.getHeight() - nStartY);
 		this.OnDraw();
+		if (result) {
+			if (this.dirtydib != null && !this.dirtydib.isRecycled())
+				this.dirtydib = null;
+			this.rect = null;
+		}
 		return result;
 	}
 
@@ -425,11 +428,12 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 					this.CurrentBitmap = null;
 				}
 			}
-			if (dirtydib != null) {
-				Matrix m = new Matrix();
-				m.postRotate(0, rect.width() / 2, rect.height() / 2);
-				m.postTranslate(rect.left - nStartX, rect.top - nStartY);
-				canvas.drawBitmap(dirtydib, m, mPaint);
+			if (dirtydib != null && rect != null) {
+				// Matrix m = new Matrix();
+				// m.postRotate(0, rect.width() / 2, rect.height() / 2);
+				// m.postTranslate(rect.left, rect.top);
+				canvas.drawBitmap(dirtydib, rect.left - nStartX, rect.top
+						- nStartY, mPaint);
 			}
 		} finally {
 			if (canvas != null) {
@@ -602,6 +606,11 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 			this.setDirtyBitmap(pDoc.getDirtyBitmap(rc, zoomStatus.getWidth(),
 					zoomStatus.getHeight()));
 			this.OnDraw();
+			// if ((this.mode & Mode.Form.getType()) > 0) {
+			// EMBJavaSupport.FPDFFormFillOnKillFocus(this.pDoc
+			// .getPDFFormHandler());
+			// }
+
 		}
 	}
 
