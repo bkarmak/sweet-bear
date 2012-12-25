@@ -76,6 +76,10 @@
         <activity
             android:name=".activity.SettingsActivity"
             android:label="@string/activity_preferences" />
+        <activity
+            android:name=".activity.textfieldActivity"
+            android:theme="@android:style/Theme.Dialog" >
+        </activity>
 
         <provider
             android:name=".provider.BooksProvider"

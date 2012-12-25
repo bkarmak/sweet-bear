@@ -8,6 +8,7 @@ import FoxitEMBSDK.EMBJavaSupport.RectangleF;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
@@ -53,8 +54,8 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 	private int nCurDisplayX = 0;
 	private int nCurDisplayY = 0;
 	private int leftBound, topBound;// 左边界，上边界
-	private final static int FLING_SIZE = 100;
-	private final static int VELOCITYLIMIT = 640;
+	private final static int FLING_SIZE = 200;
+	private final static int VELOCITYLIMIT = 2000;
 
 	public class CPSIAction {
 		public int nActionType;
@@ -94,6 +95,20 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 		this.getViewTreeObserver().addOnGlobalLayoutListener(this);
 		mViewThread = new Thread(this);
 		mViewThread.start();
+	}
+
+	public void updateViewMode(int mode) {
+		if (this.mode == Configuration.ORIENTATION_PORTRAIT
+				&& this.nDisplayHeight < this.nDisplayWidth
+				|| this.mode == Configuration.ORIENTATION_LANDSCAPE
+				&& this.nDisplayHeight > this.nDisplayWidth) {
+			int temp = this.nDisplayHeight;
+			this.nDisplayHeight = this.nDisplayWidth;
+			this.nDisplayWidth = temp;
+			this.zoomStatus.updateDisplaySize(this.nDisplayWidth,
+					this.nDisplayHeight);
+			this.showCurrentPage();
+		}
 	}
 
 	/*	*//**
@@ -158,8 +173,8 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 			actionId = actionId >> 8;
 
 			PointF point = EMBJavaSupport.instance.new PointF();
-			point.x = event.getX();
-			point.y = event.getY();
+			point.x = event.getX() + nStartX;
+			point.y = event.getY() + nStartY;
 			EMBJavaSupport.FPDFPageDeviceToPagePointF(
 					pDoc.getCurrentPageHandler(), 0, 0, zoomStatus.getWidth(),
 					zoomStatus.getHeight(), 0, point);
@@ -191,6 +206,8 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 			}
 
 		} else if ((this.mode & Mode.Annotation.getType()) > 0) {
+			if (true)
+				return false;
 			RectangleF rect = EMBJavaSupport.instance.new RectangleF();
 			rect.left = event.getX() - 10;
 			rect.right = event.getX() + 10;
@@ -411,7 +428,7 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 			if (dirtydib != null) {
 				Matrix m = new Matrix();
 				m.postRotate(0, rect.width() / 2, rect.height() / 2);
-				m.postTranslate(rect.left, rect.top);
+				m.postTranslate(rect.left - nStartX, rect.top - nStartY);
 				canvas.drawBitmap(dirtydib, m, mPaint);
 			}
 		} finally {
@@ -466,13 +483,14 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 		// TODO Auto-generated method stub
 		// if (true)
 		// return false;
-		if (e1.getX() - e2.getX() > FLING_SIZE && velocityX < -VELOCITYLIMIT
-				&& Math.abs(velocityY) < VELOCITYLIMIT) {
+		Log.i("pdfview", "p1(x:" + e1.getX() + ",y:" + e1.getY() + "),p2(x:"
+				+ e2.getX() + ",y:" + e2.getY() + ") vx:" + velocityX + ",vy:"
+				+ velocityY);
+		if (e1.getX() - e2.getX() > FLING_SIZE && velocityX < -VELOCITYLIMIT) {
 			this.nextPage();
 			return true;
 		} else if (e1.getX() - e2.getX() < -FLING_SIZE
-				&& velocityX > VELOCITYLIMIT
-				&& Math.abs(velocityY) < VELOCITYLIMIT) {
+				&& velocityX > VELOCITYLIMIT) {
 			this.previousPage();
 			return true;
 		}

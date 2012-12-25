@@ -254,6 +254,8 @@ public class YYPDFDoc {
 					// /formfiller implemention
 					EMBJavaSupport.FPDFFormFillOnAfterLoadPage(nPDFFormHandler,
 							pageHandlers[pageNumber]);
+					EMBJavaSupport.FPDFFormFillUpdatForm(this
+							.getPDFFormHandler());
 					// //////////////////////////
 				}
 
@@ -262,6 +264,14 @@ public class YYPDFDoc {
 			} catch (Exception e) {
 				postToLog(e.getMessage());
 			}
+		} else {
+			// if ((this.mode & Mode.Form.getType()) > 0) {
+			// // /formfiller implemention
+			// EMBJavaSupport.FPDFFormFillOnAfterLoadPage(nPDFFormHandler,
+			// pageHandlers[pageNumber]);
+			// EMBJavaSupport.FPDFFormFillUpdatForm(this.getPDFFormHandler());
+			// // //////////////////////////
+			// }
 		}
 		return pageHandlers[pageNumber];
 	}
@@ -273,6 +283,9 @@ public class YYPDFDoc {
 		this.nCurrentPageNumber++;
 		if (this.nCurrentPageNumber >= this.nPageCount)
 			this.nCurrentPageNumber = this.nPageCount - 1;
+		if ((this.mode & Mode.Form.getType()) > 0) {
+			EMBJavaSupport.FPDFFormFillOnKillFocus(nPDFFormHandler);
+		}
 	}
 
 	/**
@@ -282,6 +295,9 @@ public class YYPDFDoc {
 		this.nCurrentPageNumber--;
 		if (this.nCurrentPageNumber < 0)
 			this.nCurrentPageNumber = 0;
+		if ((this.mode & Mode.Form.getType()) > 0) {
+			EMBJavaSupport.FPDFFormFillOnKillFocus(nPDFFormHandler);
+		}
 	}
 
 	public int getCurrentPage() {

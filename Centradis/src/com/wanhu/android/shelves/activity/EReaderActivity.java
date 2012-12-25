@@ -269,7 +269,7 @@ public class EReaderActivity extends Activity implements
 		mDoc = null;
 		try {
 			if (mFileName != null && !mFileName.equals("")) {
-				mDoc = new YYPDFDoc(mFileName, "", this);
+				mDoc = new YYPDFDoc(mFileName, "", this, 7);
 				Log.d(mFileName, "PDF DOC OPEN");
 
 			}
@@ -434,7 +434,7 @@ public class EReaderActivity extends Activity implements
 
 				break;
 			case R.id.btnPageMode:
-				mPDFView.changeMode(Mode.Form);
+				// mPDFView.changeMode(Mode.Form);
 				break;
 			case R.id.btnSave:
 				showDialog(DIALOG_SAVE_AS);
@@ -559,17 +559,21 @@ public class EReaderActivity extends Activity implements
 		super.onConfigurationChanged(newConfig);
 		Log.d("EREADER", "ONCONFIGURATION CHANGE");
 		if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-			rlTop.setBackgroundResource(R.drawable.bar_lp);
-			btnLibrary
-					.setBackgroundResource(R.drawable.background_button_homepage);
-			btnMenu.setBackgroundResource(R.drawable.background_button_homepage);
-			rlBackground.setBackgroundResource(R.drawable.read_bkg_lp);
+			// rlTop.setBackgroundResource(R.drawable.bar_lp);
+			// btnLibrary
+			// .setBackgroundResource(R.drawable.background_button_homepage);
+			// btnMenu.setBackgroundResource(R.drawable.background_button_homepage);
+			// rlBackground.setBackgroundResource(R.drawable.read_bkg_lp);
+			EReaderActivity.mPDFView
+					.updateViewMode(Configuration.ORIENTATION_LANDSCAPE);
 		} else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) {
-			rlTop.setBackgroundResource(R.drawable.read_bar_pt);
-			btnLibrary
-					.setBackgroundResource(R.drawable.background_button_homepage_portrait);
-			btnMenu.setBackgroundResource(R.drawable.background_button_homepage_portrait);
-			rlBackground.setBackgroundResource(R.drawable.read_bkg_pt);
+			// rlTop.setBackgroundResource(R.drawable.read_bar_pt);
+			// btnLibrary
+			// .setBackgroundResource(R.drawable.background_button_homepage_portrait);
+			// btnMenu.setBackgroundResource(R.drawable.background_button_homepage_portrait);
+			// rlBackground.setBackgroundResource(R.drawable.read_bkg_pt);
+			EReaderActivity.mPDFView
+					.updateViewMode(Configuration.ORIENTATION_LANDSCAPE);
 		}
 
 	}

@@ -31,6 +31,11 @@ public class ZoomStatus {
 		this.displayHeight = displayHeight;
 	}
 
+	public void updateDisplaySize(int displayWidth, int displayHeight) {
+		this.displayWidth = displayWidth;
+		this.displayHeight = displayHeight;
+	}
+
 	public void nextZoom(float rate) {
 		if (rate != 0)
 			status = ST_SCALE;
