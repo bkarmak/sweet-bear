@@ -24,8 +24,8 @@ public class YYPDFDoc {
 	private int fileAccessHandle = 0;
 	private int nPDFDocHandler = 0;
 	protected int[] pageHandlers;
-	protected int nPageCount = 0;
-	private int nCurrentPageNumber = 0;
+	protected int pageCount = 0;
+	private int currentPageNumber = 0;
 	private static String TAG = "FoxitDoc";
 	private static final String strFontFilePath = "/mnt/sdcard/DroidSansFallback.ttf";
 	private int mode;
@@ -226,13 +226,13 @@ public class YYPDFDoc {
 		if (nPDFDocHandler == 0) {
 			return EMBJavaSupport.EMBJavaSupport_RESULT_ERROR;
 		}
-		if (nPageCount <= 0)
+		if (pageCount <= 0)
 			try {
-				nPageCount = EMBJavaSupport.FPDFDocGetPageCount(nPDFDocHandler);
+				pageCount = EMBJavaSupport.FPDFDocGetPageCount(nPDFDocHandler);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-		return nPageCount;
+		return pageCount;
 	}
 
 	/**
@@ -280,9 +280,9 @@ public class YYPDFDoc {
 	 * jump to the next page
 	 */
 	public void nextPage() {
-		this.nCurrentPageNumber++;
-		if (this.nCurrentPageNumber >= this.nPageCount)
-			this.nCurrentPageNumber = this.nPageCount - 1;
+		this.currentPageNumber++;
+		if (this.currentPageNumber >= this.pageCount)
+			this.currentPageNumber = this.pageCount - 1;
 		if ((this.mode & Mode.Form.getType()) > 0) {
 			EMBJavaSupport.FPDFFormFillOnKillFocus(nPDFFormHandler);
 		}
@@ -292,24 +292,24 @@ public class YYPDFDoc {
 	 * jump to the previous page
 	 */
 	public void previoutPage() {
-		this.nCurrentPageNumber--;
-		if (this.nCurrentPageNumber < 0)
-			this.nCurrentPageNumber = 0;
+		this.currentPageNumber--;
+		if (this.currentPageNumber < 0)
+			this.currentPageNumber = 0;
 		if ((this.mode & Mode.Form.getType()) > 0) {
 			EMBJavaSupport.FPDFFormFillOnKillFocus(nPDFFormHandler);
 		}
 	}
 
 	public int getCurrentPage() {
-		return this.nCurrentPageNumber;
+		return this.currentPageNumber;
 	}
 
 	public int getCurrentPageHandler() {
-		if (this.nCurrentPageNumber < 0) {
-			postToLog("error current page number:" + this.nCurrentPageNumber);
+		if (this.currentPageNumber < 0) {
+			postToLog("error current page number:" + this.currentPageNumber);
 			return -1;
 		}
-		return this.getPageHandler(this.nCurrentPageNumber);
+		return this.getPageHandler(this.currentPageNumber);
 	}
 
 	/**
@@ -321,7 +321,7 @@ public class YYPDFDoc {
 		if (pageNumber >= this.getPageCounts()) {
 			postToLog("pdf document has no page:" + pageNumber);
 		} else {
-			this.nCurrentPageNumber = pageNumber;
+			this.currentPageNumber = pageNumber;
 		}
 	}
 
@@ -331,7 +331,6 @@ public class YYPDFDoc {
 		if (nPDFCurPageHandler == 0) {
 			return null;
 		}
-		Log.i("getpagebitmap", "current page:" + this.getCurrentPage());
 		Bitmap bm;
 		bm = Bitmap.createBitmap(displayWidth, displayHeight,
 				Bitmap.Config.ARGB_8888);
@@ -342,20 +341,17 @@ public class YYPDFDoc {
 			EMBJavaSupport.FSBitmapFillColor(dib, 0xff);
 			EMBJavaSupport.FPDFRenderPageStart(dib, nPDFCurPageHandler, 0, 0,
 					displayWidth, displayHeight, 0, 0, null, 0);
-			byte[] bmpbuf = EMBJavaSupport.FSBitmapGetBuffer(dib);
-			ByteBuffer bmBuffer = ByteBuffer.wrap(bmpbuf);
-			bm.copyPixelsFromBuffer(bmBuffer);
 
 			// /formfiller implemention
 			if ((mode & Mode.Form.getType()) > 0) {
 				EMBJavaSupport.FPDFFormFillDraw(nPDFFormHandler, dib,
 						nPDFCurPageHandler, 0, 0, displayWidth, displayHeight,
 						0, 0);
-				bmpbuf = EMBJavaSupport.FSBitmapGetBuffer(dib);
-				bmBuffer = ByteBuffer.wrap(bmpbuf);
-				bm.copyPixelsFromBuffer(bmBuffer);
 			}
 			// ////////////////////////////
+			byte[] bmpbuf = EMBJavaSupport.FSBitmapGetBuffer(dib);
+			ByteBuffer bmBuffer = ByteBuffer.wrap(bmpbuf);
+			bm.copyPixelsFromBuffer(bmBuffer);
 
 			EMBJavaSupport.FSBitmapDestroy(dib);
 		} catch (Exception e) {
@@ -383,16 +379,15 @@ public class YYPDFDoc {
 			EMBJavaSupport.FPDFRenderPageStart(dib, nPDFCurPageHandler,
 					-rect.left, -rect.top, nSizex, nSizey, 0, 0, null, 0);
 
-			// /formfiller implemention
+			// /formfiller implemention//
 			if (nPDFFormHandler == 0)
 				return null;
 			EMBJavaSupport.FPDFFormFillDraw(nPDFFormHandler, dib,
 					nPDFCurPageHandler, -rect.left, -rect.top, nSizex, nSizey,
 					0, 0);
-			// /
+			// //////////////////////////////
 
 			byte[] bmpbuf = EMBJavaSupport.FSBitmapGetBuffer(dib);
-
 			ByteBuffer bmBuffer = ByteBuffer.wrap(bmpbuf);
 			bm.copyPixelsFromBuffer(bmBuffer);
 

@@ -12,9 +12,9 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.Window;
 import android.view.WindowManager;
+
 import com.yangyang.foxitdemo.OpenFileDialog.CallbackBundle;
 import com.yangyang.foxitsdk.service.YYPDFDoc;
-import com.yangyang.foxitsdk.service.YYPDFDoc.Mode;
 import com.yangyang.foxitsdk.view.IPDFView;
 import com.yangyang.foxitsdk.view.PDFView;
 
@@ -108,7 +108,7 @@ public class MainActivity extends Activity implements IPDFView {
 							String filepath = bundle.getString("path");
 							setTitle(filepath); // 把文件路径显示在标题上
 							MainActivity.this.pDoc = new YYPDFDoc(filepath, "",
-									MainActivity.this, 7);
+									MainActivity.this, 3);
 							MainActivity.this.pdfView.InitView(pDoc,
 									(int) pDoc.GetPageSizeX(0),
 									(int) pDoc.GetPageSizeY(0),
