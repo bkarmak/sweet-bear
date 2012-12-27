@@ -46,7 +46,7 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 	private int displayHeight = 0;
 	private Thread viewThread = null;
 	private ArrayList<CPSIAction> psiActionList;
-	private YYPDFDoc pDoc;
+	private YYPDFDoc doc;
 	GestureDetector detector;
 	private ZoomStatus zoomStatus;
 	private int startX = 0;
@@ -56,6 +56,7 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 	private int leftBound, topBound;// 左边界，上边界
 	private final static int FLING_SIZE = 200;
 	private final static int VELOCITYLIMIT = 2000;
+	Paint paint = new Paint();
 
 	public class CPSIAction {
 		public int nActionType;
@@ -138,7 +139,7 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 					if (value - baseValue >= 10 || value - baseValue <= -10) {
 						float scale = (value - baseValue) / (baseValue * 20);// 当前两点间的距离除以手指落下时两点间的距离就是需要缩放的比例。
 						this.zoomStatus.nextZoom(scale);
-						this.rect = null;
+						this.recyleBitmap();
 						this.showCurrentPage();
 						return true;
 					}
@@ -169,30 +170,30 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 			point.x = event.getX() + startX;
 			point.y = event.getY() + startY;
 			EMBJavaSupport.FPDFPageDeviceToPagePointF(
-					pDoc.getCurrentPageHandler(), 0, 0, zoomStatus.getWidth(),
+					doc.getCurrentPageHandler(), 0, 0, zoomStatus.getWidth(),
 					zoomStatus.getHeight(), 0, point);
 			Log.i("pdfview", "x:" + point.x + ",y:" + point.y);
 			if (point.x >= 0 || point.y >= 0) {
 				switch (actionType) {
 				case MotionEvent.ACTION_MOVE://
 					if (EMBJavaSupport.FPDFFormFillOnMouseMove(
-							pDoc.getPDFFormHandler(),
-							pDoc.getCurrentPageHandler(), 0, point.x, point.y))
+							doc.getPDFFormHandler(),
+							doc.getCurrentPageHandler(), 0, point.x, point.y))
 						return true;
 					break;
 				case MotionEvent.ACTION_DOWN: //
 					if (EMBJavaSupport.FPDFFormFillOnMouseMove(
-							pDoc.getPDFFormHandler(),
-							pDoc.getCurrentPageHandler(), 0, point.x, point.y))
+							doc.getPDFFormHandler(),
+							doc.getCurrentPageHandler(), 0, point.x, point.y))
 						return true;
 					EMBJavaSupport.FPDFFormFillOnLButtonDown(
-							pDoc.getPDFFormHandler(),
-							pDoc.getCurrentPageHandler(), 0, point.x, point.y);
+							doc.getPDFFormHandler(),
+							doc.getCurrentPageHandler(), 0, point.x, point.y);
 					break;
 				case MotionEvent.ACTION_UP: //
 					if (EMBJavaSupport.FPDFFormFillOnLButtonUp(
-							pDoc.getPDFFormHandler(),
-							pDoc.getCurrentPageHandler(), 0, point.x, point.y))
+							doc.getPDFFormHandler(),
+							doc.getCurrentPageHandler(), 0, point.x, point.y))
 						return true;
 					break;
 				}
@@ -224,7 +225,7 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 		switch (annotationType) {
 		case NOTE:
 			try {
-				pDoc.addAnnot(annotationType, rect);
+				doc.addAnnot(annotationType, rect);
 			} catch (memoryException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -237,7 +238,7 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 
 	public void InitView(YYPDFDoc pDoc, int pageWidth, int pageHeight,
 			int displayWidth, int displayHeight) {
-		this.pDoc = pDoc;
+		this.doc = pDoc;
 		this.mode = pDoc.getMode();
 		// this.nDisplayWidth = displayWidth;
 		// this.nDisplayHeight = displayHeight;
@@ -249,40 +250,43 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 	}
 
 	public int getCurrentPage() {
-		return pDoc.getCurrentPage();
+		return doc.getCurrentPage();
 	}
 
 	public int getCurrentPageHandler() {
-		return pDoc.getCurrentPageHandler();
+		return doc.getCurrentPageHandler();
 	}
 
 	public int getPageCount() {
-		return pDoc.getPageCounts();
+		return doc.getPageCounts();
 	}
 
 	public int getPageHandler(int pageNumber) {
-		return pDoc.getPageHandler(pageNumber);
+		return doc.getPageHandler(pageNumber);
 	}
 
 	public void gotoPage(int pageNumber) {
-		pDoc.gotoPage(pageNumber);
+		doc.gotoPage(pageNumber);
 		this.showCurrentPage();
 	}
 
 	public void previousPage() {
-		pDoc.previoutPage();
+		this.recyleBitmap();
+		doc.previoutPage();
 		this.rect = null;
 		this.showCurrentPage();
 	}
 
 	public void nextPage() {
-		pDoc.nextPage();
+		this.recyleBitmap();
+		doc.nextPage();
 		this.rect = null;
 		this.showCurrentPage();
 	}
 
 	public void showCurrentPage() {
-		this.setPDFBitmap(pDoc.getPageBitmap(zoomStatus.getWidth(),
+		this.recyleBitmap();
+		this.setPDFBitmap(doc.getPageBitmap(zoomStatus.getWidth(),
 				zoomStatus.getHeight()));
 		this.OnDraw();
 	}
@@ -296,12 +300,12 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 	}
 
 	public YYPDFDoc getDoc() {
-		return this.pDoc;
+		return this.doc;
 	}
 
 	public void finalize() {
-		if (pDoc != null)
-			pDoc.close();
+		if (doc != null)
+			doc.close();
 	}
 
 	public synchronized void addAction(int nActionType, float x, float y,
@@ -344,6 +348,7 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 	}
 
 	public void setDirtyBitmap(Bitmap dib) {
+		recyleDirtyBitmap();
 		dirtydib = dib;
 	}
 
@@ -372,29 +377,41 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 		}
 		curDisplayX = startX;
 		curDisplayY = startY;
-		if (CurrentBitmap != null && !CurrentBitmap.isRecycled()) {
-			CurrentBitmap = null;
-		}
+		recyleCurrentBitmap();
+		recyleDirtyBitmap();
 		CurrentBitmap = Bitmap.createBitmap(pdfbmp, startX, startY,
 				pdfbmp.getWidth() - startX, pdfbmp.getHeight() - startY);
 		this.OnDraw();
-		if (result) {
-			if (this.dirtydib != null && !this.dirtydib.isRecycled())
-				this.dirtydib = null;
-			this.rect = null;
-		}
 		return result;
 	}
 
-	public void setPDFBitmap(Bitmap dib) {
-		if (pdfbmp != null) {
-			pdfbmp.recycle();
-			pdfbmp = null;
-		}
-		if (dirtydib != null) {
+	private void recyleBitmap() {
+		this.rect = null;
+		recyleCurrentBitmap();
+		recylePDFBitmap();
+		recyleDirtyBitmap();
+	}
+
+	private void recyleDirtyBitmap() {
+		if (dirtydib != null && !dirtydib.isRecycled()) {
 			dirtydib.recycle();
 			dirtydib = null;
 		}
+	}
+
+	private void recylePDFBitmap() {
+		if (pdfbmp != null && !pdfbmp.isRecycled()) {
+			pdfbmp = null;
+		}
+	}
+
+	private void recyleCurrentBitmap() {
+		if (CurrentBitmap != null && !CurrentBitmap.isRecycled()) {
+			CurrentBitmap = null;
+		}
+	}
+
+	public void setPDFBitmap(Bitmap dib) {
 		pdfbmp = dib;
 		CurrentBitmap = dib;
 	}
@@ -409,25 +426,17 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 			}
 			if (canvas == null)
 				return;
-			Paint mPaint = new Paint();
 			if (pdfbmp != null && rect == null) {
 				Matrix mt = new Matrix();
 				mt.postRotate(0, displayWidth, displayHeight);
 				mt.postTranslate(0, 0);
 				canvas.drawColor(0xffffff);
-				canvas.drawRect(0, 0, displayWidth, displayHeight, mPaint);
-				canvas.drawBitmap(this.CurrentBitmap, mt, mPaint);
-				if (this.CurrentBitmap != this.pdfbmp) {
-					this.CurrentBitmap.recycle();
-					this.CurrentBitmap = null;
-				}
+				canvas.drawRect(0, 0, displayWidth, displayHeight, paint);
+				canvas.drawBitmap(this.CurrentBitmap, mt, paint);
 			}
 			if (dirtydib != null && rect != null) {
-				// Matrix m = new Matrix();
-				// m.postRotate(0, rect.width() / 2, rect.height() / 2);
-				// m.postTranslate(rect.left, rect.top);
 				canvas.drawBitmap(dirtydib, rect.left - startX, rect.top
-						- startY, mPaint);
+						- startY, paint);
 			}
 		} finally {
 			if (canvas != null) {
@@ -461,9 +470,9 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 		while (!Thread.currentThread().isInterrupted()) {
 			CPSIAction action = getHeadAction();
 			if (action != null) {
-				Log.e("xxxxxxxxxx run run run", "" + pDoc.getCurPSIHandle()
+				Log.e("xxxxxxxxxx run run run", "" + doc.getCurPSIHandle()
 						+ action.x + action.y + action.nPressures + action.flag);
-				EMBJavaSupport.FPSIAddPoint(pDoc.getCurPSIHandle(), action.x,
+				EMBJavaSupport.FPSIAddPoint(doc.getCurPSIHandle(), action.x,
 						action.y, action.nPressures, action.flag);
 			}
 		}
@@ -502,9 +511,9 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 		if (point.x < 0 || point.y < 0)
 			return;
 		Log.i("pdfview", "screenx:" + (point.x) + ",screeny:" + (point.y));
-		int textPage = EMBJavaSupport.FPDFTextLoadPage(pDoc
+		int textPage = EMBJavaSupport.FPDFTextLoadPage(doc
 				.getCurrentPageHandler());
-		EMBJavaSupport.FPDFPageDeviceToPagePointF(pDoc.getCurrentPageHandler(),
+		EMBJavaSupport.FPDFPageDeviceToPagePointF(doc.getCurrentPageHandler(),
 				0, 0, zoomStatus.getWidth(), zoomStatus.getHeight(), 0, point);
 		String url = EMBJavaSupport.FPDFLinkOpenOuterLink(textPage,
 				(int) point.x, (int) point.y);
@@ -517,10 +526,10 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 
 		} else {
 			int pageNumber = EMBJavaSupport.FPDFLinkOpenInnerLink(
-					pDoc.getDocumentHandler(), pDoc.getCurrentPageHandler(),
+					doc.getDocumentHandler(), doc.getCurrentPageHandler(),
 					(int) point.x, (int) point.y);
 			if (pageNumber > 0) {
-				pDoc.gotoPage(pageNumber);
+				doc.gotoPage(pageNumber);
 				this.showCurrentPage();
 			}
 		}
@@ -587,7 +596,7 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 			rect.right = right;
 			rect.bottom = bottom;
 			EMBJavaSupport.FPDFPagePageToDeviceRectF(
-					pDoc.getCurrentPageHandler(), 0, 0, zoomStatus.getWidth(),
+					doc.getCurrentPageHandler(), 0, 0, zoomStatus.getWidth(),
 					zoomStatus.getHeight(), 0, rect);
 			l = (int) rect.left;
 			t = (int) rect.top;
@@ -597,14 +606,9 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 				return;
 			Rect rc = new Rect(l, t, r, b);
 			this.setDirtyRect(l, t, r, b);
-			this.setDirtyBitmap(pDoc.getDirtyBitmap(rc, zoomStatus.getWidth(),
+			this.setDirtyBitmap(doc.getDirtyBitmap(rc, zoomStatus.getWidth(),
 					zoomStatus.getHeight()));
 			this.OnDraw();
-			// if ((this.mode & Mode.Form.getType()) > 0) {
-			// EMBJavaSupport.FPDFFormFillOnKillFocus(this.pDoc
-			// .getPDFFormHandler());
-			// }
-
 		}
 	}
 
