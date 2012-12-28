@@ -20,10 +20,10 @@ public final class R {
         public static final int ic_launcher=0x7f020006;
     }
     public static final class id {
-        public static final int Form=0x7f08000f;
+        public static final int Eraser=0x7f08000f;
         public static final int LinearLayout1=0x7f080000;
         public static final int Mode=0x7f08000d;
-        public static final int Mode_Read=0x7f08000e;
+        public static final int Note=0x7f08000e;
         public static final int editText=0x7f080008;
         public static final int filedialogitem_img=0x7f080005;
         public static final int filedialogitem_name=0x7f080006;

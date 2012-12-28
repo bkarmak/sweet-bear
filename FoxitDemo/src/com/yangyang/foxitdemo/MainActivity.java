@@ -6,6 +6,7 @@ import android.app.Dialog;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.provider.ContactsContract.CommonDataKinds.Note;
 import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -15,6 +16,7 @@ import android.view.WindowManager;
 
 import com.yangyang.foxitdemo.OpenFileDialog.CallbackBundle;
 import com.yangyang.foxitsdk.service.YYPDFDoc;
+import com.yangyang.foxitsdk.service.YYPDFDoc.AnnotationType;
 import com.yangyang.foxitsdk.view.IPDFView;
 import com.yangyang.foxitsdk.view.PDFView;
 
@@ -63,14 +65,18 @@ public class MainActivity extends Activity implements IPDFView {
 				this.pdfView.nextPage();
 			}
 			break;
-		case R.id.Mode_Read:
+		case R.id.Note:
 			if (pDoc != null) {
 				// this.pdfView.changeMode(Mode.Read);
+				this.pdfView.changeMode(3);
+				this.pdfView.setAnnotationType(AnnotationType.NOTE);
 			}
 			break;
-		case R.id.Form:
+		case R.id.Eraser:
 			if (pDoc != null) {
 				// this.pdfView.changeMode(Mode.Form);
+				this.pdfView.changeMode(3);
+				this.pdfView.setAnnotationType(AnnotationType.ERASER);
 			}
 			break;
 		case R.id.go_to: {

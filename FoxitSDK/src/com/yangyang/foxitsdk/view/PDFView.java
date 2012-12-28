@@ -66,8 +66,8 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 		public int flag;
 	}
 
-	private int mode;
-	private AnnotationType annotationType = AnnotationType.NOTE;
+	private int mode; // 默认只读模式
+	private AnnotationType annotationType = AnnotationType.NONE;// 默认无注解类型
 
 	public PDFView(Context context) {
 		super(context);
@@ -121,44 +121,57 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
 		// TODO Auto-generated method stub
-		if (this.detector.onTouchEvent(event)) {
+		if (this.detector.onTouchEvent(event) || performZoomAndScroll(event)
+				|| performFromAction(event) || performAnnotationAction(event)
+				|| performPSIAction(event)) {
 			return true;
 		}
-		if (event.getAction() == MotionEvent.ACTION_DOWN) {
-			baseValue = 0;
-			last_x = event.getRawX();
-			last_y = event.getRawY();
-		} else if (event.getAction() == MotionEvent.ACTION_MOVE) {
-			if (event.getPointerCount() == 2) {
-				float x = event.getX(0) - event.getX(1);
-				float y = event.getY(0) - event.getY(1);
-				float value = (float) Math.sqrt(x * x + y * y);// 计算两点的距离
-				if (baseValue == 0) {
-					baseValue = value;
-				} else {
-					if (value - baseValue >= 10 || value - baseValue <= -10) {
-						float scale = (value - baseValue) / (baseValue * 20);// 当前两点间的距离除以手指落下时两点间的距离就是需要缩放的比例。
-						this.zoomStatus.nextZoom(scale);
-						this.recyleBitmap();
-						this.showCurrentPage();
-						return true;
-					}
-				}
-			} else if (event.getPointerCount() == 1) {
-				float x = event.getRawX();
-				float y = event.getRawY();
-				x -= last_x;
-				y -= last_y;
-				if (x >= 10 || y < 10 || x <= -10 || y <= -10) {
-					return this.SetMartix(x, y); // 移动图片位置
-				}
-				last_x = event.getRawX();
-				last_y = event.getRawY();
+		return false;
+	}
 
+	private boolean performPSIAction(MotionEvent event) {
+		if ((this.mode & Mode.PSI.getType()) > 0) {
+		}
+		return false;
+	}
+
+	private boolean performAnnotationAction(MotionEvent event) {
+		if ((this.mode & Mode.Annotation.getType()) > 0
+				&& this.annotationType != AnnotationType.NONE) {
+			if (this.annotationType == AnnotationType.NOTE) {
+				RectangleF rect = EMBJavaSupport.instance.new RectangleF();
+				rect.left = event.getX() - 10 + startX;
+				rect.right = event.getX() + 10 + startY;
+				rect.top = event.getY() - 10 + startX;
+				rect.bottom = event.getY() + 10 + startY;
+				rect.left = rect.left >= 0 ? rect.left : 0;
+				rect.right = rect.right >= 0 ? rect.right : 0;
+				rect.top = rect.top >= 0 ? rect.top : 0;
+				rect.bottom = rect.bottom >= 0 ? rect.bottom : 0;
+				EMBJavaSupport.FPDFPageDeviceToPageRectF(
+						doc.getCurrentPageHandler(), 0, 0,
+						zoomStatus.getWidth(), zoomStatus.getHeight(), 0, rect);
+				this.addNote(AnnotationType.NOTE, rect);
+				this.showCurrentPage();
+				return true;
+			} else if (this.annotationType == AnnotationType.ERASER) {
+				PointF p = EMBJavaSupport.instance.new PointF();
+				p.x = event.getX() + startX;
+				p.y = event.getY() + startY;
+				EMBJavaSupport.FPDFPageDeviceToPagePointF(
+						this.getCurrentPageHandler(), 0, 0,
+						zoomStatus.getWidth(), zoomStatus.getHeight(), 0, p);
+				if (doc.deleteAnnotation((int) p.x, (int) p.y) >= 0) {
+					this.showCurrentPage();
+					return true;
+				}
 			}
-		} else if (event.getAction() == MotionEvent.ACTION_UP) {
 
 		}
+		return false;
+	}
+
+	private boolean performFromAction(MotionEvent event) {
 		if ((this.mode & Mode.Form.getType()) > 0) {
 
 			int actionType = event.getAction() & MotionEvent.ACTION_MASK;
@@ -200,32 +213,66 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 			}
 
 		}
-		if (false && (this.mode & Mode.Annotation.getType()) > 0
-				&& this.annotationType != AnnotationType.NONE) {
-			RectangleF rect = EMBJavaSupport.instance.new RectangleF();
-			rect.left = event.getX() - 30;
-			rect.right = event.getX() + 30;
-			rect.top = event.getY() - 30;
-			rect.bottom = event.getY() + 30;
-			rect.left = rect.left >= 0 ? rect.left : 0;
-			rect.right = rect.right >= 0 ? rect.right : 0;
-			rect.top = rect.top >= 0 ? rect.top : 0;
-			rect.bottom = rect.bottom >= 0 ? rect.bottom : 0;
-			this.addNote(AnnotationType.NOTE, rect);
-			this.showCurrentPage();
-			return true;
+		return false;
+	}
 
-		} else if ((this.mode & Mode.PSI.getType()) > 0) {
+	private boolean performZoomAndScroll(MotionEvent event) {
+		if (event.getAction() == MotionEvent.ACTION_DOWN) {
+			baseValue = 0;
+			last_x = event.getRawX();
+			last_y = event.getRawY();
+		} else if (event.getAction() == MotionEvent.ACTION_MOVE) {
+			if (event.getPointerCount() == 2) {
+				float x = event.getX(0) - event.getX(1);
+				float y = event.getY(0) - event.getY(1);
+				float value = (float) Math.sqrt(x * x + y * y);// 计算两点的距离
+				if (baseValue == 0) {
+					baseValue = value;
+				} else {
+					if (value - baseValue >= 10 || value - baseValue <= -10) {
+						float scale = (value - baseValue) / (baseValue * 20);// 当前两点间的距离除以手指落下时两点间的距离就是需要缩放的比例。
+						this.zoomStatus.nextZoom(scale);
+						this.recyleBitmap();
+						this.showCurrentPage();
+						return true;
+					}
+				}
+			} else if (event.getPointerCount() == 1) {
+				float x = event.getRawX();
+				float y = event.getRawY();
+				x -= last_x;
+				y -= last_y;
+				if (x >= 10 || y < 10 || x <= -10 || y <= -10) {
+					return this.SetMartix(x, y); // 移动图片位置
+				}
+				last_x = event.getRawX();
+				last_y = event.getRawY();
+
+			}
+		} else if (event.getAction() == MotionEvent.ACTION_UP) {
 
 		}
 		return false;
 	}
 
-	private void addNote(AnnotationType annotationType, RectangleF rect) {
+	/**
+	 * 设置注释类型
+	 * 
+	 * @param type
+	 * @return
+	 */
+	public boolean setAnnotationType(AnnotationType type) {
+		if ((this.mode & Mode.Annotation.getType()) > 0) {
+			this.annotationType = type;
+		}
+		return false;
+	}
+
+	private int addNote(AnnotationType annotationType, RectangleF rect) {
 		switch (annotationType) {
 		case NOTE:
 			try {
-				doc.addAnnot(annotationType, rect);
+				return doc.addAnnot(annotationType, rect);
 			} catch (memoryException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -234,6 +281,7 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 		default:
 			break;
 		}
+		return -1;
 	}
 
 	public void InitView(YYPDFDoc pDoc, int pageWidth, int pageHeight,

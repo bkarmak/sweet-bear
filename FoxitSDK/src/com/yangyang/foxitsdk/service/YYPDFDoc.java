@@ -76,6 +76,7 @@ public class YYPDFDoc {
 		HIGHLIGHT, // 高亮显示
 		PENCIL, // 铅笔
 		STAMP, // 邮戳
+		ERASER, // 橡皮擦
 	}
 
 	/**
@@ -340,7 +341,8 @@ public class YYPDFDoc {
 					null, 0);
 			EMBJavaSupport.FSBitmapFillColor(dib, 0xff);
 			EMBJavaSupport.FPDFRenderPageStart(dib, nPDFCurPageHandler, 0, 0,
-					displayWidth, displayHeight, 0, 0, null, 0);
+					displayWidth, displayHeight, 0,
+					(mode & Mode.Annotation.getType()) > 0 ? 1 : 0, null, 0);
 
 			// /formfiller implemention
 			if ((mode & Mode.Form.getType()) > 0) {
@@ -495,25 +497,25 @@ public class YYPDFDoc {
 	public int addAnnot(AnnotationType annotationType, RectangleF rect)
 			throws memoryException {
 
+		int result = EMBJavaSupport.EMBJavaSupport_RESULT_ERROR;
 		switch (annotationType) {
 
 		case NONE: {
-			return EMBJavaSupport.EMBJavaSupport_RESULT_ERROR;
+			break;
 		}
 
 		case NOTE: {
-			int nCount = EMBJavaSupport.FPDFAnnotGetCount(this
-					.getCurrentPageHandler());
 			int nNoteInfoItem = EMBJavaSupport.FPDFNoteInfoAlloc("James",
 					0x0000ff, 80, rect, "I like note",
 					this.getCurrentPageHandler());
-			nCount = EMBJavaSupport.FPDFAnnotGetCount(this
-					.getCurrentPageHandler());
 			int nIndex = EMBJavaSupport
 					.FPDFAnnotAdd(this.getCurrentPageHandler(),
 							EMBJavaSupport.EMBJavaSupport_ANNOTTYPE_NOTE,
 							nNoteInfoItem);
 			EMBJavaSupport.FPDFNoteInfoRelease(nNoteInfoItem);
+			if (nIndex >= 0) {
+				result = nIndex;
+			}
 			break;
 		}
 
@@ -534,6 +536,9 @@ public class YYPDFDoc {
 					nPencilInfoItem);
 			EMBJavaSupport.FPDFLineInfoRelease(nLineInfo);
 			EMBJavaSupport.FPDFPencilInfoRelease(nPencilInfoItem);
+			if (nIndex >= 0) {
+				result = nIndex;
+			}
 
 			break;
 		}
@@ -546,17 +551,34 @@ public class YYPDFDoc {
 					this.getCurrentPageHandler(),
 					EMBJavaSupport.EMBJavaSupport_ANNOTTYPE_STAMP, nStampInfo);
 			EMBJavaSupport.FPDFStampInfoRelease(nStampInfo);
+			if (nIndex >= 0) {
+				result = nIndex;
+			}
 			break;
 		}
 		default:
 			break;
 		}
+
 		// int filewrite =
 		// EMBJavaSupport.FSFileWriteAlloc("/data/data/com.foxitsample.annotations/FoxitSaveAnnotation.pdf");
 		// EMBJavaSupport.FPDFDocSaveAs(nPDFDocHandler,
 		// EMBJavaSupport.EMBJavaSupport_SAVEFLAG_INCREMENTAL,0, filewrite);
 		// EMBJavaSupport.FSFileWriteRelease(filewrite);
-		return EMBJavaSupport.EMBJavaSupport_RESULT_SUCCESS;
+		return result;
+	}
+
+	public int deleteAnnotation(int x, int y) {
+		int annot_index = EMBJavaSupport.FPDFAnnotGetIndexAtPos(
+				this.getCurrentPageHandler(), x, y);
+		if (annot_index > 0) {
+			int nRet = EMBJavaSupport.FPDFAnnotDelete(
+					this.getCurrentPageHandler(), annot_index);
+			if (nRet == 0)
+				return annot_index;
+		}
+
+		return -1;
 	}
 
 	public int getPDFFormHandler() {
