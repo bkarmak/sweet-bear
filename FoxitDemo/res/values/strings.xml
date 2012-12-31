@@ -6,5 +6,9 @@
     <string name="title_activity_main">MainActivity</string>
     <string name="hint">Please enter the text!</string>
     <string name="go_to">go to</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
+    <string name="note">Note</string>
+    <string name="content">Content</string>
 
 </resources>

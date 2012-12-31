@@ -1,12 +1,15 @@
 package com.yangyang.foxitdemo;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import FoxitEMBSDK.EMBJavaSupport;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
-import android.provider.ContactsContract.CommonDataKinds.Note;
+import android.util.Log;
 import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -17,15 +20,18 @@ import android.view.WindowManager;
 import com.yangyang.foxitdemo.OpenFileDialog.CallbackBundle;
 import com.yangyang.foxitsdk.service.YYPDFDoc;
 import com.yangyang.foxitsdk.service.YYPDFDoc.AnnotationType;
+import com.yangyang.foxitsdk.view.IAnnotationListener;
 import com.yangyang.foxitsdk.view.IPDFView;
 import com.yangyang.foxitsdk.view.PDFView;
 
-public class MainActivity extends Activity implements IPDFView {
+public class MainActivity extends Activity implements IPDFView,
+		IAnnotationListener {
 
 	private YYPDFDoc pDoc;
 	private PDFView pdfView;
 	private int screenWidth, screenHeight;
 	private final static int openFileDialogId = 10212739;
+	private Map<Integer, String> mapIndex2Content = new HashMap<Integer, String>();
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -120,7 +126,8 @@ public class MainActivity extends Activity implements IPDFView {
 									(int) pDoc.GetPageSizeY(0),
 									MainActivity.this.screenWidth,
 									MainActivity.this.screenHeight);
-
+							MainActivity.this.pdfView
+									.setAnnotationListener(MainActivity.this);
 							MainActivity.this.pdfView.showCurrentPage();
 						}
 					}, ".pdf;");
@@ -177,6 +184,44 @@ public class MainActivity extends Activity implements IPDFView {
 	public void invalidate(float arg0, float arg1, float arg2, float arg3) {
 		// TODO Auto-generated method stub
 		this.pdfView.invalidate(arg0, arg1, arg2, arg3);
+	}
+
+	@Override
+	public void annotationAdded(int arg0) {
+		// TODO Auto-generated method stub
+		if (!this.mapIndex2Content.containsKey(-1)
+				|| this.mapIndex2Content.get(-1) == null) {
+			Log.i("mainactivity", "annotation error!");
+		} else
+			this.mapIndex2Content.put(arg0, this.mapIndex2Content.get(-1));
+	}
+
+	@Override
+	public String onAnnotationAdd(int arg0, int arg1) {
+		// TODO Auto-generated method stub
+		MessageBox messageBox = new MessageBox(this);
+		String content = messageBox.showDialog("Content", "Note");
+		this.mapIndex2Content.put(-1, content);
+		return content;
+	}
+
+	@Override
+	public void onAnnotationClick(int arg0) {
+		// TODO Auto-generated method stub
+		if (this.mapIndex2Content.containsKey(arg0)) {
+			MessageBox box = new MessageBox(this);
+			String content = box.showDialog(this.mapIndex2Content.get(arg0),
+					"Note");
+			if (content != null) {
+				this.mapIndex2Content.put(arg0, content);
+			}
+		}
+	}
+
+	@Override
+	public boolean onAnnotationDelete(int arg0) {
+		// TODO Auto-generated method stub
+		return false;
 	}
 
 }

@@ -24,6 +24,10 @@
             android:name=".textfieldActivity"
             android:theme="@android:style/Theme.Dialog" >
         </activity>
+        <activity
+            android:name=".MessageBox"
+            android:theme="@android:style/Theme.Dialog" >
+        </activity>
     </application>
 
 </manifest>

@@ -568,16 +568,25 @@ public class YYPDFDoc {
 		return result;
 	}
 
-	public int deleteAnnotation(int x, int y) {
-		int annot_index = EMBJavaSupport.FPDFAnnotGetIndexAtPos(
+	public int getAnnotationIndex(int x, int y) {
+		return EMBJavaSupport.FPDFAnnotGetIndexAtPos(
 				this.getCurrentPageHandler(), x, y);
-		if (annot_index > 0) {
-			int nRet = EMBJavaSupport.FPDFAnnotDelete(
-					this.getCurrentPageHandler(), annot_index);
-			if (nRet == 0)
-				return annot_index;
-		}
+	}
 
+	public boolean deleteAnnotation(int annotationIndex) {
+		if (annotationIndex > 0) {
+			int nRet = EMBJavaSupport.FPDFAnnotDelete(
+					this.getCurrentPageHandler(), annotationIndex);
+			if (nRet == 0)
+				return true;
+		}
+		return false;
+	}
+
+	public int deleteAnnotation(int x, int y) {
+		int annot_index = this.getAnnotationIndex(x, y);
+		if (deleteAnnotation(annot_index))
+			return annot_index;
 		return -1;
 	}
 

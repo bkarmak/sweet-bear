@@ -14,5 +14,21 @@ public interface IAnnotationListener {
 	 * 
 	 * @param annotationIndex
 	 */
-	public void onAnnotationDelete(int annotationIndex);
+	public boolean onAnnotationDelete(int annotationIndex);
+
+	/**
+	 * 要在某个点添加注解,一般是弹出对话框
+	 * 
+	 * @param x
+	 * @param y
+	 */
+	public String onAnnotationAdd(int x, int y);
+
+	/**
+	 * 注解已经添加
+	 * 
+	 * @param annotationIndex
+	 *            注解的序号
+	 */
+	public void annotationAdded(int annotationIndex);
 }
