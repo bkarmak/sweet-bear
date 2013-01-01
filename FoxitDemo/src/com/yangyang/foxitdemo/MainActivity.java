@@ -85,6 +85,11 @@ public class MainActivity extends Activity implements IPDFView,
 				this.pdfView.setAnnotationType(AnnotationType.ERASER);
 			}
 			break;
+		case R.id.Read:
+			if (pDoc != null) {
+				this.pdfView.changeMode(3);
+				this.pdfView.setAnnotationType(AnnotationType.NONE);
+			}
 		case R.id.go_to: {
 			if (pDoc != null) {
 				this.pdfView.gotoPage(1);
