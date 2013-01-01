@@ -171,9 +171,9 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 		return false;
 	}
 
+	//
 	private boolean performFromAction(MotionEvent event) {
 		if ((this.mode & Mode.Form.getType()) > 0) {
-
 			int actionType = event.getAction() & MotionEvent.ACTION_MASK;
 			int actionId = event.getAction()
 					& MotionEvent.ACTION_POINTER_ID_MASK;
