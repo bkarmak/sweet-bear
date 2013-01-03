@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.SparseArray;
 import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -31,7 +32,8 @@ public class MainActivity extends Activity implements IPDFView,
 	private PDFView pdfView;
 	private int screenWidth, screenHeight;
 	private final static int openFileDialogId = 10212739;
-	private Map<Integer, String> mapIndex2Content = new HashMap<Integer, String>();
+	private SparseArray<String> mapIndex2Content = new SparseArray<String>();
+	MessageBox messageBox;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -46,6 +48,7 @@ public class MainActivity extends Activity implements IPDFView,
 		Display display = getWindowManager().getDefaultDisplay();
 		screenWidth = display.getWidth();
 		screenHeight = display.getHeight();
+		this.messageBox = new MessageBox(this);
 	}
 
 	@Override
@@ -108,6 +111,7 @@ public class MainActivity extends Activity implements IPDFView,
 	@Override
 	protected void onDestroy() {
 		// TODO Auto-generated method stub
+		this.messageBox.dismiss();
 		super.onDestroy();
 		if (this.pDoc != null)
 			this.pDoc.close();
@@ -136,6 +140,7 @@ public class MainActivity extends Activity implements IPDFView,
 							MainActivity.this.pdfView.showCurrentPage();
 						}
 					}, ".pdf;");
+
 		}
 		return super.onCreateDialog(id);
 	}
@@ -194,8 +199,7 @@ public class MainActivity extends Activity implements IPDFView,
 	@Override
 	public void annotationAdded(int arg0) {
 		// TODO Auto-generated method stub
-		if (!this.mapIndex2Content.containsKey(-1)
-				|| this.mapIndex2Content.get(-1) == null) {
+		if (this.mapIndex2Content.get(-1) == null) {
 			Log.i("mainactivity", "annotation error!");
 		} else
 			this.mapIndex2Content.put(arg0, this.mapIndex2Content.get(-1));
@@ -204,7 +208,6 @@ public class MainActivity extends Activity implements IPDFView,
 	@Override
 	public String onAnnotationAdd(int arg0, int arg1) {
 		// TODO Auto-generated method stub
-		MessageBox messageBox = new MessageBox(this);
 		String content = messageBox.showDialog("Content", "Note");
 		this.mapIndex2Content.put(-1, content);
 		return content;
@@ -213,10 +216,9 @@ public class MainActivity extends Activity implements IPDFView,
 	@Override
 	public void onAnnotationClick(int arg0) {
 		// TODO Auto-generated method stub
-		if (this.mapIndex2Content.containsKey(arg0)) {
-			MessageBox box = new MessageBox(this);
-			String content = box.showDialog(this.mapIndex2Content.get(arg0),
-					"Note");
+		if (this.mapIndex2Content.get(arg0) != null) {
+			String content = messageBox.showDialog(
+					this.mapIndex2Content.get(arg0), "Note");
 			if (content != null) {
 				this.mapIndex2Content.put(arg0, content);
 			}
@@ -226,6 +228,11 @@ public class MainActivity extends Activity implements IPDFView,
 	@Override
 	public boolean onAnnotationDelete(int arg0) {
 		// TODO Auto-generated method stub
+		if (this.messageBox.showDialog(this.mapIndex2Content.get(arg0),
+				"Delete Note?") != null) {
+			this.mapIndex2Content.remove(arg0);
+			return true;
+		}
 		return false;
 	}
 

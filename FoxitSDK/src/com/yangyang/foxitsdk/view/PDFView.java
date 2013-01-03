@@ -57,6 +57,7 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 	private final static int FLING_SIZE = 200;
 	private final static int VELOCITYLIMIT = 2000;
 	Paint paint = new Paint();
+	IAnnotationListener annotationListener;
 
 	public class CPSIAction {
 		public int nActionType;
@@ -112,6 +113,10 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 		}
 	}
 
+	public void setAnnotationListener(IAnnotationListener annotationListener) {
+		this.annotationListener = annotationListener;
+	}
+
 	public void changeMode(int mode) {
 		this.mode = mode;
 	}
@@ -138,7 +143,11 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 	private boolean performAnnotationAction(MotionEvent event) {
 		if ((this.mode & Mode.Annotation.getType()) > 0
 				&& this.annotationType != AnnotationType.NONE) {
-			if (this.annotationType == AnnotationType.NOTE) {
+			if (event.getAction() == MotionEvent.ACTION_DOWN
+					&& this.annotationType == AnnotationType.NOTE
+					&& this.annotationListener != null
+					&& this.annotationListener.onAnnotationAdd(
+							(int) event.getX(), (int) event.getY()) != null) {
 				RectangleF rect = EMBJavaSupport.instance.new RectangleF();
 				rect.left = event.getX() - 10 + startX;
 				rect.right = event.getX() + 10 + startY;
@@ -151,7 +160,8 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 				EMBJavaSupport.FPDFPageDeviceToPageRectF(
 						doc.getCurrentPageHandler(), 0, 0,
 						zoomStatus.getWidth(), zoomStatus.getHeight(), 0, rect);
-				this.addNote(AnnotationType.NOTE, rect);
+				this.annotationListener.annotationAdded(this.addNote(
+						AnnotationType.NOTE, rect));
 				this.showCurrentPage();
 				return true;
 			} else if (this.annotationType == AnnotationType.ERASER) {
@@ -161,7 +171,10 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 				EMBJavaSupport.FPDFPageDeviceToPagePointF(
 						this.getCurrentPageHandler(), 0, 0,
 						zoomStatus.getWidth(), zoomStatus.getHeight(), 0, p);
-				if (doc.deleteAnnotation((int) p.x, (int) p.y) >= 0) {
+				int index = doc.getAnnotationIndex((int) p.x, (int) p.y);
+				if (index >= 0 && this.annotationListener != null
+						&& this.annotationListener.onAnnotationDelete(index)
+						&& doc.deleteAnnotation(index)) {
 					this.showCurrentPage();
 					return true;
 				}

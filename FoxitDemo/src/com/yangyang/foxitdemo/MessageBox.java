@@ -1,6 +1,5 @@
 package com.yangyang.foxitdemo;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
 import android.os.Handler;
@@ -13,8 +12,13 @@ import android.widget.TextView;
 public class MessageBox extends Dialog {
 
 	String dialogResult;
-	Handler mHandler;
-	TextView tvTest;
+	static Handler mHandler = new Handler() {
+		@Override
+		public void handleMessage(Message mesg) {
+			throw new RuntimeException();
+		}
+	};
+	TextView tvText;
 
 	public MessageBox(Activity context) {
 		super(context);
@@ -36,7 +40,7 @@ public class MessageBox extends Dialog {
 		findViewById(R.id.btnOK).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View paramView) {
-				endDialog(MessageBox.this.tvTest.getText().toString());
+				endDialog(MessageBox.this.tvText.getText().toString());
 			}
 		});
 	}
@@ -50,31 +54,25 @@ public class MessageBox extends Dialog {
 	}
 
 	public void endDialog(String result) {
-		dismiss();
+
 		setDialogResult(result);
 		Message m = mHandler.obtainMessage();
 		mHandler.sendMessage(m);
 	}
 
-	@SuppressLint("HandlerLeak")
 	public String showDialog(String Msg, String Title) {
-		this.tvTest = (TextView) findViewById(R.id.textViewInfo);
-		tvTest.setText(Msg);
+		this.tvText = (TextView) findViewById(R.id.textViewInfo);
+		tvText.setText(Msg);
 		TextView TvTitle = (TextView) findViewById(R.id.textViewTitle);
 		TvTitle.setText(Title);
-
-		mHandler = new Handler() {
-			@Override
-			public void handleMessage(Message mesg) {
-				throw new RuntimeException();
-			}
-		};
 		super.show();
+		tvText.requestFocus();
 		try {
 			Looper.getMainLooper();
 			Looper.loop();
 		} catch (RuntimeException e2) {
 		}
+		super.hide();
 		return dialogResult;
 	}
 }
