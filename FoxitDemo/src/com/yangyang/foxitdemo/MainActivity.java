@@ -1,8 +1,5 @@
 package com.yangyang.foxitdemo;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import FoxitEMBSDK.EMBJavaSupport;
 import android.app.Activity;
 import android.app.Dialog;
@@ -18,6 +15,7 @@ import android.view.MotionEvent;
 import android.view.Window;
 import android.view.WindowManager;
 
+import com.yangyang.foxitdemo.MessageBox.IMessageBoxResult;
 import com.yangyang.foxitdemo.OpenFileDialog.CallbackBundle;
 import com.yangyang.foxitsdk.service.YYPDFDoc;
 import com.yangyang.foxitsdk.service.YYPDFDoc.AnnotationType;
@@ -197,20 +195,21 @@ public class MainActivity extends Activity implements IPDFView,
 	}
 
 	@Override
-	public void annotationAdded(int arg0) {
+	public void onAnnotationAdd(final int arg0, final int arg1) {
 		// TODO Auto-generated method stub
-		if (this.mapIndex2Content.get(-1) == null) {
-			Log.i("mainactivity", "annotation error!");
-		} else
-			this.mapIndex2Content.put(arg0, this.mapIndex2Content.get(-1));
-	}
+		messageBox.showDialog("Content", "Note", new IMessageBoxResult() {
 
-	@Override
-	public String onAnnotationAdd(int arg0, int arg1) {
-		// TODO Auto-generated method stub
-		String content = messageBox.showDialog("Content", "Note");
-		this.mapIndex2Content.put(-1, content);
-		return content;
+			@Override
+			public void onResult(String result) {
+				// TODO Auto-generated method stub
+				if (result != null) {
+					int index = MainActivity.this.pdfView.addAnnotation(
+							AnnotationType.NOTE, arg0, arg1);
+					MainActivity.this.mapIndex2Content.put(index, result);
+					MainActivity.this.pdfView.showCurrentPage();
+				}
+			}
+		});
 	}
 
 	@Override
@@ -218,7 +217,7 @@ public class MainActivity extends Activity implements IPDFView,
 		// TODO Auto-generated method stub
 		if (this.mapIndex2Content.get(arg0) != null) {
 			String content = messageBox.showDialog(
-					this.mapIndex2Content.get(arg0), "Note");
+					this.mapIndex2Content.get(arg0), "Note", null);
 			if (content != null) {
 				this.mapIndex2Content.put(arg0, content);
 			}
@@ -226,14 +225,23 @@ public class MainActivity extends Activity implements IPDFView,
 	}
 
 	@Override
-	public boolean onAnnotationDelete(int arg0) {
+	public void onAnnotationDelete(final int arg0) {
 		// TODO Auto-generated method stub
 		if (this.messageBox.showDialog(this.mapIndex2Content.get(arg0),
-				"Delete Note?") != null) {
-			this.mapIndex2Content.remove(arg0);
-			return true;
+				"Delete Note?", new IMessageBoxResult() {
+
+					@Override
+					public void onResult(String result) {
+						// TODO Auto-generated method stub
+						if (result != null) {
+							MainActivity.this.mapIndex2Content.remove(arg0);
+							MainActivity.this.pdfView.deleteAnnotation(arg0);
+							MainActivity.this.pdfView.showCurrentPage();
+						}
+					}
+				}) != null) {
+
 		}
-		return false;
 	}
 
 }

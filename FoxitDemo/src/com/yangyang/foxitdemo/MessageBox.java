@@ -7,22 +7,21 @@ import android.os.Looper;
 import android.os.Message;
 import android.view.View;
 import android.view.Window;
+import android.view.Window.Callback;
 import android.widget.TextView;
 
 public class MessageBox extends Dialog {
 
-	String dialogResult;
-	static Handler mHandler = new Handler() {
-		@Override
-		public void handleMessage(Message mesg) {
-			throw new RuntimeException();
-		}
-	};
-	TextView tvText;
+	private TextView tvText;
+
+	public interface IMessageBoxResult {
+		void onResult(String result);
+	}
+
+	IMessageBoxResult callBack;
 
 	public MessageBox(Activity context) {
 		super(context);
-		dialogResult = null;
 		setOwnerActivity(context);
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		onCreate();
@@ -45,34 +44,23 @@ public class MessageBox extends Dialog {
 		});
 	}
 
-	public String getDialogResult() {
-		return dialogResult;
-	}
-
-	public void setDialogResult(String dialogResult) {
-		this.dialogResult = dialogResult;
-	}
-
 	public void endDialog(String result) {
-
-		setDialogResult(result);
-		Message m = mHandler.obtainMessage();
-		mHandler.sendMessage(m);
+		this.hide();
+		this.dismiss();
+		if (this.callBack != null) {
+			this.callBack.onResult(result);
+		}
 	}
 
-	public String showDialog(String Msg, String Title) {
+	public String showDialog(String Msg, String Title,
+			IMessageBoxResult callBack) {
+		this.callBack = callBack;
 		this.tvText = (TextView) findViewById(R.id.textViewInfo);
 		tvText.setText(Msg);
 		TextView TvTitle = (TextView) findViewById(R.id.textViewTitle);
 		TvTitle.setText(Title);
-		super.show();
 		tvText.requestFocus();
-		try {
-			Looper.getMainLooper();
-			Looper.loop();
-		} catch (RuntimeException e2) {
-		}
-		super.hide();
-		return dialogResult;
+		super.show();
+		return null;
 	}
 }

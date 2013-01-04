@@ -142,46 +142,35 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 
 	private boolean performAnnotationAction(MotionEvent event) {
 		if ((this.mode & Mode.Annotation.getType()) > 0
-				&& this.annotationType != AnnotationType.NONE) {
-			if (event.getAction() == MotionEvent.ACTION_DOWN
-					&& this.annotationType == AnnotationType.NOTE
-					&& this.annotationListener != null
-					&& this.annotationListener.onAnnotationAdd(
-							(int) event.getX(), (int) event.getY()) != null) {
-				RectangleF rect = EMBJavaSupport.instance.new RectangleF();
-				rect.left = event.getX() - 10 + startX;
-				rect.right = event.getX() + 10 + startY;
-				rect.top = event.getY() - 10 + startX;
-				rect.bottom = event.getY() + 10 + startY;
-				rect.left = rect.left >= 0 ? rect.left : 0;
-				rect.right = rect.right >= 0 ? rect.right : 0;
-				rect.top = rect.top >= 0 ? rect.top : 0;
-				rect.bottom = rect.bottom >= 0 ? rect.bottom : 0;
-				EMBJavaSupport.FPDFPageDeviceToPageRectF(
-						doc.getCurrentPageHandler(), 0, 0,
-						zoomStatus.getWidth(), zoomStatus.getHeight(), 0, rect);
-				this.annotationListener.annotationAdded(this.addNote(
-						AnnotationType.NOTE, rect));
-				this.showCurrentPage();
-				return true;
-			} else if (this.annotationType == AnnotationType.ERASER) {
-				PointF p = EMBJavaSupport.instance.new PointF();
-				p.x = event.getX() + startX;
-				p.y = event.getY() + startY;
-				EMBJavaSupport.FPDFPageDeviceToPagePointF(
-						this.getCurrentPageHandler(), 0, 0,
-						zoomStatus.getWidth(), zoomStatus.getHeight(), 0, p);
-				int index = doc.getAnnotationIndex((int) p.x, (int) p.y);
-				if (index >= 0 && this.annotationListener != null
-						&& this.annotationListener.onAnnotationDelete(index)
-						&& doc.deleteAnnotation(index)) {
-					this.showCurrentPage();
+				&& this.annotationType != AnnotationType.NONE
+				&& event.getAction() == MotionEvent.ACTION_DOWN) {
+			PointF p = device2PagePointF(event);
+			int index = doc.getAnnotationIndex((int) p.x, (int) p.y);
+			if (this.annotationType == AnnotationType.ERASER) {
+				if (index >= 0 && this.annotationListener != null) {
+					this.annotationListener.onAnnotationDelete(index);
 					return true;
 				}
+			} else if (index >= 0 && this.annotationListener != null) {
+				this.annotationListener.onAnnotationClick(index);
+				return true;
+			} else if (this.annotationType == AnnotationType.NOTE
+					&& this.annotationListener != null) {
+				this.annotationListener.onAnnotationAdd((int) event.getX(),
+						(int) event.getY());
+				return true;
 			}
-
 		}
 		return false;
+	}
+
+	private PointF device2PagePointF(MotionEvent event) {
+		PointF p = EMBJavaSupport.instance.new PointF();
+		p.x = event.getX() + startX;
+		p.y = event.getY() + startY;
+		EMBJavaSupport.FPDFPageDeviceToPagePointF(this.getCurrentPageHandler(),
+				0, 0, zoomStatus.getWidth(), zoomStatus.getHeight(), 0, p);
+		return p;
 	}
 
 	//
@@ -277,14 +266,39 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 	public boolean setAnnotationType(AnnotationType type) {
 		if ((this.mode & Mode.Annotation.getType()) > 0) {
 			this.annotationType = type;
+			return true;
 		}
 		return false;
 	}
 
-	private int addNote(AnnotationType annotationType, RectangleF rect) {
+	/**
+	 * 添加注释
+	 * 
+	 * @param annotationType
+	 * @param x
+	 * @param y
+	 * @return
+	 */
+	public int addAnnotation(AnnotationType annotationType, int x, int y) {
 		switch (annotationType) {
 		case NOTE:
 			try {
+				RectangleF rect = EMBJavaSupport.instance.new RectangleF();
+				rect.left = x - 10 + startX;
+				rect.right = x + 10 + startY;
+				rect.top = y - 10 + startX;
+				rect.bottom = y + 10 + startY;
+				// rect.left = 100;
+				// rect.right = 120;
+				// rect.top = 100;
+				// rect.bottom = 120;
+				rect.left = rect.left >= 0 ? rect.left : 0;
+				rect.right = rect.right >= 0 ? rect.right : 0;
+				rect.top = rect.top >= 0 ? rect.top : 0;
+				rect.bottom = rect.bottom >= 0 ? rect.bottom : 0;
+				EMBJavaSupport.FPDFPageDeviceToPageRectF(
+						doc.getCurrentPageHandler(), 0, 0,
+						zoomStatus.getWidth(), zoomStatus.getHeight(), 0, rect);
 				return doc.addAnnot(annotationType, rect);
 			} catch (memoryException e) {
 				// TODO Auto-generated catch block
@@ -295,6 +309,18 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 			break;
 		}
 		return -1;
+	}
+
+	/**
+	 * 删除注释
+	 * 
+	 * @param annotationIndex
+	 */
+	public void deleteAnnotation(int annotationIndex) {
+		if (this.doc != null) {
+			this.doc.deleteAnnotation(annotationIndex);
+			this.showCurrentPage();
+		}
 	}
 
 	public void InitView(YYPDFDoc pDoc, int pageWidth, int pageHeight,
@@ -631,13 +657,8 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 	}
 
 	@Override
-	public boolean onDoubleTap(MotionEvent e) {
+	public boolean onDoubleTap(MotionEvent event) {
 		// TODO Auto-generated method stub
-		// if (this.zoomStatus != null) {
-		// this.zoomStatus.nextZoom(0);
-		// this.showCurrentPage();
-		// return true;
-		// }
 		return false;
 	}
 
