@@ -19,6 +19,7 @@ import android.os.Environment;
 import android.os.Handler;
 import android.text.TextUtils;
 import android.util.Log;
+import android.util.SparseArray;
 import android.view.Display;
 import android.view.MotionEvent;
 import android.view.View;
@@ -30,6 +31,7 @@ import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.wanhu.android.shelves.R;
+import com.wanhu.android.shelves.activity.MessageBox.IMessageBoxResult;
 import com.wanhu.android.shelves.business.BusinessNote;
 import com.wanhu.android.shelves.business.PDFBusiness;
 import com.wanhu.android.shelves.controls.BookmarkPopupWindow;
@@ -46,13 +48,14 @@ import com.wanhu.android.shelves.provider.BooksStore;
 import com.wanhu.android.shelves.provider.CentradisBooksStore;
 import com.wanhu.android.shelves.util.FileUtilities;
 import com.yangyang.foxitsdk.service.YYPDFDoc;
-import com.yangyang.foxitsdk.service.YYPDFDoc.Mode;
+import com.yangyang.foxitsdk.service.YYPDFDoc.AnnotationType;
+import com.yangyang.foxitsdk.view.IAnnotationListener;
 import com.yangyang.foxitsdk.view.IPDFView;
 import com.yangyang.foxitsdk.view.PDFView;
 
 public class EReaderActivity extends Activity implements
 		OnBookMarkClickListener, OnGotoListener, OnBookMarkListener,
-		OnNoteListener, IPDFView {
+		OnNoteListener, IPDFView, IAnnotationListener {
 
 	private Handler mHandler = new Handler();
 	private String mFileName = null;
@@ -67,6 +70,8 @@ public class EReaderActivity extends Activity implements
 	private ViewerPreferences mViewerPreferences;
 	private Uri mUri;
 	private YYPDFDoc mDoc;
+	MessageBox messageBox;
+	private SparseArray<String> mapIndex2Content = new SparseArray<String>();
 
 	public static PDFView mPDFView; // derived from anroid.view.ViewGroup
 	private RelativeLayout rlMenu;
@@ -209,6 +214,7 @@ public class EReaderActivity extends Activity implements
 
 	private void setupViews() {
 
+		this.messageBox = new MessageBox(this);
 		rlBackground = (RelativeLayout) findViewById(R.id.rlBackground);
 		rlTop = (RelativeLayout) findViewById(R.id.rlTop);
 		btnMenu = (Button) findViewById(R.id.btnMenu);
@@ -281,6 +287,7 @@ public class EReaderActivity extends Activity implements
 		mPDFView.InitView(mDoc, (int) mDoc.GetPageSizeX(0),
 				(int) mDoc.GetPageSizeY(0), display.getWidth(),
 				display.getHeight());
+		mPDFView.setAnnotationListener(this);
 		mPDFView.showCurrentPage();
 		// mPDFView.setd(mDoc);
 
@@ -536,6 +543,8 @@ public class EReaderActivity extends Activity implements
 			}
 
 		}
+		this.mPDFView.changeMode(3);
+		this.mPDFView.setAnnotationType(AnnotationType.NONE);
 	}
 
 	@Override
@@ -545,6 +554,8 @@ public class EReaderActivity extends Activity implements
 			Toast.makeText(this, R.string.remove_note_successfully,
 					Toast.LENGTH_SHORT).show();
 		}
+		this.mPDFView.changeMode(3);
+		this.mPDFView.setAnnotationType(AnnotationType.ERASER);
 	}
 
 	private void onBookStore() {
@@ -747,6 +758,71 @@ public class EReaderActivity extends Activity implements
 	public void invalidate(float arg0, float arg1, float arg2, float arg3) {
 		// TODO Auto-generated method stub
 		this.mPDFView.invalidate(arg0, arg1, arg2, arg3);
+	}
+
+	@Override
+	public void onAnnotationAdd(final int arg0, final int arg1) {
+		// TODO Auto-generated method stub
+		messageBox.showDialog("Content", "Note", new IMessageBoxResult() {
+			@Override
+			public void onResult(String result) {
+				// TODO Auto-generated method stub
+				if (result != null) {
+					int index = EReaderActivity.this.mPDFView.addAnnotation(
+							AnnotationType.NOTE, arg0, arg1);
+					EReaderActivity.this.mapIndex2Content.put(index, result);
+					EReaderActivity.this.mPDFView.showCurrentPage();
+				}
+			}
+		});
+	}
+
+	@Override
+	public void onAnnotationClick(int arg0) {
+		// TODO Auto-generated method stub
+		if (this.mapIndex2Content.get(arg0) != null) {
+			String content = messageBox.showDialog(
+					this.mapIndex2Content.get(arg0), "Note", null);
+			if (content != null) {
+				this.mapIndex2Content.put(arg0, content);
+			}
+		}
+	}
+
+	@Override
+	public void onAnnotationDelete(final int arg0) {
+		// TODO Auto-generated method stub
+		if (this.messageBox.showDialog(this.mapIndex2Content.get(arg0),
+				"Delete Note?", new IMessageBoxResult() {
+
+					@Override
+					public void onResult(String result) {
+						// TODO Auto-generated method stub
+						if (result != null) {
+							EReaderActivity.this.mapIndex2Content.remove(arg0);
+							EReaderActivity.this.mPDFView
+									.deleteAnnotation(arg0);
+							EReaderActivity.this.mPDFView.showCurrentPage();
+						}
+					}
+				}) != null) {
+
+		}
+	}
+
+	@Override
+	public void onAddAnnotation(AnnotationType type) {
+		// TODO Auto-generated method stub
+		this.mPDFView.changeMode(3);
+		this.mPDFView.setAnnotationType(type);
+		this.toggle();
+		if (type == AnnotationType.NOTE) {
+			Toast.makeText(this, R.string.add_note_mode, Toast.LENGTH_SHORT)
+					.show();
+		} else if (type == AnnotationType.PENCIL) {
+			Toast.makeText(this, R.string.add_line_mode, Toast.LENGTH_SHORT)
+					.show();
+		}
 	}
 
 }

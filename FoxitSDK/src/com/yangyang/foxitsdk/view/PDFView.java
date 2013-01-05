@@ -70,6 +70,7 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 
 	private int mode; // 默认只读模式
 	private AnnotationType annotationType = AnnotationType.NONE;// 默认无注解类型
+	private int viewMode = Configuration.ORIENTATION_PORTRAIT;// 屏幕方向(横屏竖屏)
 
 	public PDFView(Context context) {
 		super(context);
@@ -101,15 +102,16 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 	}
 
 	public void updateViewMode(int mode) {
-		if (this.mode == Configuration.ORIENTATION_PORTRAIT
+		if (this.viewMode == Configuration.ORIENTATION_PORTRAIT
 				&& this.displayHeight < this.displayWidth
-				|| this.mode == Configuration.ORIENTATION_LANDSCAPE
+				|| this.viewMode == Configuration.ORIENTATION_LANDSCAPE
 				&& this.displayHeight > this.displayWidth) {
 			int temp = this.displayHeight;
 			this.displayHeight = this.displayWidth;
 			this.displayWidth = temp;
 			this.zoomStatus.updateDisplaySize(this.displayWidth,
 					this.displayHeight);
+			this.viewMode = mode;
 			this.showCurrentPage();
 		}
 	}

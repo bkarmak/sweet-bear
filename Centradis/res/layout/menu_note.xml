@@ -8,17 +8,33 @@
     android:paddingRight="20dp" >
 
     <TextView
-        android:id="@+id/tvShowNote"
-        style="@style/EReader.Small"
-        android:layout_height="78dp"
+        android:id="@+id/tvAddNote"
+        style="@style/EReader.Tiny"
+        android:layout_height="30dp"
         android:layout_marginTop="10dp"
+        android:gravity="center"
+        android:text="@string/ereader_add_note" />
+
+    <TextView
+        android:id="@+id/tvAddLine"
+        style="@style/EReader.Tiny"
+        android:layout_height="30dp"
+        android:layout_marginTop="6dp"
+        android:gravity="center"
+        android:text="@string/ereader_add_line" />
+
+    <TextView
+        android:id="@+id/tvShowNote"
+        style="@style/EReader.Tiny"
+        android:layout_height="30dp"
+        android:layout_marginTop="16dp"
         android:gravity="center"
         android:text="@string/ereader_show_note" />
 
     <TextView
         android:id="@+id/tvRemoveNote"
-        style="@style/EReader.Small"
-        android:layout_height="78dp"
+        style="@style/EReader.Tiny"
+        android:layout_height="30dp"
         android:layout_marginTop="6dp"
         android:gravity="center"
         android:text="@string/ereader_remove_note" />

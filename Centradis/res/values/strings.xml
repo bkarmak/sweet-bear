@@ -16,6 +16,7 @@
 -->
 
 <resources>
+
     <!-- Moon -->
     <string name="login_user_name">LOGIN</string>
     <string name="login_user_pass">PASSWORD</string>
@@ -69,20 +70,21 @@
     <string name="cancel">cancel</string>
     <string name="hint_page">Page</string>
     <string name="hint_search">Search</string>
-
     <string name="have_added_bookmark">You have added bookmark on this page</string>
     <string name="add_bookmark_successful">Add bookmark to this page successfully!</string>
     <string name="remove_bookmark_successful">Remove bookmark from this page successfully!</string>
+    <string name="add_note_mode">Add node mode! Click the screen to add a note.</string>
+    <string name="add_line_mode">Add line mode! Fling the screen to add a line.</string>
     <string name="enter_bookmark_name">Please enter Name</string>
     <string name="page_number">P.%s</string>
+    <string name="ereader_add_note">Add Note</string>
+    <string name="ereader_add_line">Add Line</string>
     <string name="ereader_show_note">Show Note</string>
     <string name="ereader_remove_note">Remove Note</string>
     <string name="add_note_successfully">Add note to this doc successfully!</string>
     <string name="update_note_successfully">Update note with this doc successfully!</string>
     <string name="remove_note_successfully">Remove note from this dote successfully!</string>
-    
     <string name="back">Back</string>
-    
     <string name="ereader_saveas">Save as</string>
     <string name="dialog_update_message">Do you want to update this book to your collection?</string>
     <string name="dialog_update_ok">Update</string>
@@ -127,18 +129,18 @@
     <string name="preferences_category_bookstore">Books</string>
     <string name="preferences_bookstore">Book store</string>
     <string name="preferences_import">Import</string>
-    
     <string name="get_pass_error">Echec</string>
     <string name="get_pass_successful">Vous allez recevoir un email. Vous avez 24h pour activer votre nouveau mot de passe.</string>
     <string name="network_not_available">The network is not available</string>
     <string name="save_successful">Save successfully</string>
-    
     <string name="dialog_saveas_message">Please enter the title</string>
     <string name="save">Save</string>
     <string name="override">Override</string>
-    
+
     <!-- New -->
     <string name="context_menu_item_email_label">Send by Email</string>
     <string name="hint">please input text!</string>
-    
+    <string name="note">Note</string>
+    <string name="content">Content</string>
+
 </resources>

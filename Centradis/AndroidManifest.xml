@@ -80,6 +80,10 @@
             android:name=".activity.textfieldActivity"
             android:theme="@android:style/Theme.Dialog" >
         </activity>
+        <activity
+            android:name=".activity.MessageBox"
+            android:theme="@android:style/Theme.Dialog" >
+        </activity>
 
         <provider
             android:name=".provider.BooksProvider"

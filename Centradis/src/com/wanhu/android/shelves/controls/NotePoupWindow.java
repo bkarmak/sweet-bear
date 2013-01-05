@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.wanhu.android.shelves.R;
+import com.yangyang.foxitsdk.service.YYPDFDoc.AnnotationType;
 
 public class NotePoupWindow extends PopupWindowBetter implements
 		OnClickListener {
@@ -18,12 +19,16 @@ public class NotePoupWindow extends PopupWindowBetter implements
 	private ViewGroup mRoot;
 	private TextView tvShowNote;
 	private TextView tvRemoveNote;
+	private TextView tvAddNote;
+	private TextView tvAddLine;
 
 	public interface OnNoteListener {
 
 		public abstract void onShowNote();
 
 		public abstract void onRemoveNote();
+
+		public abstract void onAddAnnotation(AnnotationType type);
 	}
 
 	public NotePoupWindow(View anchor, OnNoteListener pOnNoteListener) {
@@ -52,11 +57,15 @@ public class NotePoupWindow extends PopupWindowBetter implements
 	private void initView() {
 		tvShowNote = (TextView) mRoot.findViewById(R.id.tvShowNote);
 		tvRemoveNote = (TextView) mRoot.findViewById(R.id.tvRemoveNote);
+		tvAddNote = (TextView) mRoot.findViewById(R.id.tvAddNote);
+		tvAddLine = (TextView) mRoot.findViewById(R.id.tvAddLine);
 	}
 
 	private void initListeners() {
 		tvShowNote.setOnClickListener(this);
 		tvRemoveNote.setOnClickListener(this);
+		tvAddNote.setOnClickListener(this);
+		tvAddLine.setOnClickListener(this);
 	}
 
 	@Override
@@ -68,6 +77,14 @@ public class NotePoupWindow extends PopupWindowBetter implements
 
 		case R.id.tvRemoveNote:
 			mOnNoteListener.onRemoveNote();
+			break;
+		case R.id.tvAddNote:
+			this.dismiss();
+			mOnNoteListener.onAddAnnotation(AnnotationType.NOTE);
+			break;
+		case R.id.tvAddLine:
+			this.dismiss();
+			mOnNoteListener.onAddAnnotation(AnnotationType.PENCIL);
 			break;
 		default:
 			break;

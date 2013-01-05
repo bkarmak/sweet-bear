@@ -117,6 +117,13 @@
         <item name="android:textColor">#708412</item>
     </style>
 
+    <style name="EReader.Tiny">
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_height">30dp</item>
+        <item name="android:textSize">13sp</item>
+        <item name="android:textColor">#708412</item>
+    </style>
+
     <style name="EReader.Hint">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
@@ -135,7 +142,7 @@
         <item name="android:windowContentOverlay">@null</item>
         <item name="android:backgroundDimEnabled">false</item>
     </style>
-    
+
     <style name="Register">
         <item name="android:textSize">15sp</item>
     </style>
