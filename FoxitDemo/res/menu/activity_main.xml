@@ -11,5 +11,6 @@
         <item android:id="@+id/Eraser" android:title="Eraser">
         </item>
         <item android:id="@+id/Read" android:title="Read"></item>
+        <item android:id="@+id/Line" android:title="Line"></item>
     </group>
 </menu>

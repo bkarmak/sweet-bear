@@ -494,7 +494,7 @@ public class YYPDFDoc {
 		return this.nPDFDocHandler;
 	}
 
-	public int addAnnot(AnnotationType annotationType, RectangleF rect)
+	public int addAnnot(AnnotationType annotationType, Object data)
 			throws memoryException {
 
 		int result = EMBJavaSupport.EMBJavaSupport_RESULT_ERROR;
@@ -506,7 +506,7 @@ public class YYPDFDoc {
 
 		case NOTE: {
 			int nNoteInfoItem = EMBJavaSupport.FPDFNoteInfoAlloc("James",
-					0x0000ff, 80, rect, "I like note",
+					0x0000ff, 80, (RectangleF) data, "I like note",
 					this.getCurrentPageHandler());
 			int nIndex = EMBJavaSupport
 					.FPDFAnnotAdd(this.getCurrentPageHandler(),
@@ -520,14 +520,12 @@ public class YYPDFDoc {
 		}
 
 		case PENCIL: {
-			int line_count = 2;
+			int line_count = 1;
 			int nPencilInfoItem = EMBJavaSupport.FPDFPencilInfoAlloc("James",
 					0xff0000, 80, true, true, 5, line_count);
 			int nLineInfo = EMBJavaSupport.FPDFLineInfoAlloc(line_count);
-			float[] points1 = { 300f, 100f, 400f, 200f };
-			float[] points2 = { 400f, 200f, 500f, 200f, 400f, 100f };
-			EMBJavaSupport.FPDFLineInfoSetPointInfo(nLineInfo, 0, 2, points1);
-			EMBJavaSupport.FPDFLineInfoSetPointInfo(nLineInfo, 1, 3, points2);
+			float[] points = (float[]) data;
+			EMBJavaSupport.FPDFLineInfoSetPointInfo(nLineInfo, 0, 2, points);
 			EMBJavaSupport
 					.FPDFPencilInfoSetLineInfo(nPencilInfoItem, nLineInfo);
 			int nIndex = EMBJavaSupport.FPDFAnnotAdd(
@@ -546,7 +544,7 @@ public class YYPDFDoc {
 		case STAMP: {
 			String path = "/mnt/sdcard/FoxitLog.jpg";
 			int nStampInfo = EMBJavaSupport.FPDFStampInfoAlloc("James",
-					0xffff00, 80, rect, "Stamp_Test", path);
+					0xffff00, 80, (RectangleF) data, "Stamp_Test", path);
 			int nIndex = EMBJavaSupport.FPDFAnnotAdd(
 					this.getCurrentPageHandler(),
 					EMBJavaSupport.EMBJavaSupport_ANNOTTYPE_STAMP, nStampInfo);

@@ -23,4 +23,5 @@ public interface IAnnotationListener {
 	 * @param y
 	 */
 	public void onAnnotationAdd(int x, int y);
+
 }

@@ -16,6 +16,7 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.app.NotificationCompat.Action;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.GestureDetector;
@@ -144,7 +145,7 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 		if ((this.mode & Mode.Annotation.getType()) > 0
 				&& this.annotationType != AnnotationType.NONE
 				&& event.getAction() == MotionEvent.ACTION_DOWN) {
-			PointF p = device2PagePointF(event);
+			PointF p = device2PagePointF(event, 0, 0);
 			int index = doc.getAnnotationIndex((int) p.x, (int) p.y);
 			if (this.annotationType == AnnotationType.ERASER) {
 				if (index >= 0 && this.annotationListener != null) {
@@ -164,10 +165,10 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 		return false;
 	}
 
-	private PointF device2PagePointF(MotionEvent event) {
+	private PointF device2PagePointF(MotionEvent event, int left, int top) {
 		PointF p = EMBJavaSupport.instance.new PointF();
-		p.x = event.getX() + startX;
-		p.y = event.getY() + startY;
+		p.x = event.getX() + startX - left;
+		p.y = event.getY() + startY - top;
 		EMBJavaSupport.FPDFPageDeviceToPagePointF(this.getCurrentPageHandler(),
 				0, 0, zoomStatus.getWidth(), zoomStatus.getHeight(), 0, p);
 		return p;
@@ -577,16 +578,39 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 		// TODO Auto-generated method stub
 		// if (true)
 		// return false;
-		Log.i("pdfview", "p1(x:" + e1.getX() + ",y:" + e1.getY() + "),p2(x:"
-				+ e2.getX() + ",y:" + e2.getY() + ") vx:" + velocityX + ",vy:"
-				+ velocityY);
-		if (e1.getX() - e2.getX() > FLING_SIZE && velocityX < -VELOCITYLIMIT) {
-			this.nextPage();
-			return true;
-		} else if (e1.getX() - e2.getX() < -FLING_SIZE
-				&& velocityX > VELOCITYLIMIT) {
-			this.previousPage();
-			return true;
+		if ((this.mode & Mode.Annotation.getType()) > 0
+				&& this.annotationType == AnnotationType.PENCIL) {
+			if (e2.getAction() == MotionEvent.ACTION_UP) {
+				try {
+					PointF p1 = this.device2PagePointF(e1, this.leftBound,
+							this.topBound);
+					PointF p2 = this.device2PagePointF(e2, this.leftBound,
+							this.topBound);
+					int index = doc.addAnnot(AnnotationType.PENCIL,
+							new float[] { p1.x, p1.y, p2.x, p2.y });
+					if (index >= 0) {
+						this.showCurrentPage();
+						return true;
+					}
+				} catch (memoryException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+			return false;
+		} else {
+			Log.i("pdfview", "p1(x:" + e1.getX() + ",y:" + e1.getY()
+					+ "),p2(x:" + e2.getX() + ",y:" + e2.getY() + ") vx:"
+					+ velocityX + ",vy:" + velocityY);
+			if (e1.getX() - e2.getX() > FLING_SIZE
+					&& velocityX < -VELOCITYLIMIT) {
+				this.nextPage();
+				return true;
+			} else if (e1.getX() - e2.getX() < -FLING_SIZE
+					&& velocityX > VELOCITYLIMIT) {
+				this.previousPage();
+				return true;
+			}
 		}
 		return false;
 	}

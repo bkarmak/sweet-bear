@@ -91,10 +91,19 @@ public class MainActivity extends Activity implements IPDFView,
 				this.pdfView.changeMode(3);
 				this.pdfView.setAnnotationType(AnnotationType.NONE);
 			}
+			break;
+		case R.id.Line: {
+			if (pDoc != null) {
+				this.pdfView.changeMode(3);
+				this.pdfView.setAnnotationType(AnnotationType.PENCIL);
+				break;
+			}
+		}
 		case R.id.go_to: {
 			if (pDoc != null) {
 				this.pdfView.gotoPage(1);
 			}
+			break;
 		}
 		}
 		return super.onMenuItemSelected(featureId, item);
@@ -198,7 +207,6 @@ public class MainActivity extends Activity implements IPDFView,
 	public void onAnnotationAdd(final int arg0, final int arg1) {
 		// TODO Auto-generated method stub
 		messageBox.showDialog("Content", "Note", new IMessageBoxResult() {
-
 			@Override
 			public void onResult(String result) {
 				// TODO Auto-generated method stub

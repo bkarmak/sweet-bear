@@ -21,6 +21,7 @@ public final class R {
     }
     public static final class id {
         public static final int Eraser=0x7f080015;
+        public static final int Line=0x7f080017;
         public static final int LinearLayout1=0x7f080000;
         public static final int Mode=0x7f080013;
         public static final int Note=0x7f080014;
