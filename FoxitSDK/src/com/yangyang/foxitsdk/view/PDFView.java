@@ -1,7 +1,5 @@
 package com.yangyang.foxitsdk.view;
 
-import java.util.ArrayList;
-
 import FoxitEMBSDK.EMBJavaSupport;
 import FoxitEMBSDK.EMBJavaSupport.PointF;
 import FoxitEMBSDK.EMBJavaSupport.RectangleF;
@@ -15,8 +13,6 @@ import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.net.Uri;
-import android.os.Bundle;
-import android.support.v4.app.NotificationCompat.Action;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.GestureDetector;
@@ -27,15 +23,13 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceHolder.Callback;
 import android.view.SurfaceView;
 import android.view.ViewTreeObserver.OnGlobalLayoutListener;
-import android.view.ViewTreeObserver.OnPreDrawListener;
-
 import com.yangyang.foxitsdk.exception.memoryException;
 import com.yangyang.foxitsdk.service.YYPDFDoc;
 import com.yangyang.foxitsdk.service.YYPDFDoc.AnnotationType;
 import com.yangyang.foxitsdk.service.YYPDFDoc.Mode;
 import com.yangyang.foxitsdk.util.ZoomStatus;
 
-public class PDFView extends SurfaceView implements Callback, Runnable,
+public class PDFView extends SurfaceView implements Callback,
 		OnGestureListener, OnDoubleTapListener, OnGlobalLayoutListener {
 
 	private SurfaceHolder Holder;
@@ -45,8 +39,6 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 	private Bitmap CurrentBitmap = null;
 	private int displayWidth = 0;
 	private int displayHeight = 0;
-	private Thread viewThread = null;
-	private ArrayList<CPSIAction> psiActionList;
 	private YYPDFDoc doc;
 	GestureDetector detector;
 	private ZoomStatus zoomStatus;
@@ -59,14 +51,6 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 	private final static int VELOCITYLIMIT = 2000;
 	Paint paint = new Paint();
 	IAnnotationListener annotationListener;
-
-	public class CPSIAction {
-		public int nActionType;
-		public float x;
-		public float y;
-		public float nPressures;
-		public int flag;
-	}
 
 	private int mode; // 默认只读模式
 	private AnnotationType annotationType = AnnotationType.NONE;// 默认无注解类型
@@ -95,10 +79,7 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 		setFocusableInTouchMode(true);
 		detector = new GestureDetector(this);
 		detector.setOnDoubleTapListener(this);
-		psiActionList = new ArrayList<CPSIAction>();
 		this.getViewTreeObserver().addOnGlobalLayoutListener(this);
-		viewThread = new Thread(this);
-		viewThread.start();
 	}
 
 	public void updateViewMode(int mode) {
@@ -248,14 +229,12 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 				x -= last_x;
 				y -= last_y;
 				if (x >= 10 || y < 10 || x <= -10 || y <= -10) {
+					last_x = event.getRawX();
+					last_y = event.getRawY();
 					return this.SetMartix(x, y); // 移动图片位置
 				}
-				last_x = event.getRawX();
-				last_y = event.getRawY();
 
 			}
-		} else if (event.getAction() == MotionEvent.ACTION_UP) {
-
 		}
 		return false;
 	}
@@ -291,10 +270,6 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 				rect.right = x + 10 + startY;
 				rect.top = y - 10 + startX;
 				rect.bottom = y + 10 + startY;
-				// rect.left = 100;
-				// rect.right = 120;
-				// rect.top = 100;
-				// rect.bottom = 120;
 				rect.left = rect.left >= 0 ? rect.left : 0;
 				rect.right = rect.right >= 0 ? rect.right : 0;
 				rect.top = rect.top >= 0 ? rect.top : 0;
@@ -326,12 +301,9 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 		}
 	}
 
-	public void InitView(YYPDFDoc pDoc, int pageWidth, int pageHeight,
-			int displayWidth, int displayHeight) {
+	public void InitView(YYPDFDoc pDoc, int pageWidth, int pageHeight) {
 		this.doc = pDoc;
 		this.mode = pDoc.getMode();
-		// this.nDisplayWidth = displayWidth;
-		// this.nDisplayHeight = displayHeight;
 		this.zoomStatus = new ZoomStatus(pageWidth, pageHeight, displayWidth,
 				displayHeight);
 		this.leftBound = this.getLeft();
@@ -398,31 +370,6 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 			doc.close();
 	}
 
-	public synchronized void addAction(int nActionType, float x, float y,
-			float nPressures, int flag) {
-		CPSIAction action = new CPSIAction();
-		action.nActionType = nActionType;
-		action.x = x;
-		action.y = y;
-		action.nPressures = nPressures;
-		action.flag = flag;
-
-		psiActionList.add(action);
-	}
-
-	public synchronized CPSIAction getHeadAction() {
-		CPSIAction action = null;
-		if (psiActionList == null)
-			return null;
-
-		int nSize = psiActionList.size();
-		if (nSize <= 0)
-			return null;
-
-		action = psiActionList.remove(0);
-		return action;
-	}
-
 	public void setDirtyRect(int left, int top, int right, int bottom) {
 		if (rect == null) {
 			rect = new Rect();
@@ -449,22 +396,19 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 			return false;
 		startX = curDisplayX - (int) CurrentoffsetX;
 		startY = curDisplayY - (int) CurrentoffsetY;
+
 		if (startX > (pdfbmp.getWidth() - displayWidth)) {
 			startX = (int) (pdfbmp.getWidth() - displayWidth);
 			result = false;
 		}
-		if (startX < 0) {
-			result = false;
+		if (startX < 0 || pdfbmp.getWidth() <= displayWidth)
 			startX = 0;
-		}
 		if (startY > (pdfbmp.getHeight() - displayHeight)) {
 			result = false;
 			startY = (int) (pdfbmp.getHeight() - displayHeight);
 		}
-		if (startY < 0) {
-			result = false;
+		if (startY < 0 || pdfbmp.getHeight() <= displayHeight)
 			startY = 0;
-		}
 		curDisplayX = startX;
 		curDisplayY = startY;
 		recyleCurrentBitmap();
@@ -553,19 +497,6 @@ public class PDFView extends SurfaceView implements Callback, Runnable,
 	public void surfaceDestroyed(SurfaceHolder holder) {
 		// TODO Auto-generated method stub
 
-	}
-
-	public void run() {
-		// TODO Auto-generated method stub
-		while (!Thread.currentThread().isInterrupted()) {
-			CPSIAction action = getHeadAction();
-			if (action != null) {
-				Log.e("xxxxxxxxxx run run run", "" + doc.getCurPSIHandle()
-						+ action.x + action.y + action.nPressures + action.flag);
-				EMBJavaSupport.FPSIAddPoint(doc.getCurPSIHandle(), action.x,
-						action.y, action.nPressures, action.flag);
-			}
-		}
 	}
 
 	@Override

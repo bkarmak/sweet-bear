@@ -139,9 +139,7 @@ public class MainActivity extends Activity implements IPDFView,
 									MainActivity.this, 3);
 							MainActivity.this.pdfView.InitView(pDoc,
 									(int) pDoc.GetPageSizeX(0),
-									(int) pDoc.GetPageSizeY(0),
-									MainActivity.this.screenWidth,
-									MainActivity.this.screenHeight);
+									(int) pDoc.GetPageSizeY(0));
 							MainActivity.this.pdfView
 									.setAnnotationListener(MainActivity.this);
 							MainActivity.this.pdfView.showCurrentPage();

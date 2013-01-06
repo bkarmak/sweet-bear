@@ -87,9 +87,6 @@ public class EReaderActivity extends Activity implements
 	private Button btnPageMode;
 	private Button btnSave;
 	private Button btnSearch;
-	private RelativeLayout rlTop;
-	private RelativeLayout rlBackground;
-
 	private static final int DIALOG_SAVE_AS = 1;
 
 	@Override
@@ -148,24 +145,6 @@ public class EReaderActivity extends Activity implements
 
 		}
 
-		/*
-		 * initialize PDFNet
-		 */
-		try {
-			// PDFNet.initialize(this); // no license key, will produce
-			// water-marks
-			/*
-			 * Log.v("PDFNet", "Version: " + PDFNet.getVersion()); //check the
-			 * version number PDFNet.initialize(this, "your license key");
-			 * //full version PDFNet.setColorManagement(PDFNet.e_lcms); //sets
-			 * color management (more accurate, but more expensive)
-			 */
-			Log.d(this.toString(), "INIT PDFNET");
-
-		} catch (Exception e) {
-			return;
-		}
-
 		setContentView(R.layout.screen_ereader);
 
 		initVariables();
@@ -213,62 +192,13 @@ public class EReaderActivity extends Activity implements
 	}
 
 	private void setupViews() {
-
 		this.messageBox = new MessageBox(this);
-		rlBackground = (RelativeLayout) findViewById(R.id.rlBackground);
-		rlTop = (RelativeLayout) findViewById(R.id.rlTop);
 		btnMenu = (Button) findViewById(R.id.btnMenu);
 		btnLibrary = (Button) findViewById(R.id.btnLibrary);
 
 		mPDFView = (PDFView) findViewById(R.id.pdfViewCtrl);
 
 		mPdfBusiness = new PDFBusiness(this, mPDFView);
-
-		/*
-		 * use the tool manager to add additional UI modules to PDFViewCtrl.
-		 * PDFNet SDK ships with a Tools.jar that contains various modules,
-		 * including annotation editing, text search, text selection, and etc.
-		 * if you are looking for a bare bone viewer with only basic viewing
-		 * features, such as scrolling and zooming, simply comment out the
-		 * following two lines.
-		 */
-
-		// pdftron.PDF.Tools.ToolManager tm = new
-		// pdftron.PDF.Tools.ToolManager();
-		// mPDFView.setToolManager(tm);
-
-		/*
-		 * misc PDFViewCtrl settings
-		 */
-		// mPDFView.setPagePresentationMode(PDFViewCtrl.PAGE_PRESENTATION_SINGLE);
-
-		// mPDFView.setUseThumbView(true, false); //use the thumbs from the
-		// input PDF file (more efficient)
-		// mPDFView.setProgressiveRendering(false); // turn off progressive
-		// rendering
-		// mPDFView.setImageSmoothing(true); //turn on image smoothing (better
-		// quality, but more expensive);
-		// mPDFView.setHighlightFields(true); // turn on form fields
-		// highlighting.
-		// mPDFView.setCaching(false); // turn on caching (consume more memory,
-		// but faster);
-		// mPDFView.setOverprint(PDFViewCtrl.OVERPRINT_PDFX); //turn on
-		// overprint for PDF/X files (more accurate, but more expensive);
-
-		/*
-		 * if you want to set the background of PDFViewCtrl to a Drawable, you
-		 * can first set its background to be transparent and then set the
-		 * drawable.
-		 */
-		// mPDFView.setClientBackgroundColor(255, 255, 255, true);
-		// Drawable draw = ...
-		// mPDFView.setBackgroundDrawable(draw);
-
-		/*
-		 * set zoom limits
-		 */
-		// mPDFView.setZoomLimits(PDFViewCtrl.ZOOM_LIMIT_RELATIVE, 1.0, 4);
-
 		/*
 		 * load a PDF file.
 		 */
@@ -285,8 +215,7 @@ public class EReaderActivity extends Activity implements
 
 		Display display = getWindowManager().getDefaultDisplay();
 		mPDFView.InitView(mDoc, (int) mDoc.GetPageSizeX(0),
-				(int) mDoc.GetPageSizeY(0), display.getWidth(),
-				display.getHeight());
+				(int) mDoc.GetPageSizeY(0));
 		mPDFView.setAnnotationListener(this);
 		mPDFView.showCurrentPage();
 		// mPDFView.setd(mDoc);
@@ -318,8 +247,8 @@ public class EReaderActivity extends Activity implements
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
 		// TODO Auto-generated method stub
-		if (this.mPDFView != null)
-			return this.mPDFView.onTouchEvent(event);
+		if (EReaderActivity.mPDFView != null)
+			return EReaderActivity.mPDFView.onTouchEvent(event);
 		return super.onTouchEvent(event);
 	}
 
@@ -543,8 +472,8 @@ public class EReaderActivity extends Activity implements
 			}
 
 		}
-		this.mPDFView.changeMode(3);
-		this.mPDFView.setAnnotationType(AnnotationType.NONE);
+		EReaderActivity.mPDFView.changeMode(3);
+		EReaderActivity.mPDFView.setAnnotationType(AnnotationType.NONE);
 	}
 
 	@Override
@@ -554,8 +483,8 @@ public class EReaderActivity extends Activity implements
 			Toast.makeText(this, R.string.remove_note_successfully,
 					Toast.LENGTH_SHORT).show();
 		}
-		this.mPDFView.changeMode(3);
-		this.mPDFView.setAnnotationType(AnnotationType.ERASER);
+		EReaderActivity.mPDFView.changeMode(3);
+		EReaderActivity.mPDFView.setAnnotationType(AnnotationType.ERASER);
 	}
 
 	private void onBookStore() {
@@ -757,7 +686,7 @@ public class EReaderActivity extends Activity implements
 	@Override
 	public void invalidate(float arg0, float arg1, float arg2, float arg3) {
 		// TODO Auto-generated method stub
-		this.mPDFView.invalidate(arg0, arg1, arg2, arg3);
+		EReaderActivity.mPDFView.invalidate(arg0, arg1, arg2, arg3);
 	}
 
 	@Override
@@ -768,10 +697,10 @@ public class EReaderActivity extends Activity implements
 			public void onResult(String result) {
 				// TODO Auto-generated method stub
 				if (result != null) {
-					int index = EReaderActivity.this.mPDFView.addAnnotation(
+					int index = EReaderActivity.mPDFView.addAnnotation(
 							AnnotationType.NOTE, arg0, arg1);
 					EReaderActivity.this.mapIndex2Content.put(index, result);
-					EReaderActivity.this.mPDFView.showCurrentPage();
+					EReaderActivity.mPDFView.showCurrentPage();
 				}
 			}
 		});
@@ -800,9 +729,8 @@ public class EReaderActivity extends Activity implements
 						// TODO Auto-generated method stub
 						if (result != null) {
 							EReaderActivity.this.mapIndex2Content.remove(arg0);
-							EReaderActivity.this.mPDFView
-									.deleteAnnotation(arg0);
-							EReaderActivity.this.mPDFView.showCurrentPage();
+							EReaderActivity.mPDFView.deleteAnnotation(arg0);
+							EReaderActivity.mPDFView.showCurrentPage();
 						}
 					}
 				}) != null) {
@@ -813,8 +741,8 @@ public class EReaderActivity extends Activity implements
 	@Override
 	public void onAddAnnotation(AnnotationType type) {
 		// TODO Auto-generated method stub
-		this.mPDFView.changeMode(3);
-		this.mPDFView.setAnnotationType(type);
+		EReaderActivity.mPDFView.changeMode(3);
+		EReaderActivity.mPDFView.setAnnotationType(type);
 		this.toggle();
 		if (type == AnnotationType.NOTE) {
 			Toast.makeText(this, R.string.add_note_mode, Toast.LENGTH_SHORT)
