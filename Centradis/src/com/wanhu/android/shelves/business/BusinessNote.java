@@ -29,6 +29,18 @@ public class BusinessNote extends BusinessBase {
 		return _result;
 	}
 
+	public boolean deleteNote(ModelNote note) {
+		String _condition = " and BookID = '" + note.getBookID()
+				+ "'  and NoteID = " + note.getNoteID();
+		return mSqLiteDALNote.deleteNote(_condition);
+	}
+
+	public boolean deleteNode(String bookID, int noteID) {
+		String _condition = " and BookID = '" + bookID + "'  and NoteID = "
+				+ noteID;
+		return mSqLiteDALNote.deleteNote(_condition);
+	}
+
 	public boolean updateUserByBookID(ModelNote pInfo) {
 		String _condition = " BookID = '" + pInfo.getBookID() + "'";
 		boolean _result = mSqLiteDALNote.updateNote(_condition, pInfo);

@@ -3,13 +3,16 @@ package com.wanhu.android.shelves.business;
 import android.content.Context;
 import android.widget.Toast;
 
+import com.wanhu.android.shelves.R;
 import com.wanhu.android.shelves.model.ModelBookmark;
+import com.wanhu.android.shelves.model.ModelNote;
 import com.yangyang.foxitsdk.view.PDFView;
 
 public class PDFBusiness {
 
-	private Context mContext;
-	private BusinessBookmark mBusinessBookmark;
+	private Context context;
+	private BusinessBookmark businessBookMark;
+	private BusinessNote businessNote;
 	private PDFView mPDFViewCtrl;
 
 	/*
@@ -17,9 +20,10 @@ public class PDFBusiness {
 	 * onWordsFound(TextSearchResult pTextSearchResult); }
 	 */
 
-	public PDFBusiness(Context pContext, PDFView pPDFViewCtrl) {
-		mContext = pContext;
-		mBusinessBookmark = new BusinessBookmark(pContext);
+	public PDFBusiness(Context context, PDFView pPDFViewCtrl) {
+		this.context = context;
+		businessBookMark = new BusinessBookmark(context);
+		businessNote = new BusinessNote(context);
 		mPDFViewCtrl = pPDFViewCtrl;
 	}
 
@@ -50,10 +54,10 @@ public class PDFBusiness {
 	 */
 
 	public void onRemoveBookMark(ModelBookmark pModelBookmark) {
-		if (mBusinessBookmark.deleteBookmarkByBookIDAndPageNumber(
+		if (businessBookMark.deleteBookmarkByBookIDAndPageNumber(
 				pModelBookmark.getBookID(), pModelBookmark.getPageNumber())) {
 			Toast.makeText(
-					mContext,
+					context,
 					com.wanhu.android.shelves.R.string.remove_bookmark_successful,
 					Toast.LENGTH_SHORT).show();
 		}
@@ -62,23 +66,37 @@ public class PDFBusiness {
 
 	public void addBookMark(ModelBookmark pModelBookmark) {
 
-		if (mBusinessBookmark.isExistBookMarkByBookIDAndPageNumber(
+		if (businessBookMark.isExistBookMarkByBookIDAndPageNumber(
 				pModelBookmark.getBookID(), pModelBookmark.getPageNumber())) {
 
-			Toast.makeText(mContext,
+			Toast.makeText(context,
 					com.wanhu.android.shelves.R.string.have_added_bookmark,
 					Toast.LENGTH_SHORT).show();
 		} else {
 
-			if (mBusinessBookmark.insertBookmark(pModelBookmark)) {
+			if (businessBookMark.insertBookmark(pModelBookmark)) {
 				Toast.makeText(
-						mContext,
+						context,
 						com.wanhu.android.shelves.R.string.add_bookmark_successful,
 						Toast.LENGTH_SHORT).show();
 			}
 
 		}
 
+	}
+
+	public void addBookNote(ModelNote note) {
+		if (businessNote.insertNote(note)) {
+			Toast.makeText(context, R.string.add_note_successfully,
+					Toast.LENGTH_SHORT).show();
+		}
+	}
+
+	public void removeBookNote(String bookID, int noteID) {
+		if (businessNote.deleteNode(bookID, noteID)) {
+			Toast.makeText(context, R.string.remove_note_successfully,
+					Toast.LENGTH_SHORT).show();
+		}
 	}
 
 	/*

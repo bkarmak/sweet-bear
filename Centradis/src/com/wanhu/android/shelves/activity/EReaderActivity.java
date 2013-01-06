@@ -44,6 +44,7 @@ import com.wanhu.android.shelves.controls.ShowBookMarkPopUpWindow;
 import com.wanhu.android.shelves.controls.ShowBookMarkPopUpWindow.OnBookMarkClickListener;
 import com.wanhu.android.shelves.controls.ShowNotesPopupWindow;
 import com.wanhu.android.shelves.model.ModelBookmark;
+import com.wanhu.android.shelves.model.ModelNote;
 import com.wanhu.android.shelves.provider.BooksStore;
 import com.wanhu.android.shelves.provider.CentradisBooksStore;
 import com.wanhu.android.shelves.util.FileUtilities;
@@ -66,7 +67,6 @@ public class EReaderActivity extends Activity implements
 	private boolean mIsClosed = true;
 	// private SearchTask mSearchTask;
 	private String mBookId;
-	private BusinessNote mBusinessNote;
 	private ViewerPreferences mViewerPreferences;
 	private Uri mUri;
 	private YYPDFDoc mDoc;
@@ -156,8 +156,6 @@ public class EReaderActivity extends Activity implements
 	private void initVariables() {
 
 		mOnClickListener = new ClickListener();
-		// mSearchAdapter = new AdapterSearchResults(this);
-		mBusinessNote = new BusinessNote(this);
 
 		if (mUri != null) {
 			mViewerPreferences = new ViewerPreferences(this);
@@ -479,9 +477,6 @@ public class EReaderActivity extends Activity implements
 	@Override
 	public void onRemoveNote() {
 		if (!TextUtils.isEmpty(mBookId)) {
-			mBusinessNote.deleteNoteByBookID(mBookId);
-			Toast.makeText(this, R.string.remove_note_successfully,
-					Toast.LENGTH_SHORT).show();
 		}
 		EReaderActivity.mPDFView.changeMode(3);
 		EReaderActivity.mPDFView.setAnnotationType(AnnotationType.ERASER);
@@ -699,6 +694,13 @@ public class EReaderActivity extends Activity implements
 				if (result != null) {
 					int index = EReaderActivity.mPDFView.addAnnotation(
 							AnnotationType.NOTE, arg0, arg1);
+					ModelNote note = new ModelNote();
+					note.setBookID(EReaderActivity.this.mBookId);
+					note.setNoteID(index
+							+ EReaderActivity.mPDFView.getCurrentPage() * 1000);
+					note.setContentEn(result);
+					note.setContentFr(result);
+					EReaderActivity.this.mPdfBusiness.addBookNote(note);
 					EReaderActivity.this.mapIndex2Content.put(index, result);
 					EReaderActivity.mPDFView.showCurrentPage();
 				}
@@ -731,6 +733,10 @@ public class EReaderActivity extends Activity implements
 							EReaderActivity.this.mapIndex2Content.remove(arg0);
 							EReaderActivity.mPDFView.deleteAnnotation(arg0);
 							EReaderActivity.mPDFView.showCurrentPage();
+							EReaderActivity.this.mPdfBusiness.removeBookNote(
+									EReaderActivity.this.mBookId,
+									EReaderActivity.mPDFView.getCurrentPage()
+											* 1000 + arg0);
 						}
 					}
 				}) != null) {
