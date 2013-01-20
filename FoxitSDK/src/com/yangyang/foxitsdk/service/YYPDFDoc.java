@@ -43,6 +43,13 @@ public class YYPDFDoc {
 	private int nPSICallback = 0;
 	private int nPSIHandle = 0;
 
+	/** search */
+	private int nPDFCurTextPageHandler;
+	private int nFindHandler;
+	private int nFindRects = -1;
+	private EMBJavaSupport.RectangleF[] rcFind = null;
+	private int nCurFindIndex = -1;
+
 	public enum Mode {
 		Read(1), // 只读模式（默认）
 		Annotation(1 << 1), // 注释（可以修改文件添加注释)
@@ -430,6 +437,9 @@ public class YYPDFDoc {
 
 	// clean up unmanaged resources
 	public void close() {
+		if (this.nPDFCurTextPageHandler > 0) {
+			this.CloseTextPage();
+		}
 		// /formfiller implemention
 		if (this.nPDFFormHandler > 0) {
 			EMBJavaSupport.FPDFDocExitFormFillEnviroument(nPDFFormHandler);
@@ -599,5 +609,80 @@ public class YYPDFDoc {
 	public int getMode() {
 		// TODO Auto-generated method stub
 		return this.mode;
+	}
+
+	public int FindPrev() {
+		if (nPDFCurTextPageHandler == 0 || nFindHandler == 0)
+			return 0;
+		int ret = EMBJavaSupport.FPDFTextFindPrev(nFindHandler);
+		if (ret != 1)
+			return 0;
+		nCurFindIndex = EMBJavaSupport.FPDFTextGetSchResultIndex(nFindHandler);
+		int nCount = EMBJavaSupport.FPDFTextGetSchCount(nFindHandler);
+		nFindRects = EMBJavaSupport.FPDFTextCountRects(nPDFCurTextPageHandler,
+				nCurFindIndex, nCount);
+		rcFind = new EMBJavaSupport.RectangleF[nFindRects];
+		for (int i = 0; i < nFindRects; i++) {
+			EMBJavaSupport.RectangleF rcFindTemp = (new EMBJavaSupport()).new RectangleF();
+			rcFindTemp = EMBJavaSupport.FPDFTextGetRect(nPDFCurTextPageHandler,
+					i);
+			rcFind[i] = (new EMBJavaSupport()).new RectangleF();
+			rcFind[i].left = rcFindTemp.left;
+			rcFind[i].top = rcFindTemp.top;
+			rcFind[i].right = rcFindTemp.right;
+			rcFind[i].bottom = rcFindTemp.bottom;
+		}
+		return nFindRects;
+	}
+
+	public boolean InitPDFTextPage() {
+		nPDFCurTextPageHandler = EMBJavaSupport.FPDFTextLoadPage(this
+				.getCurrentPageHandler());
+		// if(nPDFCurTextPageHandler == 0)
+		// return false;//throw later
+		return true;
+	}
+
+	public void CloseTextPage() {
+		EMBJavaSupport.FPDFTextCloseTextPage(nPDFCurTextPageHandler);
+		nPDFCurTextPageHandler = 0;
+	}
+
+	public int SearchStart(String strFindWhat) {
+		if (nPDFCurTextPageHandler > 0) {
+			this.CloseTextPage();
+		}
+		this.InitPDFTextPage();
+		nFindHandler = EMBJavaSupport.FPDFTextFindStart(nPDFCurTextPageHandler,
+				strFindWhat, 4, 0);
+		if (nFindHandler == 0)
+			return 0;
+		int rectnum = FindNext();
+		return rectnum;
+	}
+
+	public int FindNext() {
+		if (nPDFCurTextPageHandler == 0 || nFindHandler == 0)
+			return 0;
+		int ret = EMBJavaSupport.FPDFTextFindNext(nFindHandler);
+		EMBJavaSupport.FPDFTextGetText(nPDFCurTextPageHandler, 0, 100);
+		if (ret != 1)
+			return 0;
+		nCurFindIndex = EMBJavaSupport.FPDFTextGetSchResultIndex(nFindHandler);
+		int nCount = EMBJavaSupport.FPDFTextGetSchCount(nFindHandler);
+		nFindRects = EMBJavaSupport.FPDFTextCountRects(nPDFCurTextPageHandler,
+				nCurFindIndex, nCount);
+		rcFind = new EMBJavaSupport.RectangleF[nFindRects];
+		for (int i = 0; i < nFindRects; i++) {
+			EMBJavaSupport.RectangleF rcFindTemp = (new EMBJavaSupport()).new RectangleF();
+			rcFindTemp = EMBJavaSupport.FPDFTextGetRect(nPDFCurTextPageHandler,
+					i);
+			rcFind[i] = (new EMBJavaSupport()).new RectangleF();
+			rcFind[i].left = rcFindTemp.left;
+			rcFind[i].top = rcFindTemp.top;
+			rcFind[i].right = rcFindTemp.right;
+			rcFind[i].bottom = rcFindTemp.bottom;
+		}
+		return nFindRects;
 	}
 }

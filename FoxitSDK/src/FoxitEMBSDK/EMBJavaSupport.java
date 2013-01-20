@@ -228,16 +228,38 @@ public class EMBJavaSupport {
 	public static native int FSFileWriteAlloc(String filePath)
 			throws memoryException;
 
-	public static native void FSFileWriteRelease(int filewrite);
-
+	// /////////////////
+	// Test Module
 	public static native int FPDFTextLoadPage(int page);
 
 	public static native void FPDFTextCloseTextPage(int textPage);
 
+	public static native int FPDFTextFindStart(int textPage, String findWhat,
+			long flags, int startIndex);
+
+	public static native int FPDFTextFindNext(int handle);
+
+	public static native int FPDFTextFindPrev(int handle);
+
+	public static native int FPDFTextGetSchResultIndex(int handle);
+
+	public static native int FPDFTextGetSchCount(int handle);
+
+	public static native int FPDFTextFindClose(int handle);
+
 	public static native int FPDFTextCountRects(int textPage, int start,
 			int count);
 
+	public static native int FPDFTextCountChars(int textpage);
+
 	public static native RectangleF FPDFTextGetRect(int textpage, int index);
+
+	public static native String FPDFTextGetText(int textpage, int start,
+			int count);
+
+	public static native void FSFileWriteRelease(int filewrite);
+
+	// //////////////////
 
 	public static native float FPDFPageGetSizeX(int pageHandle)
 			throws parameterException;

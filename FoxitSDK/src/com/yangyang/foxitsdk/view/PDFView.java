@@ -104,6 +104,10 @@ public class PDFView extends SurfaceView implements Callback,
 	public void changeMode(int mode) {
 		this.mode = mode;
 	}
+	
+	public void search(String text){
+		
+	}
 
 	float baseValue, last_x, last_y;
 
