@@ -32,7 +32,6 @@ import android.widget.Toast;
 
 import com.wanhu.android.shelves.R;
 import com.wanhu.android.shelves.activity.MessageBox.IMessageBoxResult;
-import com.wanhu.android.shelves.business.BusinessNote;
 import com.wanhu.android.shelves.business.PDFBusiness;
 import com.wanhu.android.shelves.controls.BookmarkPopupWindow;
 import com.wanhu.android.shelves.controls.BookmarkPopupWindow.OnBookMarkListener;
@@ -48,8 +47,8 @@ import com.wanhu.android.shelves.model.ModelNote;
 import com.wanhu.android.shelves.provider.BooksStore;
 import com.wanhu.android.shelves.provider.CentradisBooksStore;
 import com.wanhu.android.shelves.util.FileUtilities;
-import com.yangyang.foxitsdk.service.YYPDFDoc;
-import com.yangyang.foxitsdk.service.YYPDFDoc.AnnotationType;
+import com.yangyang.foxitsdk.service.PDFDoc;
+import com.yangyang.foxitsdk.service.PDFDoc.AnnotationType;
 import com.yangyang.foxitsdk.view.IAnnotationListener;
 import com.yangyang.foxitsdk.view.IPDFView;
 import com.yangyang.foxitsdk.view.PDFView;
@@ -69,7 +68,7 @@ public class EReaderActivity extends Activity implements
 	private String mBookId;
 	private ViewerPreferences mViewerPreferences;
 	private Uri mUri;
-	private YYPDFDoc mDoc;
+	private PDFDoc mDoc;
 	MessageBox messageBox;
 	private SparseArray<String> mapIndex2Content = new SparseArray<String>();
 
@@ -203,7 +202,7 @@ public class EReaderActivity extends Activity implements
 		mDoc = null;
 		try {
 			if (mFileName != null && !mFileName.equals("")) {
-				mDoc = new YYPDFDoc(mFileName, "", this, 7);
+				mDoc = new PDFDoc(mFileName, "", this, 7);
 				Log.d(mFileName, "PDF DOC OPEN");
 
 			}
@@ -211,7 +210,6 @@ public class EReaderActivity extends Activity implements
 			mDoc = null;
 		}
 
-		Display display = getWindowManager().getDefaultDisplay();
 		mPDFView.InitView(mDoc, (int) mDoc.GetPageSizeX(0),
 				(int) mDoc.GetPageSizeY(0));
 		mPDFView.setAnnotationListener(this);
@@ -514,7 +512,7 @@ public class EReaderActivity extends Activity implements
 	}
 
 	private void onSave(String title, String fileName, boolean isOverride) {
-		YYPDFDoc doc = mPDFView.getDoc();
+		PDFDoc doc = mPDFView.getDoc();
 		if (doc != null) {
 			try {
 				doc.lock(); // note: document needs to be locked first
@@ -758,5 +756,4 @@ public class EReaderActivity extends Activity implements
 					.show();
 		}
 	}
-
 }

@@ -6,10 +6,12 @@ import FoxitEMBSDK.EMBJavaSupport;
 import FoxitEMBSDK.EMBJavaSupport.CPDFFormFillerInfo;
 import FoxitEMBSDK.EMBJavaSupport.CPDFJsPlatform;
 import FoxitEMBSDK.EMBJavaSupport.CPDFPSI;
+import FoxitEMBSDK.EMBJavaSupport.PointF;
 import FoxitEMBSDK.EMBJavaSupport.Rectangle;
 import FoxitEMBSDK.EMBJavaSupport.RectangleF;
 
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.Rect;
 import android.util.Log;
 
@@ -17,7 +19,7 @@ import com.yangyang.foxitsdk.exception.memoryException;
 import com.yangyang.foxitsdk.exception.parameterException;
 import com.yangyang.foxitsdk.view.IPDFView;
 
-public class YYPDFDoc {
+public class PDFDoc {
 
 	/* state variables */
 	private boolean initFlag = false;
@@ -176,7 +178,7 @@ public class YYPDFDoc {
 		}
 	}
 
-	public YYPDFDoc(String filePath, String password, IPDFView view, int mode) {
+	public PDFDoc(String filePath, String password, IPDFView view, int mode) {
 		try {
 			this.mode = mode;
 			this.view = view;
@@ -370,7 +372,7 @@ public class YYPDFDoc {
 		return bm;
 	}
 
-	public Bitmap getDirtyBitmap(Rect rect, int nSizex, int nSizey) {
+	public Bitmap getDirtyBitmap(Rect rect, int displayWidth, int displayHeight) {
 		Bitmap bm = null;
 		int nPDFCurPageHandler = this.getCurrentPageHandler();
 		if (nPDFCurPageHandler == 0) {
@@ -386,14 +388,15 @@ public class YYPDFDoc {
 
 			EMBJavaSupport.FSBitmapFillColor(dib, 0xff);
 			EMBJavaSupport.FPDFRenderPageStart(dib, nPDFCurPageHandler,
-					-rect.left, -rect.top, nSizex, nSizey, 0, 0, null, 0);
+					-rect.left, -rect.top, displayWidth, displayHeight, 0, 0,
+					null, 0);
 
 			// /formfiller implemention//
 			if (nPDFFormHandler == 0)
 				return null;
 			EMBJavaSupport.FPDFFormFillDraw(nPDFFormHandler, dib,
-					nPDFCurPageHandler, -rect.left, -rect.top, nSizex, nSizey,
-					0, 0);
+					nPDFCurPageHandler, -rect.left, -rect.top, displayWidth,
+					displayHeight, 0, 0);
 			// //////////////////////////////
 
 			byte[] bmpbuf = EMBJavaSupport.FSBitmapGetBuffer(dib);
@@ -684,5 +687,48 @@ public class YYPDFDoc {
 			rcFind[i].bottom = rcFindTemp.bottom;
 		}
 		return nFindRects;
+	}
+
+	public Bitmap GetHighLightMarkedRectBitmap(int width, int height,
+			float stride) {
+		int[] colors = new int[width * height];
+		for (int i = 0; i < width * height; i++)
+			colors[i] = 0;
+		int r = 0;
+		int g = 0;
+		int b = 255;
+		int a = 50;
+		int color_blue = Color.argb(a, r, g, b);
+		for (int j = 0; j < width * height; j++)
+			colors[j] = color_blue;
+		Bitmap map = Bitmap.createBitmap(colors, width, height,
+				Bitmap.Config.ARGB_8888);
+		return map;
+	}
+
+	public RectangleF GetHighLightMarkedRect(int index, int displayWidth,
+			int displayHeight) {
+		if (nFindRects <= 0)
+			return null;
+		float left = rcFind[index].left;
+		float bottom = rcFind[index].bottom;
+		float right = rcFind[index].right;
+		float top = rcFind[index].top;
+		EMBJavaSupport.PointF point = EMBJavaSupport.instance.new PointF();
+		EMBJavaSupport.RectangleF rect = EMBJavaSupport.instance.new RectangleF();
+		point.x = left;
+		point.y = top;
+		EMBJavaSupport.FPDFPagePageToDevicePointF(this.getCurrentPageHandler(),
+				0, 0, displayWidth, displayHeight, 0, point);
+		rect.left = point.x;
+		rect.top = point.y;
+		point.x = right;
+		point.y = bottom;
+		EMBJavaSupport.FPDFPagePageToDevicePointF(this.getCurrentPageHandler(),
+				0, 0, displayWidth, displayHeight, 0, point);
+		rect.right = point.x;
+		rect.bottom = point.y;
+
+		return rect;
 	}
 }

@@ -14,11 +14,12 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.Toast;
 
 import com.yangyang.foxitdemo.MessageBox.IMessageBoxResult;
 import com.yangyang.foxitdemo.OpenFileDialog.CallbackBundle;
-import com.yangyang.foxitsdk.service.YYPDFDoc;
-import com.yangyang.foxitsdk.service.YYPDFDoc.AnnotationType;
+import com.yangyang.foxitsdk.service.PDFDoc;
+import com.yangyang.foxitsdk.service.PDFDoc.AnnotationType;
 import com.yangyang.foxitsdk.view.IAnnotationListener;
 import com.yangyang.foxitsdk.view.IPDFView;
 import com.yangyang.foxitsdk.view.PDFView;
@@ -26,7 +27,7 @@ import com.yangyang.foxitsdk.view.PDFView;
 public class MainActivity extends Activity implements IPDFView,
 		IAnnotationListener {
 
-	private YYPDFDoc pDoc;
+	private PDFDoc pDoc;
 	private PDFView pdfView;
 	private int screenWidth, screenHeight;
 	private final static int openFileDialogId = 10212739;
@@ -105,6 +106,34 @@ public class MainActivity extends Activity implements IPDFView,
 			}
 			break;
 		}
+		case R.id.Search: {
+			if (pDoc != null)
+				messageBox.showDialog("Content", "Input Search Content",
+						new IMessageBoxResult() {
+							@Override
+							public void onResult(String result) {
+								// TODO Auto-generated method stub
+								if (result != null
+										&& !MainActivity.this.pdfView
+												.searchStart(result)) {
+									Toast.makeText(MainActivity.this,
+											"nothing found!",
+											Toast.LENGTH_SHORT).show();
+								}
+							}
+						});
+		}
+			break;
+		case R.id.SearchPrevious: {
+			if (pDoc != null) {
+				this.pdfView.findPrev();
+			}
+		}
+			break;
+		case R.id.SearchNext: {
+			this.pdfView.findNext();
+		}
+			break;
 		}
 		return super.onMenuItemSelected(featureId, item);
 	}
@@ -135,7 +164,7 @@ public class MainActivity extends Activity implements IPDFView,
 							// TODO Auto-generated method stub
 							String filepath = bundle.getString("path");
 							setTitle(filepath); // 把文件路径显示在标题上
-							MainActivity.this.pDoc = new YYPDFDoc(filepath, "",
+							MainActivity.this.pDoc = new PDFDoc(filepath, "",
 									MainActivity.this, 3);
 							MainActivity.this.pdfView.InitView(pDoc,
 									(int) pDoc.GetPageSizeX(0),

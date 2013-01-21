@@ -8,11 +8,8 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import com.wanhu.android.shelves.R;
+import com.yangyang.foxitsdk.util.TextSearchResult;
 
-public class AdapterSearchResults{
-	
-}
-/*
 public class AdapterSearchResults extends ArrayAdapter<TextSearchResult> {
 
 	private final LayoutInflater mLayoutInflater;
@@ -47,11 +44,10 @@ public class AdapterSearchResults extends ArrayAdapter<TextSearchResult> {
 			mViewHolder = (ViewHolder) convertView.getTag();
 		}
 
-		mViewHolder.tvAmbient.setText(_textSearchResult.getAmbientStr());
-		mViewHolder.tvPage.setText(_textSearchResult.getPageNum() + "");
+		mViewHolder.tvAmbient.setText(_textSearchResult.getContent());
+		mViewHolder.tvPage.setText(_textSearchResult.getPageNumber() + "");
 
 		return convertView;
 	}
 
 }
-*/

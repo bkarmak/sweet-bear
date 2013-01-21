@@ -24,9 +24,9 @@ import android.view.SurfaceHolder.Callback;
 import android.view.SurfaceView;
 import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import com.yangyang.foxitsdk.exception.memoryException;
-import com.yangyang.foxitsdk.service.YYPDFDoc;
-import com.yangyang.foxitsdk.service.YYPDFDoc.AnnotationType;
-import com.yangyang.foxitsdk.service.YYPDFDoc.Mode;
+import com.yangyang.foxitsdk.service.PDFDoc;
+import com.yangyang.foxitsdk.service.PDFDoc.AnnotationType;
+import com.yangyang.foxitsdk.service.PDFDoc.Mode;
 import com.yangyang.foxitsdk.util.ZoomStatus;
 
 public class PDFView extends SurfaceView implements Callback,
@@ -37,9 +37,12 @@ public class PDFView extends SurfaceView implements Callback,
 	private Bitmap pdfbmp = null;
 	private Bitmap dirtydib = null;
 	private Bitmap CurrentBitmap = null;
+	private Bitmap highlightBitmap = null;
 	private int displayWidth = 0;
 	private int displayHeight = 0;
-	private YYPDFDoc doc;
+	private int highlightX = 0;
+	private int highlightY = 0;
+	private PDFDoc doc;
 	GestureDetector detector;
 	private ZoomStatus zoomStatus;
 	private int startX = 0;
@@ -104,9 +107,9 @@ public class PDFView extends SurfaceView implements Callback,
 	public void changeMode(int mode) {
 		this.mode = mode;
 	}
-	
-	public void search(String text){
-		
+
+	public void search(String text) {
+
 	}
 
 	float baseValue, last_x, last_y;
@@ -305,7 +308,7 @@ public class PDFView extends SurfaceView implements Callback,
 		}
 	}
 
-	public void InitView(YYPDFDoc pDoc, int pageWidth, int pageHeight) {
+	public void InitView(PDFDoc pDoc, int pageWidth, int pageHeight) {
 		this.doc = pDoc;
 		this.mode = pDoc.getMode();
 		this.zoomStatus = new ZoomStatus(pageWidth, pageHeight, displayWidth,
@@ -334,6 +337,69 @@ public class PDFView extends SurfaceView implements Callback,
 	public void gotoPage(int pageNumber) {
 		doc.gotoPage(pageNumber);
 		this.showCurrentPage();
+	}
+
+	public boolean searchStart(String content) {
+		if (doc != null) {
+			doc.SearchStart(content);
+			int rectnum = doc.SearchStart(content);
+			if (rectnum == 0)
+				return false;
+			for (int i = 0; i < rectnum; i++) {
+				EMBJavaSupport.RectangleF rect = (new EMBJavaSupport()).new RectangleF();
+				rect = doc
+						.GetHighLightMarkedRect(i, this.zoomStatus.getWidth(),
+								this.zoomStatus.getHeight());
+				// init a blue color bitmap
+				int width = (int) (rect.right - rect.left);
+				int stride = (int) width * 4;
+				int height = (int) (rect.bottom - rect.top);
+				Bitmap map = doc.GetHighLightMarkedRectBitmap(width, height,
+						stride);
+				this.setHighLightBitmap(map, (int) rect.left, (int) rect.top);
+				this.OnDraw();
+			}
+			return true;
+		}
+		return false;
+	}
+
+	public void findNext() {
+		int rectnum = doc.FindNext();
+		if (rectnum == 0)
+			return;
+		for (int i = 0; i < rectnum; i++) {
+			RectangleF rect = (new EMBJavaSupport()).new RectangleF();
+			rect = doc.GetHighLightMarkedRect(i, zoomStatus.getWidth(),
+					zoomStatus.getHeight());
+			// init a blue color bitmap
+			int width = (int) (rect.right - rect.left);
+			int stride = (int) width * 4;
+			int height = (int) (rect.bottom - rect.top);
+			Bitmap map = doc
+					.GetHighLightMarkedRectBitmap(width, height, stride);
+			this.setHighLightBitmap(map, (int) rect.left, (int) rect.top);
+			this.OnDraw();
+		}
+	}
+
+	public void findPrev() {
+		int rectnum = doc.FindPrev();
+		if (rectnum == 0)
+			return;
+		for (int i = 0; i < rectnum; i++) {
+			RectangleF rect = (new EMBJavaSupport()).new RectangleF();
+			rect = doc.GetHighLightMarkedRect(i, zoomStatus.getWidth(),
+					zoomStatus.getHeight());
+			// init a blue color bitmap
+			int width = (int) (rect.right - rect.left);
+			int stride = (int) width * 4;
+			int height = (int) (rect.bottom - rect.top);
+			Bitmap map = doc
+					.GetHighLightMarkedRectBitmap(width, height, stride);
+			this.setHighLightBitmap(map, (int) rect.left, (int) rect.top);
+			this.OnDraw();
+		}
 	}
 
 	public void previousPage() {
@@ -365,7 +431,7 @@ public class PDFView extends SurfaceView implements Callback,
 
 	}
 
-	public YYPDFDoc getDoc() {
+	public PDFDoc getDoc() {
 		return this.doc;
 	}
 
@@ -428,6 +494,7 @@ public class PDFView extends SurfaceView implements Callback,
 		recyleCurrentBitmap();
 		recylePDFBitmap();
 		recyleDirtyBitmap();
+		recyleHighLightBitmap();
 	}
 
 	private void recyleDirtyBitmap() {
@@ -449,9 +516,21 @@ public class PDFView extends SurfaceView implements Callback,
 		}
 	}
 
+	private void recyleHighLightBitmap() {
+		if (highlightBitmap != null && !highlightBitmap.isRecycled()) {
+			highlightBitmap = null;
+		}
+	}
+
 	public void setPDFBitmap(Bitmap dib) {
 		pdfbmp = dib;
 		CurrentBitmap = dib;
+	}
+
+	public void setHighLightBitmap(Bitmap hb, int hightLightX, int hightLightY) {
+		highlightBitmap = hb;
+		this.highlightX = hightLightX;
+		this.highlightY = hightLightY;
 	}
 
 	public void OnDraw() {
@@ -476,6 +555,9 @@ public class PDFView extends SurfaceView implements Callback,
 				canvas.drawBitmap(dirtydib, rect.left - startX, rect.top
 						- startY, paint);
 			}
+			if (highlightBitmap != null)
+				canvas.drawBitmap(highlightBitmap, highlightX - startX,
+						highlightY - startY, null);
 		} finally {
 			if (canvas != null) {
 				Holder.unlockCanvasAndPost(canvas);

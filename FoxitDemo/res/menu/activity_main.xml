@@ -13,4 +13,9 @@
         <item android:id="@+id/Read" android:title="Read"></item>
         <item android:id="@+id/Line" android:title="Line"></item>
     </group>
+    <group android:id="@+id/SearchGroup">
+        <item android:id="@+id/Search" android:title="Search"></item>
+        <item android:id="@+id/SearchPrevious" android:title="Previous"></item>
+        <item android:id="@+id/SearchNext" android:title="Next"></item>
+    </group>
 </menu>

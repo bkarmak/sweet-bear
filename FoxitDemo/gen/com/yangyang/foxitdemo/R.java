@@ -26,6 +26,10 @@ public final class R {
         public static final int Mode=0x7f080013;
         public static final int Note=0x7f080014;
         public static final int Read=0x7f080016;
+        public static final int Search=0x7f080019;
+        public static final int SearchGroup=0x7f080018;
+        public static final int SearchNext=0x7f08001b;
+        public static final int SearchPrevious=0x7f08001a;
         public static final int btnCancel=0x7f08000d;
         public static final int btnOK=0x7f08000c;
         public static final int editText=0x7f08000e;

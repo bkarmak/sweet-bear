@@ -8,11 +8,8 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 import com.wanhu.android.shelves.R;
+import com.yangyang.foxitsdk.util.TextSearchResult;
 
-public class ShowSearchPopupWindow{
-	
-}
-/*
 public class ShowSearchPopupWindow extends PopupWindowBetter {
 
 	private Context mContext;
@@ -60,4 +57,3 @@ public class ShowSearchPopupWindow extends PopupWindowBetter {
 	}
 
 }
-*/

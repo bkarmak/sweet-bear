@@ -172,6 +172,9 @@ public class EMBJavaSupport {
 
 	public static native void FSPauseHandlerRelease(int pauseHandler);
 
+	public static native void FPDFPagePageToDevicePointF(int page, int start_x,
+			int start_y, int size_x, int size_y, int rotate, PointF point);
+
 	// //////////Annotation
 	public static native int FPDFNoteInfoAlloc(String author, long color,
 			int opacity, RectangleF rect, String content, int page);

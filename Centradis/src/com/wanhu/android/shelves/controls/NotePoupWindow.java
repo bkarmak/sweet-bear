@@ -8,7 +8,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.wanhu.android.shelves.R;
-import com.yangyang.foxitsdk.service.YYPDFDoc.AnnotationType;
+import com.yangyang.foxitsdk.service.PDFDoc.AnnotationType;
 
 public class NotePoupWindow extends PopupWindowBetter implements
 		OnClickListener {
