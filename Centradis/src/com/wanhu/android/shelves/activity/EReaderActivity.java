@@ -20,13 +20,14 @@ import android.os.Handler;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.SparseArray;
-import android.view.Display;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
@@ -72,7 +73,7 @@ public class EReaderActivity extends Activity implements
 	MessageBox messageBox;
 	private SparseArray<String> mapIndex2Content = new SparseArray<String>();
 
-	public static PDFView mPDFView; // derived from anroid.view.ViewGroup
+	public static PDFView pdfView; // derived from anroid.view.ViewGroup
 	private RelativeLayout rlMenu;
 	private Button btnMenu;
 	private Button btnLibrary;
@@ -87,6 +88,8 @@ public class EReaderActivity extends Activity implements
 	private Button btnSave;
 	private Button btnSearch;
 	private static final int DIALOG_SAVE_AS = 1;
+	private LinearLayout searchNavigate;
+	private ImageButton btnSearchPrevious, btnSearchNext;
 
 	@Override
 	protected void onNewIntent(Intent intent) {
@@ -166,13 +169,10 @@ public class EReaderActivity extends Activity implements
 	private void setupListeners() {
 		btnMenu.setOnClickListener(mOnClickListener);
 		btnLibrary.setOnClickListener(mOnClickListener);
-
 		btnSearch.setOnTouchListener(new OnTouchListener() {
-
 			@Override
 			public boolean onTouch(View v, MotionEvent event) {
 				onSearch(event);
-
 				return false;
 			}
 		});
@@ -193,9 +193,9 @@ public class EReaderActivity extends Activity implements
 		btnMenu = (Button) findViewById(R.id.btnMenu);
 		btnLibrary = (Button) findViewById(R.id.btnLibrary);
 
-		mPDFView = (PDFView) findViewById(R.id.pdfViewCtrl);
+		pdfView = (PDFView) findViewById(R.id.pdfViewCtrl);
 
-		mPdfBusiness = new PDFBusiness(this, mPDFView);
+		mPdfBusiness = new PDFBusiness(this, pdfView);
 		/*
 		 * load a PDF file.
 		 */
@@ -210,10 +210,10 @@ public class EReaderActivity extends Activity implements
 			mDoc = null;
 		}
 
-		mPDFView.InitView(mDoc, (int) mDoc.GetPageSizeX(0),
+		pdfView.InitView(mDoc, (int) mDoc.GetPageSizeX(0),
 				(int) mDoc.GetPageSizeY(0));
-		mPDFView.setAnnotationListener(this);
-		mPDFView.showCurrentPage();
+		pdfView.setAnnotationListener(this);
+		pdfView.showCurrentPage();
 		// mPDFView.setd(mDoc);
 
 		Log.d(mDoc.toString(), "PDF DOC SET");
@@ -237,22 +237,25 @@ public class EReaderActivity extends Activity implements
 		btnPageMode = (Button) findViewById(R.id.btnPageMode);
 		btnSave = (Button) findViewById(R.id.btnSave);
 		btnSearch = (Button) findViewById(R.id.btnSearch);
+		searchNavigate = (LinearLayout) findViewById(R.id.searchNavigate);
+		btnSearchPrevious = (ImageButton) findViewById(R.id.searchPrevious);
+		btnSearchNext = (ImageButton) findViewById(R.id.searchNext);
 
 	}
 
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
 		// TODO Auto-generated method stub
-		if (EReaderActivity.mPDFView != null)
-			return EReaderActivity.mPDFView.onTouchEvent(event);
+		if (EReaderActivity.pdfView != null)
+			return EReaderActivity.pdfView.onTouchEvent(event);
 		return super.onTouchEvent(event);
 	}
 
 	@Override
 	protected void onPause() {
 		super.onPause();
-		if (mPDFView != null) {
-			mPDFView.pause();
+		if (pdfView != null) {
+			pdfView.pause();
 		}
 		Log.d("EREADER", "ONPAUSE");
 	}
@@ -260,8 +263,8 @@ public class EReaderActivity extends Activity implements
 	@Override
 	protected void onResume() {
 		super.onResume();
-		if (mPDFView != null) {
-			mPDFView.resume();
+		if (pdfView != null) {
+			pdfView.resume();
 		}
 		Log.d("EREADER", "ONRESUME");
 	}
@@ -271,7 +274,7 @@ public class EReaderActivity extends Activity implements
 		super.onDestroy();
 
 		System.gc();
-		if (mPDFView != null) {
+		if (pdfView != null) {
 			// mPDFView.purgeMemory();
 			// mPDFView.destroy();
 			// PDFNet.terminate(); COMMENTED BECAUSE CREATE A GC_CONCURRENT
@@ -283,7 +286,7 @@ public class EReaderActivity extends Activity implements
 	@Override
 	public void onLowMemory() {
 		super.onLowMemory();
-		if (mPDFView != null) {
+		if (pdfView != null) {
 			// mPDFView.purgeMemory();
 		}
 		Log.d("EREADER", "ONLOWMEMORY");
@@ -335,7 +338,7 @@ public class EReaderActivity extends Activity implements
 				// EReaderActivity.this.finish();
 				break;
 			case R.id.btnIndex:
-				mPDFView.gotoPage(1);
+				pdfView.gotoPage(1);
 				break;
 			case R.id.btnGoto:
 				new GotoPopupWindow(v, EReaderActivity.this)
@@ -399,14 +402,14 @@ public class EReaderActivity extends Activity implements
 	@Override
 	public void onBookMarkClick(int pPageNumber) {
 		if (pPageNumber != -1) {
-			mPDFView.gotoPage(pPageNumber);
+			pdfView.gotoPage(pPageNumber);
 
 		}
 	}
 
 	@Override
 	public void onGoto(int pPageNumber) {
-		mPDFView.gotoPage(pPageNumber);
+		pdfView.gotoPage(pPageNumber);
 	}
 
 	@Override
@@ -431,7 +434,7 @@ public class EReaderActivity extends Activity implements
 									_modelBookmark.setBookID(mBookId);
 									_modelBookmark.setName(_title);
 
-									_modelBookmark.setPageNumber(mPDFView
+									_modelBookmark.setPageNumber(pdfView
 											.getCurrentPage());
 									mPdfBusiness.addBookMark(_modelBookmark);
 								}
@@ -451,7 +454,7 @@ public class EReaderActivity extends Activity implements
 	public void onRemoveBookMark() {
 		ModelBookmark _modelBookmark = new ModelBookmark();
 		_modelBookmark.setBookID(mBookId);
-		_modelBookmark.setPageNumber(mPDFView.getCurrentPage());
+		_modelBookmark.setPageNumber(pdfView.getCurrentPage());
 		mPdfBusiness.onRemoveBookMark(_modelBookmark);
 	}
 
@@ -468,16 +471,16 @@ public class EReaderActivity extends Activity implements
 			}
 
 		}
-		EReaderActivity.mPDFView.changeMode(3);
-		EReaderActivity.mPDFView.setAnnotationType(AnnotationType.NONE);
+		EReaderActivity.pdfView.changeMode(3);
+		EReaderActivity.pdfView.setAnnotationType(AnnotationType.NONE);
 	}
 
 	@Override
 	public void onRemoveNote() {
 		if (!TextUtils.isEmpty(mBookId)) {
 		}
-		EReaderActivity.mPDFView.changeMode(3);
-		EReaderActivity.mPDFView.setAnnotationType(AnnotationType.ERASER);
+		EReaderActivity.pdfView.changeMode(3);
+		EReaderActivity.pdfView.setAnnotationType(AnnotationType.ERASER);
 	}
 
 	private void onBookStore() {
@@ -497,7 +500,7 @@ public class EReaderActivity extends Activity implements
 			// .setBackgroundResource(R.drawable.background_button_homepage);
 			// btnMenu.setBackgroundResource(R.drawable.background_button_homepage);
 			// rlBackground.setBackgroundResource(R.drawable.read_bkg_lp);
-			EReaderActivity.mPDFView
+			EReaderActivity.pdfView
 					.updateViewMode(Configuration.ORIENTATION_LANDSCAPE);
 		} else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) {
 			// rlTop.setBackgroundResource(R.drawable.read_bar_pt);
@@ -505,14 +508,14 @@ public class EReaderActivity extends Activity implements
 			// .setBackgroundResource(R.drawable.background_button_homepage_portrait);
 			// btnMenu.setBackgroundResource(R.drawable.background_button_homepage_portrait);
 			// rlBackground.setBackgroundResource(R.drawable.read_bkg_pt);
-			EReaderActivity.mPDFView
+			EReaderActivity.pdfView
 					.updateViewMode(Configuration.ORIENTATION_LANDSCAPE);
 		}
 
 	}
 
 	private void onSave(String title, String fileName, boolean isOverride) {
-		PDFDoc doc = mPDFView.getDoc();
+		PDFDoc doc = pdfView.getDoc();
 		if (doc != null) {
 			try {
 				doc.lock(); // note: document needs to be locked first
@@ -638,8 +641,24 @@ public class EReaderActivity extends Activity implements
 	}
 
 	private void onSearch(MotionEvent pMotionEvent) {
-		pMotionEvent.setLocation(65, 25);
-		mPDFView.dispatchTouchEvent(pMotionEvent);
+		if (this.pdfView != null)
+			messageBox.showDialog("Content", "Input Search Content",
+					new IMessageBoxResult() {
+						@Override
+						public void onResult(String result) {
+							// TODO Auto-generated method stub
+							if (result != null
+									&& !EReaderActivity.this.pdfView
+											.searchStart(result)) {
+								Toast.makeText(EReaderActivity.this,
+										"nothing found!", Toast.LENGTH_SHORT)
+										.show();
+							} else if (result != null) {
+								EReaderActivity.this.searchNavigate
+										.setVisibility(View.VISIBLE);
+							}
+						}
+					});
 	}
 
 	@Override
@@ -679,7 +698,7 @@ public class EReaderActivity extends Activity implements
 	@Override
 	public void invalidate(float arg0, float arg1, float arg2, float arg3) {
 		// TODO Auto-generated method stub
-		EReaderActivity.mPDFView.invalidate(arg0, arg1, arg2, arg3);
+		EReaderActivity.pdfView.invalidate(arg0, arg1, arg2, arg3);
 	}
 
 	@Override
@@ -690,17 +709,17 @@ public class EReaderActivity extends Activity implements
 			public void onResult(String result) {
 				// TODO Auto-generated method stub
 				if (result != null) {
-					int index = EReaderActivity.mPDFView.addAnnotation(
+					int index = EReaderActivity.pdfView.addAnnotation(
 							AnnotationType.NOTE, arg0, arg1);
 					ModelNote note = new ModelNote();
 					note.setBookID(EReaderActivity.this.mBookId);
 					note.setNoteID(index
-							+ EReaderActivity.mPDFView.getCurrentPage() * 1000);
+							+ EReaderActivity.pdfView.getCurrentPage() * 1000);
 					note.setContentEn(result);
 					note.setContentFr(result);
 					EReaderActivity.this.mPdfBusiness.addBookNote(note);
 					EReaderActivity.this.mapIndex2Content.put(index, result);
-					EReaderActivity.mPDFView.showCurrentPage();
+					EReaderActivity.pdfView.showCurrentPage();
 				}
 			}
 		});
@@ -729,11 +748,11 @@ public class EReaderActivity extends Activity implements
 						// TODO Auto-generated method stub
 						if (result != null) {
 							EReaderActivity.this.mapIndex2Content.remove(arg0);
-							EReaderActivity.mPDFView.deleteAnnotation(arg0);
-							EReaderActivity.mPDFView.showCurrentPage();
+							EReaderActivity.pdfView.deleteAnnotation(arg0);
+							EReaderActivity.pdfView.showCurrentPage();
 							EReaderActivity.this.mPdfBusiness.removeBookNote(
 									EReaderActivity.this.mBookId,
-									EReaderActivity.mPDFView.getCurrentPage()
+									EReaderActivity.pdfView.getCurrentPage()
 											* 1000 + arg0);
 						}
 					}
@@ -745,8 +764,8 @@ public class EReaderActivity extends Activity implements
 	@Override
 	public void onAddAnnotation(AnnotationType type) {
 		// TODO Auto-generated method stub
-		EReaderActivity.mPDFView.changeMode(3);
-		EReaderActivity.mPDFView.setAnnotationType(type);
+		EReaderActivity.pdfView.changeMode(3);
+		EReaderActivity.pdfView.setAnnotationType(type);
 		this.toggle();
 		if (type == AnnotationType.NOTE) {
 			Toast.makeText(this, R.string.add_note_mode, Toast.LENGTH_SHORT)

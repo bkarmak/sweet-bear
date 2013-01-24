@@ -27,12 +27,36 @@
     </RelativeLayout>
 
     <com.yangyang.foxitsdk.view.PDFView
-        android:layout_centerInParent="true"
-        android:layout_centerVertical="true"
         android:id="@+id/pdfViewCtrl"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/rlTop" />
+        android:layout_below="@id/rlTop"
+        android:layout_centerInParent="true"
+        android:layout_centerVertical="true" >
+    </com.yangyang.foxitsdk.view.PDFView>
+
+    <LinearLayout
+        android:id="@+id/searchNavigate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/rlTop"
+        android:orientation="horizontal"
+        android:visibility="invisible" >
+
+        <ImageButton
+            android:id="@+id/searchPrevious"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="@string/activity_add_book"
+            android:src="@drawable/down_alt" />
+
+        <ImageButton
+            android:id="@+id/searchNext"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="@string/activity_add_book"
+            android:src="@drawable/up_alt" />
+    </LinearLayout>
 
     <RelativeLayout
         android:id="@+id/rlMenu"
@@ -61,7 +85,7 @@
             android:layout_marginTop="27dp"
             android:background="@drawable/background_menu_button"
             android:text="@string/ereader_index" />
-        
+
         <Button
             android:id="@+id/btnSearch"
             style="@style/EReader.Large"
@@ -82,28 +106,28 @@
             android:layout_below="@id/btnGoto"
             android:background="@drawable/background_menu_button"
             android:text="@string/ereader_bookmark" />
-        
+
         <Button
             android:id="@+id/btnNotes"
             style="@style/EReader.Large"
             android:layout_below="@id/btnBookmark"
             android:background="@drawable/background_menu_button"
             android:text="@string/ereader_notes" />
-        
+
         <Button
             android:id="@+id/btnPageMode"
             style="@style/EReader.Large"
             android:layout_below="@id/btnNotes"
             android:background="@drawable/background_menu_button"
             android:text="@string/ereader_pagemode" />
-        
+
         <Button
             android:id="@+id/btnOpen"
             style="@style/EReader.Large"
             android:layout_below="@id/btnPageMode"
             android:background="@drawable/background_menu_button"
             android:text="@string/ereader_open" />
-        
+
         <Button
             android:id="@+id/btnSave"
             style="@style/EReader.Large"
@@ -124,7 +148,6 @@
             android:layout_below="@id/btnHomepage"
             android:background="@drawable/background_menu_button"
             android:text="@string/ereader_store" />
-
     </RelativeLayout>
 
 </RelativeLayout>

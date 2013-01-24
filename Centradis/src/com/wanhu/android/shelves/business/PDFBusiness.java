@@ -6,6 +6,8 @@ import android.widget.Toast;
 import com.wanhu.android.shelves.R;
 import com.wanhu.android.shelves.model.ModelBookmark;
 import com.wanhu.android.shelves.model.ModelNote;
+import com.yangyang.foxitsdk.service.PDFDoc;
+import com.yangyang.foxitsdk.util.TextSearchResult;
 import com.yangyang.foxitsdk.view.PDFView;
 
 public class PDFBusiness {
@@ -15,10 +17,9 @@ public class PDFBusiness {
 	private BusinessNote businessNote;
 	private PDFView mPDFViewCtrl;
 
-	/*
-	 * public static interface WordsSearchListener { void
-	 * onWordsFound(TextSearchResult pTextSearchResult); }
-	 */
+	public static interface WordsSearchListener {
+		void onWordsFound(TextSearchResult pTextSearchResult);
+	}
 
 	public PDFBusiness(Context context, PDFView pPDFViewCtrl) {
 		this.context = context;
@@ -27,31 +28,26 @@ public class PDFBusiness {
 		mPDFViewCtrl = pPDFViewCtrl;
 	}
 
-	/*
-	 * public void onSearch(String pPattern, final WordsSearchListener
-	 * pWordsSearchListener) { try { PDFDoc doc = mPDFViewCtrl.getDoc();
-	 * doc.initSecurityHandler();
-	 * 
-	 * TextSearch txt_search = new TextSearch(); int mode =
-	 * TextSearch.e_whole_word | TextSearch.e_page_stop | TextSearch.e_highlight
-	 * | TextSearch.e_ambient_string;
-	 * 
-	 * // call Begin() method to initialize the text search.
-	 * txt_search.begin(doc, pPattern, mode, -1, -1);
-	 * 
-	 * // call Run() method iteratively to find all matching instances. while
-	 * (true) { TextSearchResult result = txt_search.run();
-	 * 
-	 * if (result.getCode() == TextSearchResult.e_found) {
-	 * 
-	 * pWordsSearchListener.onWordsFound(result); } else if (result.getCode() ==
-	 * TextSearchResult.e_page) { // you can update your UI here, if needed }
-	 * else { break; }
-	 * 
-	 * }
-	 * 
-	 * } catch (PDFNetException e) { System.out.println(e); } }
-	 */
+	public void onSearch(String pPattern) {
+		// final WordsSearchListener pWordsSearchListener) {
+		// try {
+		// PDFDoc doc = mPDFViewCtrl.getDoc();
+		// doc.SearchStart(pPattern);
+		// // call Run() method iteratively to find all matching instances.
+		// while (true) {
+		// TextSearchResult result = txt_search.run();
+		// if (result.getCode() == TextSearchResult.e_found) {
+		// pWordsSearchListener.onWordsFound(result);
+		// } else if (result.getCode() == TextSearchResult.e_page) {
+		// } else {
+		// break;
+		// }
+		//
+		// }
+		// } catch (Exception e) {
+		// System.out.println(e);
+		// }
+	}
 
 	public void onRemoveBookMark(ModelBookmark pModelBookmark) {
 		if (businessBookMark.deleteBookmarkByBookIDAndPageNumber(

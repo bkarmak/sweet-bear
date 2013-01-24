@@ -17,7 +17,7 @@ public class ShelvesApplication extends Application {
 	@Override
 	public void onLowMemory() {
 		super.onLowMemory();
-		if (EReaderActivity.mPDFView != null) {
+		if (EReaderActivity.pdfView != null) {
 			//EReaderActivity.mPDFView.purgeMemory();
 		}
 	}
