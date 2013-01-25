@@ -32,6 +32,29 @@
         android:layout_height="fill_parent"
         android:layout_below="@id/rlTop" />
 
+    <LinearLayout
+        android:id="@+id/searchNavigate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/rlTop"
+        android:orientation="horizontal"
+        android:visibility="invisible" >
+
+        <ImageButton
+            android:id="@+id/searchPrevious"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="@string/activity_add_book"
+            android:src="@drawable/up_alt" />
+
+        <ImageButton
+            android:id="@+id/searchNext"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="@string/activity_add_book"
+            android:src="@drawable/down_alt" />
+    </LinearLayout>
+
     <RelativeLayout
         android:id="@+id/rlMenu"
         android:layout_width="296dp"

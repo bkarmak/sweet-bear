@@ -55,9 +55,14 @@ public class PDFView extends SurfaceView implements Callback,
 	Paint paint = new Paint();
 	IAnnotationListener annotationListener;
 
+	public interface IPDFViewTouchListener {
+		boolean onPDFViewTouchEvent(MotionEvent event);
+	}
+
 	private int mode; // 默认只读模式
 	private AnnotationType annotationType = AnnotationType.NONE;// 默认无注解类型
 	private int viewMode = Configuration.ORIENTATION_PORTRAIT;// 屏幕方向(横屏竖屏)
+	private IPDFViewTouchListener touchListener;
 
 	public PDFView(Context context) {
 		super(context);
@@ -108,18 +113,18 @@ public class PDFView extends SurfaceView implements Callback,
 		this.mode = mode;
 	}
 
-	public void search(String text) {
-
-	}
-
 	float baseValue, last_x, last_y;
 
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
 		// TODO Auto-generated method stub
-		if (this.detector.onTouchEvent(event) || performZoomAndScroll(event)
-				|| performFromAction(event) || performAnnotationAction(event)
-				|| performPSIAction(event)) {
+		if ((this.touchListener != null
+				&& event.getAction() == MotionEvent.ACTION_UP && this.touchListener
+					.onPDFViewTouchEvent(event))
+				|| this.detector.onTouchEvent(event)
+				|| performZoomAndScroll(event)
+				|| performFromAction(event)
+				|| performAnnotationAction(event) || performPSIAction(event)) {
 			return true;
 		}
 		return false;
@@ -308,13 +313,15 @@ public class PDFView extends SurfaceView implements Callback,
 		}
 	}
 
-	public void InitView(PDFDoc pDoc, int pageWidth, int pageHeight) {
+	public void InitView(PDFDoc pDoc, int pageWidth, int pageHeight,
+			IPDFViewTouchListener touchListener) {
 		this.doc = pDoc;
 		this.mode = pDoc.getMode();
 		this.zoomStatus = new ZoomStatus(pageWidth, pageHeight, displayWidth,
 				displayHeight);
 		this.leftBound = this.getLeft();
 		this.topBound = this.getTop();
+		this.touchListener = touchListener;
 		Log.i("pdfview", "left:" + this.leftBound + ",top:" + this.topBound);
 	}
 

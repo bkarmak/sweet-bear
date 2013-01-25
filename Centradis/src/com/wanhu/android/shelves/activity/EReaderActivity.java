@@ -53,10 +53,11 @@ import com.yangyang.foxitsdk.service.PDFDoc.AnnotationType;
 import com.yangyang.foxitsdk.view.IAnnotationListener;
 import com.yangyang.foxitsdk.view.IPDFView;
 import com.yangyang.foxitsdk.view.PDFView;
+import com.yangyang.foxitsdk.view.PDFView.IPDFViewTouchListener;
 
 public class EReaderActivity extends Activity implements
 		OnBookMarkClickListener, OnGotoListener, OnBookMarkListener,
-		OnNoteListener, IPDFView, IAnnotationListener {
+		OnNoteListener, IPDFView, IAnnotationListener, IPDFViewTouchListener {
 
 	private Handler mHandler = new Handler();
 	private String mFileName = null;
@@ -65,7 +66,6 @@ public class EReaderActivity extends Activity implements
 	private PDFBusiness mPdfBusiness;
 	public static final String LOG_OUT = "logout";
 	private boolean mIsClosed = true;
-	// private SearchTask mSearchTask;
 	private String mBookId;
 	private ViewerPreferences mViewerPreferences;
 	private Uri mUri;
@@ -87,6 +87,7 @@ public class EReaderActivity extends Activity implements
 	private Button btnPageMode;
 	private Button btnSave;
 	private Button btnSearch;
+	private EditText etSearch;
 	private static final int DIALOG_SAVE_AS = 1;
 	private LinearLayout searchNavigate;
 	private ImageButton btnSearchPrevious, btnSearchNext;
@@ -176,7 +177,6 @@ public class EReaderActivity extends Activity implements
 				return false;
 			}
 		});
-
 		btnIndex.setOnClickListener(mOnClickListener);
 		btnGoto.setOnClickListener(mOnClickListener);
 		btnBookMark.setOnClickListener(mOnClickListener);
@@ -186,6 +186,8 @@ public class EReaderActivity extends Activity implements
 		btnNotes.setOnClickListener(mOnClickListener);
 		btnPageMode.setOnClickListener(mOnClickListener);
 		btnSave.setOnClickListener(mOnClickListener);
+		btnSearchPrevious.setOnClickListener(mOnClickListener);
+		btnSearchNext.setOnClickListener(mOnClickListener);
 	}
 
 	private void setupViews() {
@@ -211,7 +213,7 @@ public class EReaderActivity extends Activity implements
 		}
 
 		pdfView.InitView(mDoc, (int) mDoc.GetPageSizeX(0),
-				(int) mDoc.GetPageSizeY(0));
+				(int) mDoc.GetPageSizeY(0), this);
 		pdfView.setAnnotationListener(this);
 		pdfView.showCurrentPage();
 		// mPDFView.setd(mDoc);
@@ -237,19 +239,25 @@ public class EReaderActivity extends Activity implements
 		btnPageMode = (Button) findViewById(R.id.btnPageMode);
 		btnSave = (Button) findViewById(R.id.btnSave);
 		btnSearch = (Button) findViewById(R.id.btnSearch);
+		etSearch = (EditText) findViewById(R.id.etSearch);
 		searchNavigate = (LinearLayout) findViewById(R.id.searchNavigate);
 		btnSearchPrevious = (ImageButton) findViewById(R.id.searchPrevious);
 		btnSearchNext = (ImageButton) findViewById(R.id.searchNext);
-
 	}
 
-	@Override
-	public boolean onTouchEvent(MotionEvent event) {
-		// TODO Auto-generated method stub
-		if (EReaderActivity.pdfView != null)
-			return EReaderActivity.pdfView.onTouchEvent(event);
-		return super.onTouchEvent(event);
-	}
+	// @Override
+	// public boolean onTouchEvent(MotionEvent event) {
+	// // TODO Auto-generated method stub
+	// if (this.searchNavigate.getVisibility() != View.GONE) {
+	// this.showSearchNavigate(false);
+	// return true;
+	// }
+	// return false;
+	// // if (EReaderActivity.pdfView != null) {
+	// // return EReaderActivity.pdfView.onTouchEvent(event);
+	// // }
+	// // return super.onTouchEvent(event);
+	// }
 
 	@Override
 	protected void onPause() {
@@ -330,15 +338,11 @@ public class EReaderActivity extends Activity implements
 				toggle();
 				break;
 			case R.id.btnLibrary:
-				// finish();
-				// if (mPDFView != null) {
-				// mPDFView.pause();
-				// }
 				finish();
-				// EReaderActivity.this.finish();
 				break;
 			case R.id.btnIndex:
-				pdfView.gotoPage(1);
+				toggle();
+				pdfView.gotoPage(0);
 				break;
 			case R.id.btnGoto:
 				new GotoPopupWindow(v, EReaderActivity.this)
@@ -374,6 +378,15 @@ public class EReaderActivity extends Activity implements
 			case R.id.btnSave:
 				showDialog(DIALOG_SAVE_AS);
 				break;
+			case R.id.searchPrevious:
+				if (EReaderActivity.this.pdfView != null) {
+					EReaderActivity.pdfView.findPrev();
+				}
+				break;
+			case R.id.searchNext:
+				if (EReaderActivity.this.pdfView != null) {
+					EReaderActivity.pdfView.findNext();
+				}
 			default:
 				break;
 			}
@@ -641,24 +654,30 @@ public class EReaderActivity extends Activity implements
 	}
 
 	private void onSearch(MotionEvent pMotionEvent) {
-		if (this.pdfView != null)
-			messageBox.showDialog("Content", "Input Search Content",
-					new IMessageBoxResult() {
-						@Override
-						public void onResult(String result) {
-							// TODO Auto-generated method stub
-							if (result != null
-									&& !EReaderActivity.this.pdfView
-											.searchStart(result)) {
-								Toast.makeText(EReaderActivity.this,
-										"nothing found!", Toast.LENGTH_SHORT)
-										.show();
-							} else if (result != null) {
-								EReaderActivity.this.searchNavigate
-										.setVisibility(View.VISIBLE);
-							}
-						}
-					});
+		if (EReaderActivity.pdfView != null) {
+			String pattern = this.etSearch.getText().toString();
+			if (pattern != null && pattern.length() > 0) {
+				if (!EReaderActivity.pdfView.searchStart(pattern)) {
+					Toast.makeText(EReaderActivity.this, "nothing found!",
+							Toast.LENGTH_SHORT).show();
+				} else {
+					showSearchNavigate(true);
+					this.toggle();
+				}
+			}
+		}
+	}
+
+	private void showSearchNavigate(boolean visible) {
+		if (visible) {
+			// this.btnSearchPrevious.setVisibility(View.VISIBLE);
+			// this.btnSearchNext.setVisibility(View.VISIBLE);
+			this.searchNavigate.setVisibility(View.VISIBLE);
+		} else {
+			// this.btnSearchPrevious.setVisibility(View.GONE);
+			// this.btnSearchNext.setVisibility(View.GONE);
+			this.searchNavigate.setVisibility(View.GONE);
+		}
 	}
 
 	@Override
@@ -774,5 +793,15 @@ public class EReaderActivity extends Activity implements
 			Toast.makeText(this, R.string.add_line_mode, Toast.LENGTH_SHORT)
 					.show();
 		}
+	}
+
+	@Override
+	public boolean onPDFViewTouchEvent(MotionEvent arg0) {
+		// TODO Auto-generated method stub
+		if (this.searchNavigate.getVisibility() != View.GONE) {
+			this.showSearchNavigate(false);
+			return true;
+		}
+		return false;
 	}
 }

@@ -48,14 +48,14 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:contentDescription="@string/activity_add_book"
-            android:src="@drawable/down_alt" />
+            android:src="@drawable/up_alt" />
 
         <ImageButton
             android:id="@+id/searchNext"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:contentDescription="@string/activity_add_book"
-            android:src="@drawable/up_alt" />
+            android:src="@drawable/down_alt" />
     </LinearLayout>
 
     <RelativeLayout
