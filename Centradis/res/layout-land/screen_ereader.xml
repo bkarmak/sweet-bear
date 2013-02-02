@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:shelves="http://schemas.android.com/apk/res/com.wanhu.android.shelves"
     android:id="@+id/rlBackground"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
@@ -63,12 +62,22 @@
         android:layout_below="@id/rlTop"
         android:background="@drawable/read_menu_lp_out_btn"
         android:paddingLeft="8dp"
-        android:visibility="visible" >
+        android:visibility="gone" >
+
+        <EditText
+            android:id="@+id/etSearch"
+            style="@style/EReader.Hint"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="27dp"
+            android:background="@drawable/read_srch_wdw_fx"
+            android:hint="@string/hint_search"
+            android:imeOptions="actionDone"
+            android:singleLine="true" />
 
         <Button
             android:id="@+id/btnIndex"
             style="@style/EReader.Large"
-            android:layout_marginTop="27dp"
+            android:layout_below="@id/etSearch"
             android:background="@drawable/background_menu_button"
             android:text="@string/ereader_index" />
 

@@ -75,6 +75,8 @@ public class EReaderActivity extends Activity implements
 
 	public static PDFView pdfView; // derived from anroid.view.ViewGroup
 	private RelativeLayout rlMenu;
+	RelativeLayout rlTop;
+	RelativeLayout rlBackground;
 	private Button btnMenu;
 	private Button btnLibrary;
 	private Button btnBookMark;
@@ -147,13 +149,19 @@ public class EReaderActivity extends Activity implements
 			}
 
 		}
-
+		// if (this.getResources().getConfiguration().orientation ==
+		// Configuration.ORIENTATION_LANDSCAPE) {
+		// Log.i("info", "landscape");
+		// setContentView(R.layout.screen_ereader);
+		// } else if (this.getResources().getConfiguration().orientation ==
+		// Configuration.ORIENTATION_PORTRAIT) {
+		// Log.i("info", "portrait");
+		// setContentView(R.layout.scre);
+		// }
 		setContentView(R.layout.screen_ereader);
-
 		initVariables();
 		setupViews();
 		setupListeners();
-
 	}
 
 	private void initVariables() {
@@ -229,6 +237,8 @@ public class EReaderActivity extends Activity implements
 		 */
 
 		rlMenu = (RelativeLayout) findViewById(R.id.rlMenu);
+		rlTop = (RelativeLayout) findViewById(R.id.rlTop);
+		rlBackground = (RelativeLayout) findViewById(R.id.rlBackground);
 		btnIndex = (Button) findViewById(R.id.btnIndex);
 		btnGoto = (Button) findViewById(R.id.btnGoto);
 		btnBookMark = (Button) findViewById(R.id.btnBookmark);
@@ -379,12 +389,12 @@ public class EReaderActivity extends Activity implements
 				showDialog(DIALOG_SAVE_AS);
 				break;
 			case R.id.searchPrevious:
-				if (EReaderActivity.this.pdfView != null) {
+				if (EReaderActivity.pdfView != null) {
 					EReaderActivity.pdfView.findPrev();
 				}
 				break;
 			case R.id.searchNext:
-				if (EReaderActivity.this.pdfView != null) {
+				if (EReaderActivity.pdfView != null) {
 					EReaderActivity.pdfView.findNext();
 				}
 			default:
@@ -507,22 +517,25 @@ public class EReaderActivity extends Activity implements
 	public void onConfigurationChanged(Configuration newConfig) {
 		super.onConfigurationChanged(newConfig);
 		Log.d("EREADER", "ONCONFIGURATION CHANGE");
+
 		if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-			// rlTop.setBackgroundResource(R.drawable.bar_lp);
-			// btnLibrary
-			// .setBackgroundResource(R.drawable.background_button_homepage);
-			// btnMenu.setBackgroundResource(R.drawable.background_button_homepage);
-			// rlBackground.setBackgroundResource(R.drawable.read_bkg_lp);
 			EReaderActivity.pdfView
 					.updateViewMode(Configuration.ORIENTATION_LANDSCAPE);
+			rlTop.setBackgroundResource(R.drawable.bar_lp);
+			btnLibrary
+					.setBackgroundResource(R.drawable.background_button_homepage);
+			btnMenu.setBackgroundResource(R.drawable.background_button_homepage);
+			rlBackground.setBackgroundResource(R.drawable.read_bkg_lp);
+
 		} else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) {
-			// rlTop.setBackgroundResource(R.drawable.read_bar_pt);
-			// btnLibrary
-			// .setBackgroundResource(R.drawable.background_button_homepage_portrait);
-			// btnMenu.setBackgroundResource(R.drawable.background_button_homepage_portrait);
-			// rlBackground.setBackgroundResource(R.drawable.read_bkg_pt);
 			EReaderActivity.pdfView
-					.updateViewMode(Configuration.ORIENTATION_LANDSCAPE);
+					.updateViewMode(Configuration.ORIENTATION_PORTRAIT);
+			rlTop.setBackgroundResource(R.drawable.read_bar_pt);
+			btnLibrary
+					.setBackgroundResource(R.drawable.background_button_homepage_portrait);
+			btnMenu.setBackgroundResource(R.drawable.background_button_homepage_portrait);
+			rlBackground.setBackgroundResource(R.drawable.read_bkg_pt);
+
 		}
 
 	}
